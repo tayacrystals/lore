@@ -1,0 +1,101 @@
+---
+title: Styling
+description: Customize the look and feel of your AstroDocs site.
+order: 1
+---
+
+import { Callout, Tabs, Tab } from "astrodocs/components";
+
+## Custom CSS
+
+Add custom styles using the `customCss` config option:
+
+```ts
+// astro.config.mjs
+astrodocs({
+  title: "My Docs",
+  customCss: ["./src/styles/custom.css"],
+})
+```
+
+Then create your stylesheet:
+
+```css
+/* src/styles/custom.css */
+@theme {
+  --color-fd-primary: oklch(0.623 0.214 259);
+}
+```
+
+## Design Tokens
+
+AstroDocs uses CSS custom properties (design tokens) for all colors and layout dimensions. Override them in your custom CSS to change the theme.
+
+### Color Tokens
+
+| Token                          | Description              | Light Default         | Dark Default          |
+| ------------------------------ | ------------------------ | --------------------- | --------------------- |
+| `--color-fd-background`        | Page background          | `oklch(0.985 0 0)`    | `oklch(0.13 0 0)`     |
+| `--color-fd-foreground`        | Text color               | `oklch(0.145 0 0)`    | `oklch(0.92 0 0)`     |
+| `--color-fd-primary`           | Accent / active color    | `oklch(0.6 0.16 55)`  | `oklch(0.7 0.16 55)`  |
+| `--color-fd-muted`             | Muted background         | `oklch(0.955 0 0)`    | `oklch(0.18 0 0)`     |
+| `--color-fd-muted-foreground`  | Muted text               | `oklch(0.46 0 0)`     | `oklch(0.55 0 0)`     |
+| `--color-fd-border`            | Border color             | `oklch(0.915 0 0)`    | `oklch(0.2 0 0)`      |
+
+### Layout Tokens
+
+| Token                  | Default   | Description          |
+| ---------------------- | --------- | -------------------- |
+| `--width-sidebar`      | `17rem`   | Sidebar width        |
+| `--width-toc`          | `14rem`   | TOC sidebar width    |
+| `--height-header`      | `3.5rem`  | Mobile header height |
+| `--max-width-layout`   | `88rem`   | Max layout width     |
+
+### Example: Blue Theme
+
+```css
+@theme {
+  --color-fd-primary: oklch(0.623 0.214 259);
+  --color-fd-ring: oklch(0.623 0.214 259);
+}
+
+.dark {
+  --color-fd-primary: oklch(0.7 0.18 259);
+  --color-fd-ring: oklch(0.7 0.18 259);
+}
+```
+
+<Callout type="tip">
+  Use [oklch.com](https://oklch.com) to pick colors in the OKLCH color space. This gives you perceptually uniform color adjustments.
+</Callout>
+
+## Typography
+
+AstroDocs uses **Inter Variable** for body text and **Geist Mono** for code. These fonts are bundled with the integration.
+
+To change fonts, override the font-family tokens:
+
+```css
+@theme {
+  --font-sans: "Your Font", sans-serif;
+  --font-mono: "Your Mono Font", monospace;
+}
+```
+
+<Callout type="warning">
+  If you override fonts, make sure to import your font files in your custom CSS.
+</Callout>
+
+## Prose Styles
+
+Documentation content is wrapped in the `.fd-prose` class. You can override prose styles in your custom CSS:
+
+```css
+.fd-prose h1 {
+  font-size: 2.5rem;
+}
+
+.fd-prose a {
+  color: var(--color-fd-primary);
+}
+```

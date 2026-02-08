@@ -1,0 +1,270 @@
+---
+import "../styles/global.css";
+import "../styles/prose.css";
+import "virtual:astrodocs/user-css";
+import Sidebar from "../components/docs/Sidebar.astro";
+import TableOfContents from "../components/docs/TableOfContents.astro";
+import Breadcrumbs from "../components/docs/Breadcrumbs.astro";
+import PrevNext from "../components/docs/PrevNext.astro";
+import SearchModal from "../components/global/SearchModal.astro";
+import type { SidebarEntry } from "../utils/sidebar";
+import type { TocItem } from "../utils/toc";
+import type { FlatNavItem } from "../utils/navigation";
+import config from "virtual:astrodocs/config";
+
+interface Props {
+  title: string;
+  description?: string;
+  sidebar: SidebarEntry[];
+  toc: TocItem[];
+  showToc: boolean;
+  prev: FlatNavItem | null;
+  next: FlatNavItem | null;
+}
+
+const { title, description, sidebar, toc, showToc, prev, next } = Astro.props;
+const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/docs";
+const siteTitle = config.title;
+const githubUrl = config.social?.github;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description || "Documentation"} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{`${title} - ${siteTitle}`}</title>
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        if (
+          stored === "dark" ||
+          (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <!-- Desktop sidebar (fixed left panel) -->
+    <aside
+      id="docs-sidebar"
+      class="hidden lg:flex fixed top-0 bottom-0 w-(--width-sidebar) flex-col bg-fd-background z-30"
+      style="left: max(0px, calc((100vw - var(--max-width-layout)) / 2))"
+    >
+      <!-- Sidebar header -->
+      <div class="flex items-center justify-between h-(--height-header) px-4 shrink-0">
+        <a href="/" class="flex items-center gap-2 font-semibold text-[15px]">
+          <svg class="w-5 h-5 text-fd-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span>{siteTitle}</span>
+        </a>
+      </div>
+
+      <!-- Search trigger -->
+      <div class="px-3 mb-3 shrink-0">
+        <button
+          id="search-trigger"
+          class="flex items-center gap-2 w-full text-sm text-fd-muted-foreground hover:text-fd-foreground bg-fd-muted/60 hover:bg-fd-muted rounded-lg px-3 py-2 transition-colors border border-fd-border"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <span class="flex-1 text-left">Search</span>
+          <span class="flex items-center gap-0.5 text-[10px] font-mono">
+            <kbd class="rounded border border-fd-border bg-fd-background px-1 py-0.5">⌘</kbd>
+            <kbd class="rounded border border-fd-border bg-fd-background px-1 py-0.5">K</kbd>
+          </span>
+        </button>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 overflow-y-auto px-3 pb-4 scrollbar-thin" aria-label="Documentation sidebar">
+        <Sidebar entries={sidebar} currentPath={currentPath} />
+      </nav>
+
+      <!-- Sidebar footer -->
+      <div class="flex items-center gap-1 px-3 py-3 border-t border-fd-border shrink-0">
+        {githubUrl && (
+          <a
+            href={githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-fd-muted transition-colors text-fd-muted-foreground hover:text-fd-foreground"
+            aria-label="GitHub"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+          </a>
+        )}
+        <button
+          id="theme-toggle"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-fd-muted transition-colors text-fd-muted-foreground hover:text-fd-foreground"
+          aria-label="Toggle dark mode"
+        >
+          <svg class="w-4 h-4 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          </svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile header -->
+    <header class="lg:hidden sticky top-0 z-40 flex items-center justify-between h-(--height-header) px-4 bg-fd-background/80 backdrop-blur-lg border-b border-fd-border">
+      <div class="flex items-center gap-3">
+        <button
+          id="mobile-sidebar-toggle"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-fd-muted transition-colors"
+          aria-label="Toggle sidebar"
+        >
+          <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <a href="/" class="font-semibold text-sm">{siteTitle}</a>
+      </div>
+      <div class="flex items-center gap-1">
+        <button
+          id="search-trigger-mobile"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-md hover:bg-fd-muted transition-colors"
+          aria-label="Search"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main content area -->
+    <div class="max-w-(--max-width-layout) mx-auto lg:pl-(--width-sidebar)">
+      <div class="flex">
+        <!-- Article content -->
+        <article class="min-w-0 flex-1 px-6 lg:px-10 py-8 lg:py-10">
+          <Breadcrumbs />
+
+          <div class="fd-prose">
+            <h1>{title}</h1>
+            {description && <p class="text-fd-muted-foreground text-base mt-1 mb-6">{description}</p>}
+            <slot />
+          </div>
+
+          <PrevNext prev={prev} next={next} />
+
+          <div class="mt-8 text-xs text-fd-muted-foreground">
+            Last updated on {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          </div>
+        </article>
+
+        <!-- Table of contents -->
+        {
+          showToc && toc.length > 0 && (
+            <aside class="hidden xl:block w-(--width-toc) shrink-0 py-10">
+              <div class="sticky top-(--height-header) pt-2">
+                <TableOfContents items={toc} />
+              </div>
+            </aside>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Mobile sidebar overlay -->
+    <div id="mobile-sidebar-overlay" class="lg:hidden fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-sidebar-backdrop"></div>
+      <div
+        class="absolute left-0 top-0 bottom-0 w-72 bg-fd-background overflow-y-auto transform transition-transform duration-200 -translate-x-full flex flex-col"
+        id="mobile-sidebar-panel"
+      >
+        <!-- Mobile sidebar header -->
+        <div class="flex items-center justify-between h-(--height-header) px-4 shrink-0">
+          <a href="/" class="flex items-center gap-2 font-semibold text-[15px]">
+            <svg class="w-5 h-5 text-fd-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span>{siteTitle}</span>
+          </a>
+          <button id="mobile-sidebar-close" class="p-1 rounded hover:bg-fd-muted" aria-label="Close">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile search -->
+        <div class="px-3 mb-3 shrink-0">
+          <button
+            id="search-trigger-mobile-sidebar"
+            class="flex items-center gap-2 w-full text-sm text-fd-muted-foreground hover:text-fd-foreground bg-fd-muted/60 hover:bg-fd-muted rounded-lg px-3 py-2 transition-colors border border-fd-border"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <span>Search</span>
+          </button>
+        </div>
+
+        <!-- Mobile nav -->
+        <nav class="flex-1 overflow-y-auto px-3 pb-4 scrollbar-thin">
+          <Sidebar entries={sidebar} currentPath={currentPath} />
+        </nav>
+      </div>
+    </div>
+
+    <SearchModal />
+
+    <script>
+      // Theme toggle
+      const btn = document.getElementById("theme-toggle");
+      btn?.addEventListener("click", () => {
+        const isDark = document.documentElement.classList.toggle("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+
+      // Mobile sidebar
+      const toggle = document.getElementById("mobile-sidebar-toggle");
+      const overlay = document.getElementById("mobile-sidebar-overlay");
+      const backdrop = document.getElementById("mobile-sidebar-backdrop");
+      const panel = document.getElementById("mobile-sidebar-panel");
+      const close = document.getElementById("mobile-sidebar-close");
+
+      function openSidebar() {
+        overlay?.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          panel?.classList.remove("-translate-x-full");
+        });
+      }
+
+      function closeSidebar() {
+        panel?.classList.add("-translate-x-full");
+        setTimeout(() => overlay?.classList.add("hidden"), 200);
+      }
+
+      toggle?.addEventListener("click", openSidebar);
+      backdrop?.addEventListener("click", closeSidebar);
+      close?.addEventListener("click", closeSidebar);
+
+      // Mobile sidebar search trigger
+      document.getElementById("search-trigger-mobile-sidebar")?.addEventListener("click", () => {
+        closeSidebar();
+        const dialog = document.getElementById("search-dialog") as HTMLDialogElement;
+        const input = document.getElementById("search-input") as HTMLInputElement;
+        dialog?.showModal();
+        input?.focus();
+      });
+    </script>
+  </body>
+</html>

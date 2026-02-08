@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@source "../components";
+@source "../layouts";
+@source "../routes";
+@import "@fontsource-variable/inter";
+@import "@fontsource/geist-mono";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --color-fd-background: oklch(0.985 0 0);
+  --color-fd-foreground: oklch(0.145 0 0);
+  --color-fd-muted: oklch(0.955 0 0);
+  --color-fd-muted-foreground: oklch(0.46 0 0);
+  --color-fd-border: oklch(0.915 0 0);
+  --color-fd-primary: oklch(0.6 0.16 55);
+  --color-fd-primary-foreground: oklch(0.98 0 0);
+  --color-fd-accent: oklch(0.96 0 0);
+  --color-fd-accent-foreground: oklch(0.145 0 0);
+  --color-fd-card: oklch(0.985 0 0);
+  --color-fd-card-foreground: oklch(0.145 0 0);
+  --color-fd-popover: oklch(0.985 0 0);
+  --color-fd-popover-foreground: oklch(0.145 0 0);
+  --color-fd-ring: oklch(0.6 0.16 55);
+
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.375rem;
+
+  --width-sidebar: 17rem;
+  --width-toc: 14rem;
+  --width-content: 50rem;
+  --height-header: 3.5rem;
+  --max-width-layout: 88rem;
+}
+
+.dark {
+  --color-fd-background: oklch(0.13 0 0);
+  --color-fd-foreground: oklch(0.92 0 0);
+  --color-fd-muted: oklch(0.18 0 0);
+  --color-fd-muted-foreground: oklch(0.55 0 0);
+  --color-fd-border: oklch(0.2 0 0);
+  --color-fd-primary: oklch(0.7 0.16 55);
+  --color-fd-primary-foreground: oklch(0.1 0 0);
+  --color-fd-accent: oklch(0.16 0 0);
+  --color-fd-accent-foreground: oklch(0.92 0 0);
+  --color-fd-card: oklch(0.15 0 0);
+  --color-fd-card-foreground: oklch(0.92 0 0);
+  --color-fd-popover: oklch(0.15 0 0);
+  --color-fd-popover-foreground: oklch(0.92 0 0);
+  --color-fd-ring: oklch(0.7 0.16 55);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-fd-border);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-fd-background);
+    color: var(--color-fd-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: oklch(0.6 0.16 55 / 0.2);
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-fd-border) transparent;
+  }
+}

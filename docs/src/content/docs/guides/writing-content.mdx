@@ -1,0 +1,124 @@
+---
+title: Writing Content
+description: Learn how to write and structure your documentation using MDX.
+order: 1
+---
+
+import { Callout, Steps, Step, Tabs, Tab } from "astrodocs/components";
+
+## Introduction
+
+AstroDocs uses MDX for documentation pages. MDX combines Markdown with JSX components, allowing you to create rich, interactive content.
+
+<Callout type="note">
+  MDX allows you to use both Markdown syntax and custom components in the same file.
+</Callout>
+
+## Creating Pages
+
+<Steps>
+  <Step title="Create an MDX file">
+    Create a new `.mdx` file in `src/content/docs/`. The file path determines the URL:
+
+    - `src/content/docs/index.mdx` → `/docs`
+    - `src/content/docs/guides/my-guide.mdx` → `/docs/guides/my-guide`
+  </Step>
+
+  <Step title="Add frontmatter">
+    Include title and metadata at the top of your file:
+
+    ```yaml
+    ---
+    title: My Page Title
+    description: A brief description
+    order: 1
+    ---
+    ```
+  </Step>
+
+  <Step title="Write content">
+    Use Markdown syntax and import components as needed:
+
+    ```mdx
+    import { Callout } from "astrodocs/components";
+
+    ## My Section
+
+    Some content here.
+
+    <Callout type="tip">
+      A helpful tip!
+    </Callout>
+    ```
+  </Step>
+</Steps>
+
+## Markdown Syntax
+
+All standard Markdown features are supported:
+
+- **Bold text** with `**text**`
+- *Italic text* with `*text*`
+- `Inline code` with backticks
+- [Links](https://example.com) with `[text](url)`
+
+### Code Blocks
+
+Code blocks support syntax highlighting via Expressive Code:
+
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+console.log(greet("World"));
+```
+
+```typescript
+interface User {
+  name: string;
+  role: string;
+}
+
+const user: User = {
+  name: "Alice",
+  role: "Developer",
+};
+```
+
+### Tables
+
+| Feature             | Supported |
+| ------------------- | --------- |
+| Markdown            | Yes       |
+| MDX Components      | Yes       |
+| Syntax Highlighting | Yes       |
+| Dark Mode           | Yes       |
+
+### Blockquotes
+
+> This is a blockquote. Use it for quotes or to highlight specific content.
+
+## Importing Components
+
+Import components from `astrodocs/components` at the top of your MDX file:
+
+```mdx
+import { Callout, Tabs, Tab, Steps, Step, Card, CardGrid, Accordion } from "astrodocs/components";
+```
+
+<Callout type="tip">
+  All components are available from a single import path. No need to worry about relative paths.
+</Callout>
+
+## Best Practices
+
+- Use clear, concise headings
+- Break up long sections with subheadings
+- Include code examples where helpful
+- Use callouts to highlight key information
+- Structure step-by-step instructions with the Steps component
+
+## Next Steps
+
+Learn about all the available [components](/docs/guides/components) you can use in your documentation.

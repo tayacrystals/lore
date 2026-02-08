@@ -4,6 +4,19 @@
   "workspaces": {
     "": {
       "name": "astrodocstemplate",
+    },
+    "docs": {
+      "name": "astrodocs-docs",
+      "version": "0.0.1",
+      "dependencies": {
+        "@iconify-json/lucide": "^1.2.89",
+        "astro": "^5.17.1",
+        "astrodocs": "workspace:*",
+      },
+    },
+    "packages/astrodocs": {
+      "name": "astrodocs",
+      "version": "0.1.0",
       "dependencies": {
         "@astrojs/mdx": "^4.3.13",
         "@astrojs/sitemap": "^3.7.0",
@@ -11,11 +24,14 @@
         "@fontsource/geist-mono": "^5.2.7",
         "@iconify-json/lucide": "^1.2.89",
         "@tailwindcss/vite": "^4.1.18",
-        "astro": "^5.17.1",
         "astro-expressive-code": "^0.41.6",
         "astro-icon": "^1.1.5",
         "astro-pagefind": "^1.8.5",
         "tailwindcss": "^4.1.18",
+        "zod": "^3.24.0",
+      },
+      "peerDependencies": {
+        "astro": "^5.0.0",
       },
     },
   },
@@ -359,6 +375,10 @@
     "astro-icon": ["astro-icon@1.1.5", "", { "dependencies": { "@iconify/tools": "^4.0.5", "@iconify/types": "^2.0.0", "@iconify/utils": "^2.1.30" } }, "sha512-CJYS5nWOw9jz4RpGWmzNQY7D0y2ZZacH7atL2K9DeJXJVaz7/5WrxeyIxO8KASk1jCM96Q4LjRx/F3R+InjJrw=="],
 
     "astro-pagefind": ["astro-pagefind@1.8.5", "", { "dependencies": { "@pagefind/default-ui": "^1.2.0", "pagefind": "^1.2.0", "sirv": "^3.0.0" }, "peerDependencies": { "astro": "^2.0.4 || ^3 || ^4 || ^5" } }, "sha512-CVhKKA9bTQ7hLsHk9KTNDzOdgR4EI04gn0mjDGfnXzaHx7rL92YkNpFM5AoFl9NWmOUbaIFC2DN7Yvs/ZFPRdA=="],
+
+    "astrodocs": ["astrodocs@workspace:packages/astrodocs"],
+
+    "astrodocs-docs": ["astrodocs-docs@workspace:docs"],
 
     "axobject-query": ["axobject-query@4.1.0", "", {}, "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="],
 

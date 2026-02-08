@@ -1,0 +1,217 @@
+---
+title: Components
+description: Explore all the built-in MDX components available for your documentation.
+order: 2
+---
+
+import { Callout, Card, CardGrid, Steps, Step, Tabs, Tab, Accordion } from "astrodocs/components";
+
+## Overview
+
+AstroDocs comes with a set of custom components that you can use in your MDX files to create engaging content.
+
+<Callout type="tip">
+  All components are imported from `astrodocs/components`.
+</Callout>
+
+```mdx
+import { Callout, Tabs, Tab } from "astrodocs/components";
+```
+
+## Callout
+
+Use callouts to draw attention to important information. Four types are available:
+
+<Callout type="note">
+  This is a **note** callout. Use it for general information.
+</Callout>
+
+<Callout type="tip">
+  This is a **tip** callout. Use it for helpful suggestions.
+</Callout>
+
+<Callout type="warning">
+  This is a **warning** callout. Use it for cautionary information.
+</Callout>
+
+<Callout type="danger">
+  This is a **danger** callout. Use it for critical warnings.
+</Callout>
+
+```mdx
+<Callout type="tip">
+  Your content here...
+</Callout>
+```
+
+## Card and CardGrid
+
+Cards are perfect for linking to related content:
+
+<CardGrid>
+  <Card title="Quick Start" icon="lucide:rocket" href="/docs/getting-started/installation">
+    Get up and running in minutes.
+  </Card>
+
+  <Card title="Configuration" icon="lucide:settings" href="/docs/getting-started/configuration">
+    Learn how to configure your site.
+  </Card>
+
+  <Card title="Writing Content" icon="lucide:pen-tool" href="/docs/guides/writing-content">
+    Master writing great documentation.
+  </Card>
+
+  <Card title="Styling" icon="lucide:palette" href="/docs/customization/styling">
+    Customize the look and feel.
+  </Card>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <Card title="Title" icon="lucide:icon-name" href="/path">
+    Description text.
+  </Card>
+</CardGrid>
+```
+
+## Steps
+
+Perfect for tutorials and sequential instructions:
+
+<Steps>
+  <Step title="Install">
+    Install the required packages.
+
+    ```bash
+    npm install astrodocs
+    ```
+  </Step>
+
+  <Step title="Configure">
+    Update your Astro config.
+  </Step>
+
+  <Step title="Run">
+    Start the development server.
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+```mdx
+<Steps>
+  <Step title="Step Title">
+    Content...
+  </Step>
+</Steps>
+```
+
+## Tabs
+
+Organize alternative content or code examples:
+
+<Tabs id="lang-example">
+  <Tab label="JavaScript">
+    ```javascript
+    const greeting = "Hello, World!";
+    console.log(greeting);
+    ```
+  </Tab>
+
+  <Tab label="TypeScript">
+    ```typescript
+    const greeting: string = "Hello, World!";
+    console.log(greeting);
+    ```
+  </Tab>
+
+  <Tab label="Python">
+    ```python
+    greeting = "Hello, World!"
+    print(greeting)
+    ```
+  </Tab>
+</Tabs>
+
+```mdx
+<Tabs>
+  <Tab label="Option 1">
+    Content for option 1...
+  </Tab>
+  <Tab label="Option 2">
+    Content for option 2...
+  </Tab>
+</Tabs>
+```
+
+<Callout type="note">
+  Tab selections are persisted in localStorage across page navigations.
+</Callout>
+
+## Accordion
+
+Use accordions for collapsible content sections:
+
+<Accordion title="What is AstroDocs?">
+AstroDocs is an Astro integration that gives you a beautiful documentation site out of the box. It handles layout, navigation, search, dark mode, and more.
+</Accordion>
+
+<Accordion title="Can I customize the theme?">
+Yes! Use the `customCss` option to load your own stylesheets and override design tokens. See the [Styling](/docs/customization/styling) guide for details.
+</Accordion>
+
+```mdx
+<Accordion title="Your question">
+  The answer...
+</Accordion>
+```
+
+## Props Reference
+
+### Callout
+
+| Prop    | Type                                       | Default  | Description      |
+| ------- | ------------------------------------------ | -------- | ---------------- |
+| `type`  | `"note" \| "warning" \| "tip" \| "danger"` | `"note"` | Callout style    |
+| `title` | `string`                                   | ---      | Optional heading |
+
+### Card
+
+| Prop    | Type     | Default | Description          |
+| ------- | -------- | ------- | -------------------- |
+| `title` | `string` | ---     | Card heading         |
+| `icon`  | `string` | ---     | Lucide icon name     |
+| `href`  | `string` | ---     | Link URL (optional)  |
+
+### CardGrid
+
+| Prop   | Type     | Default | Description    |
+| ------ | -------- | ------- | -------------- |
+| `cols` | `2 \| 3` | `2`     | Column count   |
+
+### Tabs
+
+| Prop | Type     | Default | Description                          |
+| ---- | -------- | ------- | ------------------------------------ |
+| `id` | `string` | random  | Key for localStorage tab persistence |
+
+### Tab
+
+| Prop    | Type     | Default | Description    |
+| ------- | -------- | ------- | -------------- |
+| `label` | `string` | ---     | Tab button text |
+
+### Step
+
+| Prop    | Type     | Default | Description     |
+| ------- | -------- | ------- | --------------- |
+| `title` | `string` | ---     | Step heading    |
+
+### Accordion
+
+| Prop    | Type      | Default | Description         |
+| ------- | --------- | ------- | ------------------- |
+| `title` | `string`  | ---     | Summary text        |
+| `open`  | `boolean` | `false` | Open by default     |

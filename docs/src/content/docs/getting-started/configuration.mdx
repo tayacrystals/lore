@@ -1,0 +1,100 @@
+---
+title: Configuration
+description: Customize your AstroDocs site with configuration options.
+order: 2
+---
+
+import { Callout, Accordion } from "astrodocs/components";
+
+## Integration Config
+
+The `astrodocs()` integration accepts the following options:
+
+```ts
+astrodocs({
+  // Site title shown in sidebar header and page titles
+  title: "My Docs",
+
+  // Sidebar group configuration
+  sidebar: {
+    "getting-started": { label: "Getting Started", order: 1 },
+    guides: { label: "Guides", order: 2 },
+    api: { label: "API Reference", order: 3 },
+  },
+
+  // Social links shown in sidebar footer
+  social: {
+    github: "https://github.com/your-org/your-repo",
+  },
+
+  // Additional CSS files to load
+  customCss: ["./src/styles/custom.css"],
+})
+```
+
+### Options Reference
+
+| Option      | Type                                           | Default  | Description                          |
+| ----------- | ---------------------------------------------- | -------- | ------------------------------------ |
+| `title`     | `string`                                       | `"Docs"` | Site title                           |
+| `sidebar`   | `Record<string, { label: string; order: number }>` | `{}`     | Sidebar group labels and ordering    |
+| `social`    | `{ github?: string }`                          | `{}`     | Social links in sidebar footer       |
+| `customCss` | `string[]`                                     | `[]`     | Additional CSS files to import       |
+
+## Sidebar Groups
+
+Sidebar groups are defined in the `sidebar` config option. Each key is a folder name under `src/content/docs/`, and the value sets its label and sort order.
+
+```ts
+sidebar: {
+  "getting-started": { label: "Getting Started", order: 1 },
+  guides: { label: "Guides", order: 2 },
+}
+```
+
+<Callout type="tip">
+  Create a new folder in `src/content/docs/` and add it to the `sidebar` config to create a new section.
+</Callout>
+
+## Frontmatter Schema
+
+Each documentation page supports these frontmatter fields:
+
+| Field         | Type      | Default | Description                     |
+| ------------- | --------- | ------- | ------------------------------- |
+| `title`       | `string`  | ---     | Page title (required)           |
+| `description` | `string`  | ---     | Page description for SEO        |
+| `order`       | `number`  | `999`   | Sort order within sidebar group |
+| `group`       | `string`  | ---     | Override sidebar group          |
+| `icon`        | `string`  | ---     | Icon for the page               |
+| `toc`         | `boolean` | `true`  | Show table of contents          |
+| `draft`       | `boolean` | `false` | Hide from production build      |
+
+<Accordion title="How does ordering work?">
+  Pages are sorted by their `order` field within each sidebar group. Lower numbers appear first. If two pages have the same order, they're sorted alphabetically by title.
+
+  Groups are also sorted by their `order` field in the `sidebar` configuration.
+</Accordion>
+
+## Custom CSS
+
+Use the `customCss` option to load additional stylesheets:
+
+```ts
+astrodocs({
+  title: "My Docs",
+  customCss: ["./src/styles/custom.css"],
+})
+```
+
+Your custom CSS can override any of the built-in design tokens. See [Styling](/docs/customization/styling) for details.
+
+## Dark Mode
+
+Dark mode is handled automatically with:
+
+1. **System detection** --- respects `prefers-color-scheme`
+2. **Manual toggle** --- persisted to `localStorage`
+3. **No flash** --- inline script in `<head>` prevents FOUC
+
+The dark theme overrides are defined using the `.dark` selector in the integration's CSS.

@@ -1,0 +1,154 @@
+---
+title: Installation
+description: Get started with AstroDocs by installing the integration into your Astro project.
+order: 1
+---
+
+import { Callout, Steps, Step, Tabs, Tab } from "astrodocs/components";
+
+## Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+- **Node.js** version 18 or higher
+- **npm**, **pnpm**, or **bun** as your package manager
+
+<Callout type="tip">
+  We recommend using [pnpm](https://pnpm.io) for workspace-based monorepo setups.
+</Callout>
+
+## Setup
+
+<Steps>
+  <Step title="Create a new Astro project">
+    Start by creating a new Astro project:
+
+    <Tabs id="create-project">
+      <Tab label="npm">
+        ```bash
+        npm create astro@latest my-docs
+        ```
+      </Tab>
+      <Tab label="pnpm">
+        ```bash
+        pnpm create astro@latest my-docs
+        ```
+      </Tab>
+      <Tab label="bun">
+        ```bash
+        bun create astro@latest my-docs
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Install AstroDocs">
+    Install the AstroDocs integration:
+
+    <Tabs id="install">
+      <Tab label="npm">
+        ```bash
+        npm install astrodocs
+        ```
+      </Tab>
+      <Tab label="pnpm">
+        ```bash
+        pnpm add astrodocs
+        ```
+      </Tab>
+      <Tab label="bun">
+        ```bash
+        bun add astrodocs
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Configure Astro">
+    Update your `astro.config.mjs` to use the integration:
+
+    ```js
+    // astro.config.mjs
+    import { defineConfig } from "astro/config";
+    import astrodocs from "astrodocs";
+
+    export default defineConfig({
+      integrations: [
+        astrodocs({
+          title: "My Docs",
+          sidebar: {
+            guides: { label: "Guides", order: 1 },
+          },
+          social: {
+            github: "https://github.com/your-org/your-repo",
+          },
+        }),
+      ],
+    });
+    ```
+  </Step>
+
+  <Step title="Set up content collection">
+    Create `src/content.config.ts`:
+
+    ```ts
+    import { defineCollection } from "astro:content";
+    import { docsLoader } from "astrodocs/loaders";
+    import { docsSchema } from "astrodocs/schema";
+
+    const docs = defineCollection({
+      loader: docsLoader(),
+      schema: docsSchema(),
+    });
+
+    export const collections = { docs };
+    ```
+  </Step>
+
+  <Step title="Create your first page">
+    Create `src/content/docs/index.mdx`:
+
+    ```mdx
+    ---
+    title: Welcome
+    description: My documentation site
+    order: 0
+    ---
+
+    Hello, world!
+    ```
+  </Step>
+
+  <Step title="Start the dev server">
+    Run the development server:
+
+    ```bash
+    npm run dev
+    ```
+
+    Open [http://localhost:4321/docs](http://localhost:4321/docs) in your browser.
+  </Step>
+</Steps>
+
+<Callout type="note">
+  AstroDocs automatically sets up Expressive Code, MDX, Sitemap, Pagefind, and Tailwind CSS for you. No need to install or configure them separately.
+</Callout>
+
+## Project Structure
+
+After setup, your project should look like this:
+
+```
+my-docs/
+├── src/
+│   ├── content/docs/     # Your documentation pages
+│   ├── content.config.ts # Content collection config
+│   └── pages/            # Additional pages (optional)
+├── public/               # Static assets
+├── astro.config.mjs      # Astro configuration
+└── package.json
+```
+
+## Next Steps
+
+Now that you have a working project, learn how to [configure](/docs/getting-started/configuration) your site.
