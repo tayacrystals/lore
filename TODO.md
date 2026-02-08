@@ -1,3 +1,3 @@
-- can we make the last updated date show the time of last update of the file in git instead of the build time? 
-- add a filetree component like in starlight
 - make a tabbed code block component that can show multiple languages in the same code block, like in fuma. currently its a tabbed area with a code block in each tab, but it would be nice to have a single code block with multiple languages that can be switched between. without the insetted code blocks.
+- can we make the last updated date show the time of last update of the file in git instead of the build time? 
+- "edit this page" link to go to the github repo and open the file for editing feature.

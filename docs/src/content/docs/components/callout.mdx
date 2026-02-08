@@ -4,8 +4,7 @@ description: Learn how to use callouts to highlight important information in you
 order: 2
 ---
 
-import { Callout, Card, CardGrid, Steps, Step, Tabs, Tab, Accordion } from "lore/components";
-
+import { Callout } from "lore/components";
 
 Use callouts to draw attention to important information. Four types are available:
 
@@ -28,6 +27,20 @@ Use callouts to draw attention to important information. Four types are availabl
 ```mdx
 <Callout type="tip">
   Your content here...
+</Callout>
+```
+
+## Custom Title
+
+Use the `title` prop to add a heading:
+
+<Callout type="warning" title="Breaking Change">
+  This API has been removed in v2. See the migration guide for details.
+</Callout>
+
+```mdx
+<Callout type="warning" title="Breaking Change">
+  This API has been removed in v2. See the migration guide for details.
 </Callout>
 ```
 

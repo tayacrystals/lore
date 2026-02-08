@@ -4,7 +4,7 @@ description: Get started with Lore by installing the integration into your Astro
 order: 1
 ---
 
-import { Callout, Steps, Step, Tabs, Tab } from "lore/components";
+import { Callout, Steps, Step, Tabs, Tab, FileTree } from "lore/components";
 
 ## Prerequisites
 
@@ -134,16 +134,16 @@ Before you begin, make sure you have the following installed:
 
 After setup, your project should look like this:
 
-```
-my-docs/
-├── src/
-│   ├── content/docs/     # Your documentation pages
-│   ├── content.config.ts # Content collection config
-│   └── pages/            # Additional pages (optional)
-├── public/               # Static assets
-├── astro.config.mjs      # Astro configuration
-└── package.json
-```
+<FileTree>
+- src/
+  - content/
+    - docs/ Your documentation pages
+  - **content.config.ts** Content collection config
+  - pages/ Additional pages (optional)
+- public/ Static assets
+- **astro.config.mjs** Astro configuration
+- package.json
+</FileTree>
 
 ## Next Steps
 
