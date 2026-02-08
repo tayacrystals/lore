@@ -6,28 +6,17 @@ order: 5
 
 import { Tabs, Tab, Callout } from "lore/components";
 
-Organize alternative content or code examples:
+Organize alternative content into switchable panels:
 
-<Tabs id="lang-example">
-  <Tab label="JavaScript">
-    ```javascript
-    const greeting = "Hello, World!";
-    console.log(greeting);
-    ```
+<Tabs>
+  <Tab label="React">
+    React uses a virtual DOM and JSX syntax. Components are the building blocks of any React application.
   </Tab>
-
-  <Tab label="TypeScript">
-    ```typescript
-    const greeting: string = "Hello, World!";
-    console.log(greeting);
-    ```
+  <Tab label="Vue">
+    Vue uses a template-based syntax with a reactivity system. Single-file components keep template, script, and style together.
   </Tab>
-
-  <Tab label="Python">
-    ```python
-    greeting = "Hello, World!"
-    print(greeting)
-    ```
+  <Tab label="Svelte">
+    Svelte compiles components at build time, resulting in minimal runtime overhead and smaller bundle sizes.
   </Tab>
 </Tabs>
 
@@ -44,6 +33,10 @@ Organize alternative content or code examples:
 
 <Callout type="note">
   Tab selections are persisted in localStorage across page navigations.
+</Callout>
+
+<Callout type="tip">
+  For code blocks, use [`CodeTabs`](/docs/components/code-tabs) instead — it integrates tabs directly into the code block header for a cleaner look.
 </Callout>
 
 ## Props

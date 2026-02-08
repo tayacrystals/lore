@@ -4,7 +4,7 @@ description: Get started with Lore by installing the integration into your Astro
 order: 1
 ---
 
-import { Callout, Steps, Step, Tabs, Tab, FileTree } from "lore/components";
+import { Callout, Steps, Step, CodeTabs, Tab, FileTree } from "lore/components";
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Before you begin, make sure you have the following installed:
   <Step title="Create a new Astro project">
     Start by creating a new Astro project:
 
-    <Tabs id="create-project">
+    <CodeTabs id="create-project">
       <Tab label="npm">
         ```bash
         npm create astro@latest my-docs
@@ -35,13 +35,13 @@ Before you begin, make sure you have the following installed:
         bun create astro@latest my-docs
         ```
       </Tab>
-    </Tabs>
+    </CodeTabs>
   </Step>
 
   <Step title="Install Lore">
     Install the Lore integration:
 
-    <Tabs id="install">
+    <CodeTabs id="install">
       <Tab label="npm">
         ```bash
         npm install lore
@@ -57,7 +57,7 @@ Before you begin, make sure you have the following installed:
         bun add lore
         ```
       </Tab>
-    </Tabs>
+    </CodeTabs>
   </Step>
 
   <Step title="Configure Astro">

@@ -1,0 +1,96 @@
+---
+title: Code Tabs
+description: Display code blocks with integrated language tabs in a single container.
+order: 6
+---
+
+import { CodeTabs, Tab, Callout } from "lore/components";
+
+A code-focused tab container that integrates language tabs directly into the code block header, giving a clean single-container look instead of tabs wrapping separate code blocks.
+
+<CodeTabs>
+  <Tab label="npm">
+    ```bash
+    npm install lore
+    ```
+  </Tab>
+  <Tab label="pnpm">
+    ```bash
+    pnpm add lore
+    ```
+  </Tab>
+  <Tab label="bun">
+    ```bash
+    bun add lore
+    ```
+  </Tab>
+</CodeTabs>
+
+```mdx
+import { CodeTabs, Tab } from "lore/components";
+
+<CodeTabs>
+  <Tab label="npm">
+    \```bash
+    npm install lore
+    \```
+  </Tab>
+  <Tab label="pnpm">
+    \```bash
+    pnpm add lore
+    \```
+  </Tab>
+</CodeTabs>
+```
+
+## Persistent Selection
+
+Use the `id` prop to persist the selected tab across page navigations. CodeTabs shares the same `tab-{id}` localStorage namespace as Tabs, so using the same `id` keeps language preference in sync.
+
+<CodeTabs id="lang-pref">
+  <Tab label="JavaScript">
+    ```javascript
+    const greeting = "Hello, World!";
+    console.log(greeting);
+    ```
+  </Tab>
+  <Tab label="TypeScript">
+    ```typescript
+    const greeting: string = "Hello, World!";
+    console.log(greeting);
+    ```
+  </Tab>
+</CodeTabs>
+
+```mdx
+<CodeTabs id="lang-pref">
+  <Tab label="JavaScript">
+    \```javascript
+    const greeting = "Hello, World!";
+    \```
+  </Tab>
+  <Tab label="TypeScript">
+    \```typescript
+    const greeting: string = "Hello, World!";
+    \```
+  </Tab>
+</CodeTabs>
+```
+
+<Callout type="note">
+  CodeTabs reuses the `Tab` component — the same one used with `Tabs`.
+</Callout>
+
+## Props
+
+### CodeTabs
+
+| Prop | Type     | Default | Description                          |
+| ---- | -------- | ------- | ------------------------------------ |
+| `id` | `string` | random  | Key for localStorage tab persistence |
+
+### Tab
+
+| Prop    | Type     | Default | Description     |
+| ------- | -------- | ------- | --------------- |
+| `label` | `string` | ---     | Tab button text |

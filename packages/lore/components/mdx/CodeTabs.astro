@@ -1,0 +1,129 @@
+---
+interface Props {
+  id?: string;
+}
+
+const { id = "tabs-" + Math.random().toString(36).slice(2, 8) } = Astro.props;
+const tabs = await Astro.slots.render("default");
+const labels: string[] = [];
+
+// Extract labels from Tab components
+const labelMatches = tabs.matchAll(/data-tab-label="([^"]+)"/g);
+for (const match of labelMatches) {
+  labels.push(match[1]);
+}
+---
+
+<div class="code-tabs" data-tabs-id={id}>
+  <!-- Tab buttons -->
+  <div class="code-tabs-header" role="tablist">
+    {
+      labels.map((label, i) => (
+        <button
+          role="tab"
+          class="code-tabs-trigger"
+          data-tab-index={i}
+          aria-selected={i === 0 ? "true" : "false"}
+        >
+          {label}
+        </button>
+      ))
+    }
+  </div>
+  <!-- Tab panels -->
+  <div class="code-tabs-panels" set:html={tabs} />
+</div>
+
+<style>
+  .code-tabs {
+    border: 1px solid var(--color-fd-border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  .code-tabs-header {
+    display: flex;
+    background-color: var(--color-fd-muted);
+    border-bottom: 1px solid var(--color-fd-border);
+  }
+
+  .code-tabs-trigger {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    color: var(--color-fd-muted-foreground);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .code-tabs-trigger:hover {
+    color: var(--color-fd-foreground);
+  }
+
+  .code-tabs-trigger[aria-selected="true"] {
+    color: var(--color-fd-foreground);
+    border-bottom-color: var(--color-fd-primary);
+  }
+
+  /* Strip EC styling from nested code blocks */
+  .code-tabs-panels :global(.expressive-code) {
+    margin: 0 !important;
+  }
+
+  .code-tabs-panels :global(.expressive-code .frame) {
+    --ec-brdRad: 0 !important;
+    --ec-brdWd: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+
+  .code-tabs-panels :global(.expressive-code figcaption.header) {
+    display: none !important;
+  }
+
+  .code-tabs-panels :global(pre) {
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .code-tabs-panels :global(figure.frame) {
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".code-tabs").forEach((wrapper) => {
+    const triggers = wrapper.querySelectorAll<HTMLButtonElement>(".code-tabs-trigger");
+    const panels = wrapper.querySelectorAll<HTMLElement>(":scope > .code-tabs-panels > .tab-panel");
+    const id = wrapper.dataset.tabsId || "";
+
+    function activate(index: number) {
+      triggers.forEach((t, i) => {
+        t.setAttribute("aria-selected", String(i === index));
+      });
+      panels.forEach((p, i) => {
+        p.classList.toggle("hidden", i !== index);
+      });
+      if (id) localStorage.setItem(`tab-${id}`, String(index));
+    }
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        activate(Number(trigger.dataset.tabIndex));
+      });
+    });
+
+    // Restore from localStorage or default to first tab
+    const stored = id ? localStorage.getItem(`tab-${id}`) : null;
+    activate(stored !== null ? Number(stored) : 0);
+  });
+</script>
