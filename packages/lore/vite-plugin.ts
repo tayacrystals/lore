@@ -9,11 +9,11 @@ const RESOLVED_USER_CSS = "\0" + VIRTUAL_USER_CSS;
 export function vitePluginLore(config: LoreConfig): Plugin {
   return {
     name: "lore:virtual-modules",
-    resolveId(id) {
+    resolveId(id: string) {
       if (id === VIRTUAL_CONFIG) return RESOLVED_CONFIG;
       if (id === VIRTUAL_USER_CSS) return RESOLVED_USER_CSS;
     },
-    load(id) {
+    load(id: string) {
       if (id === RESOLVED_CONFIG) {
         return `export default ${JSON.stringify(config)};`;
       }

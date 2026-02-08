@@ -2,16 +2,29 @@
 import { getCollection, render } from "astro:content";
 import DocsLayout from "../layouts/DocsLayout.astro";
 import { buildSidebar } from "../utils/sidebar";
-import { buildToc } from "../utils/toc";
+import type { TocItem } from "../utils/toc";
 import { flattenSidebar, getPrevNext } from "../utils/navigation";
 import config from "virtual:lore/config";
 import type { SidebarGroupConfig } from "../config";
 
+interface DocsEntry {
+  id: string;
+  data: {
+    title: string;
+    description?: string;
+    order: number;
+    group?: string;
+    icon?: string;
+    toc: boolean;
+    draft: boolean;
+  };
+}
+
 export async function getStaticPaths() {
-  const entries = await getCollection("docs", ({ data }) => !data.draft);
+  const entries: DocsEntry[] = await getCollection("docs", ({ data }: DocsEntry) => !data.draft);
 
   // Content entry paths
-  const entryPaths = entries.map((entry) => ({
+  const entryPaths = entries.map((entry: DocsEntry) => ({
     params: {
       slug: entry.id === "index" ? undefined : entry.id,
     },
@@ -29,7 +42,7 @@ export async function getStaticPaths() {
   }
 
   // Only create section pages for groups that don't have a matching content entry
-  const entryIds = new Set(entries.map((e) => e.id));
+  const entryIds = new Set(entries.map((e: DocsEntry) => e.id));
   const sectionPaths = [...groupSlugs]
     .filter((slug) => !entryIds.has(slug))
     .map((slug) => ({
@@ -40,7 +53,7 @@ export async function getStaticPaths() {
   return [...entryPaths, ...sectionPaths];
 }
 
-const allEntries = await getCollection("docs");
+const allEntries: DocsEntry[] = await getCollection("docs");
 const sidebar = buildSidebar(allEntries, config.sidebar);
 const flatItems = flattenSidebar(sidebar);
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/docs";
@@ -48,7 +61,7 @@ const { prev, next } = getPrevNext(flatItems, currentPath);
 
 let title: string;
 let description: string | undefined;
-let toc: { depth: number; slug: string; text: string }[] = [];
+let toc: TocItem[] = [];
 let showToc = true;
 let Content: any = null;
 let sectionItems: { label: string; href: string; description?: string }[] = [];

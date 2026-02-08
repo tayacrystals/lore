@@ -28,5 +28,11 @@
     "tailwindcss": "^4.1.18",
     "unist-util-visit": "^5.1.0",
     "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@types/hast": "^3.0.4",
+    "typescript": "^5.9.3",
+    "vite": "6"
   }
 }

@@ -12,5 +12,9 @@
     "astro": "^5.17.1",
     "lore": "workspace:*",
     "@iconify-json/lucide": "^1.2.89"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "typescript": "^5.9.3"
   }
 }

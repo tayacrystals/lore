@@ -63,14 +63,9 @@ function isPlaceholder(text: string): boolean {
 function getTextContent(node: ElementContent): string {
   if (node.type === "text") return node.value;
   if (node.type === "element") {
-    return node.children.map((c) => getTextContent(c)).join("");
+    return node.children.map((c: ElementContent) => getTextContent(c)).join("");
   }
   return "";
-}
-
-/** Check if this li contains a nested ul (making it a directory) */
-function hasNestedList(li: Element): boolean {
-  return li.children.some((child) => isElement(child, "ul"));
 }
 
 /** Check if a name ends with / (directory marker) */
@@ -84,7 +79,7 @@ function isDirectoryName(name: string): boolean {
  */
 function processListItem(li: Element): Element {
   const children = li.children.filter(
-    (c) => !(c.type === "text" && c.value.trim() === ""),
+    (c: ElementContent) => !(c.type === "text" && (c as Text).value.trim() === ""),
   );
 
   // Separate nested <ul> from inline content
@@ -203,8 +198,8 @@ function processListItem(li: Element): Element {
 /** Process a <ul> element, transforming all its <li> children */
 function processFileList(ul: Element): Element {
   const processed = ul.children
-    .filter((child): child is Element => isElement(child as ElementContent, "li"))
-    .map((li) => processListItem(li));
+    .filter((child: ElementContent): child is Element => isElement(child, "li"))
+    .map((li: Element) => processListItem(li));
 
   return h("ul", { class: "ft-list", role: "tree" }, processed);
 }

@@ -14,7 +14,7 @@ export default defineConfig({
         customization: { label: "Customization", order: 4 },
       },
       social: {
-        github: "https://github.com",
+        github: "https://github.com/tayacrystals/lore",
       },
     }),
   ],
