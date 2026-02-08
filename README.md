@@ -1,4 +1,4 @@
-# AstroDocs Template
+# Lore
 
 A modern, Fumadocs-inspired documentation site template built with Astro 5, Tailwind CSS v4, and MDX.
 

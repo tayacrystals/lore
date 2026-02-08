@@ -1,5 +1,5 @@
 {
-  "name": "astrodocs-docs",
+  "name": "lore-docs",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "astro": "^5.17.1",
-    "astrodocs": "workspace:*",
+    "lore": "workspace:*",
     "@iconify-json/lucide": "^1.2.89"
   }
 }

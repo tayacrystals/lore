@@ -1,8 +1,8 @@
 ---
-import { Icon } from "astrodocs/components";
-import "astrodocs/styles/global.css";
-import "astrodocs/styles/prose.css";
-import config from "virtual:astrodocs/config";
+import { Icon } from "lore/components";
+import "lore/styles/global.css";
+import "lore/styles/prose.css";
+import config from "virtual:lore/config";
 
 const primaryHue = config.primaryHue;
 ---
@@ -15,7 +15,7 @@ const primaryHue = config.primaryHue;
     <meta name="description" content="A beautiful documentation theme for Astro. Fast, accessible, and easy to customize." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>AstroDocs</title>
+    <title>Lore</title>
     <style set:html={`:root { --fd-hue: ${primaryHue}; }`}></style>
     <script is:inline>
       (function () {
@@ -35,7 +35,7 @@ const primaryHue = config.primaryHue;
       <div class="max-w-6xl mx-auto flex items-center justify-between h-14 px-6">
         <a href="/" class="flex items-center gap-2 font-semibold text-[15px]">
           <Icon name="lucide:book-open" class="w-5 h-5 text-fd-primary" />
-          <span>AstroDocs</span>
+          <span>Lore</span>
         </a>
         <nav class="flex items-center gap-4">
           <a href="/docs" class="text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors">Docs</a>
@@ -158,7 +158,7 @@ const primaryHue = config.primaryHue;
     <!-- Footer -->
     <footer class="border-t border-fd-border">
       <div class="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-fd-muted-foreground">
-        <p>Built with AstroDocs</p>
+        <p>Built with Lore</p>
         <a href="/docs" class="hover:text-fd-foreground transition-colors">Documentation</a>
       </div>
     </footer>

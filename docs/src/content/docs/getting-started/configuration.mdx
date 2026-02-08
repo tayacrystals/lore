@@ -1,17 +1,17 @@
 ---
 title: Configuration
-description: Customize your AstroDocs site with configuration options.
+description: Customize your Lore site with configuration options.
 order: 2
 ---
 
-import { Callout, Accordion } from "astrodocs/components";
+import { Callout, Accordion } from "lore/components";
 
 ## Integration Config
 
-The `astrodocs()` integration accepts the following options:
+The `lore()` integration accepts the following options:
 
 ```ts
-astrodocs({
+lore({
   // Site title shown in sidebar header and page titles
   title: "My Docs",
 
@@ -81,7 +81,7 @@ Each documentation page supports these frontmatter fields:
 Use the `customCss` option to load additional stylesheets:
 
 ```ts
-astrodocs({
+lore({
   title: "My Docs",
   customCss: ["./src/styles/custom.css"],
 })

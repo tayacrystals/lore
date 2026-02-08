@@ -1,10 +1,10 @@
 ---
 title: Installation
-description: Get started with AstroDocs by installing the integration into your Astro project.
+description: Get started with Lore by installing the integration into your Astro project.
 order: 1
 ---
 
-import { Callout, Steps, Step, Tabs, Tab } from "astrodocs/components";
+import { Callout, Steps, Step, Tabs, Tab } from "lore/components";
 
 ## Prerequisites
 
@@ -38,23 +38,23 @@ Before you begin, make sure you have the following installed:
     </Tabs>
   </Step>
 
-  <Step title="Install AstroDocs">
-    Install the AstroDocs integration:
+  <Step title="Install Lore">
+    Install the Lore integration:
 
     <Tabs id="install">
       <Tab label="npm">
         ```bash
-        npm install astrodocs
+        npm install lore
         ```
       </Tab>
       <Tab label="pnpm">
         ```bash
-        pnpm add astrodocs
+        pnpm add lore
         ```
       </Tab>
       <Tab label="bun">
         ```bash
-        bun add astrodocs
+        bun add lore
         ```
       </Tab>
     </Tabs>
@@ -66,11 +66,11 @@ Before you begin, make sure you have the following installed:
     ```js
     // astro.config.mjs
     import { defineConfig } from "astro/config";
-    import astrodocs from "astrodocs";
+    import lore from "lore";
 
     export default defineConfig({
       integrations: [
-        astrodocs({
+        lore({
           title: "My Docs",
           sidebar: {
             guides: { label: "Guides", order: 1 },
@@ -89,8 +89,8 @@ Before you begin, make sure you have the following installed:
 
     ```ts
     import { defineCollection } from "astro:content";
-    import { docsLoader } from "astrodocs/loaders";
-    import { docsSchema } from "astrodocs/schema";
+    import { docsLoader } from "lore/loaders";
+    import { docsSchema } from "lore/schema";
 
     const docs = defineCollection({
       loader: docsLoader(),
@@ -127,7 +127,7 @@ Before you begin, make sure you have the following installed:
 </Steps>
 
 <Callout type="note">
-  AstroDocs automatically sets up Expressive Code, MDX, Sitemap, Pagefind, and Tailwind CSS for you. No need to install or configure them separately.
+  Lore automatically sets up Expressive Code, MDX, Sitemap, Pagefind, and Tailwind CSS for you. No need to install or configure them separately.
 </Callout>
 
 ## Project Structure

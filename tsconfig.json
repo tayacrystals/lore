@@ -1,6 +1,6 @@
 {
   "references": [
-    { "path": "./packages/astrodocs" },
+    { "path": "./packages/lore" },
     { "path": "./docs" }
   ]
 }

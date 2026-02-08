@@ -1,5 +1,5 @@
 {
-  "name": "astrodocs-monorepo",
+  "name": "lore-monorepo",
   "private": true,
   "type": "module",
   "workspaces": [

@@ -1,10 +1,10 @@
 ---
 title: Styling
-description: Customize the look and feel of your AstroDocs site.
+description: Customize the look and feel of your Lore site.
 order: 1
 ---
 
-import { Callout, Tabs, Tab } from "astrodocs/components";
+import { Callout, Tabs, Tab } from "lore/components";
 
 ## Custom CSS
 
@@ -12,7 +12,7 @@ Add custom styles using the `customCss` config option:
 
 ```ts
 // astro.config.mjs
-astrodocs({
+lore({
   title: "My Docs",
   customCss: ["./src/styles/custom.css"],
 })
@@ -29,7 +29,7 @@ Then create your stylesheet:
 
 ## Design Tokens
 
-AstroDocs uses CSS custom properties (design tokens) for all colors and layout dimensions. Override them in your custom CSS to change the theme.
+Lore uses CSS custom properties (design tokens) for all colors and layout dimensions. Override them in your custom CSS to change the theme.
 
 ### Color Tokens
 
@@ -71,7 +71,7 @@ AstroDocs uses CSS custom properties (design tokens) for all colors and layout d
 
 ## Typography
 
-AstroDocs uses **Inter Variable** for body text and **Geist Mono** for code. These fonts are bundled with the integration.
+Lore uses **Inter Variable** for body text and **Geist Mono** for code. These fonts are bundled with the integration.
 
 To change fonts, override the font-family tokens:
 

@@ -6,14 +6,14 @@ import sitemap from "@astrojs/sitemap";
 import icon from "astro-icon";
 import pagefind from "astro-pagefind";
 import tailwindcss from "@tailwindcss/vite";
-import { validateConfig, type AstroDocsUserConfig } from "./config";
-import { vitePluginAstroDocs } from "./vite-plugin";
+import { validateConfig, type LoreUserConfig } from "./config";
+import { vitePluginLore } from "./vite-plugin";
 
-export function defineIntegration(userConfig: AstroDocsUserConfig = {}): AstroIntegration {
+export function defineIntegration(userConfig: LoreUserConfig = {}): AstroIntegration {
   const config = validateConfig(userConfig);
 
   return {
-    name: "astrodocs",
+    name: "lore",
     hooks: {
       "astro:config:setup": ({
         injectRoute,
@@ -58,7 +58,7 @@ export function defineIntegration(userConfig: AstroDocsUserConfig = {}): AstroIn
           vite: {
             plugins: [
               tailwindcss(),
-              vitePluginAstroDocs(config),
+              vitePluginLore(config),
             ],
           },
         });

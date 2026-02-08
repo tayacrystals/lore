@@ -1,9 +1,9 @@
-declare module "virtual:astrodocs/config" {
-  import type { AstroDocsConfig } from "astrodocs/config";
-  const config: AstroDocsConfig;
+declare module "virtual:lore/config" {
+  import type { LoreConfig } from "lore/config";
+  const config: LoreConfig;
   export default config;
 }
 
-declare module "virtual:astrodocs/user-css" {
+declare module "virtual:lore/user-css" {
   // Side-effect imports only
 }

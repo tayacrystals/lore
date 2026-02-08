@@ -28,8 +28,8 @@ const configSchema = z.object({
   customCss: z.array(z.string()).optional().default([]),
 });
 
-export type AstroDocsUserConfig = z.input<typeof configSchema>;
-export type AstroDocsConfig = z.output<typeof configSchema>;
+export type LoreUserConfig = z.input<typeof configSchema>;
+export type LoreConfig = z.output<typeof configSchema>;
 
 export interface SidebarGroupConfig {
   label: string;
@@ -37,6 +37,6 @@ export interface SidebarGroupConfig {
   children?: Record<string, SidebarGroupConfig>;
 }
 
-export function validateConfig(userConfig: AstroDocsUserConfig): AstroDocsConfig {
+export function validateConfig(userConfig: LoreUserConfig): LoreConfig {
   return configSchema.parse(userConfig);
 }

@@ -1,12 +1,12 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import astrodocs from "astrodocs";
+import lore from "lore";
 
 export default defineConfig({
-  site: "https://astrodocs.example.com",
+  site: "https://lore.example.com",
   integrations: [
-    astrodocs({
-      title: "AstroDocs",
+    lore({
+      title: "Lore",
       sidebar: {
         "getting-started": { label: "Getting Started", order: 1 },
         guides: { label: "Guides", order: 2 },
