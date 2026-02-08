@@ -1,2 +1,0 @@
-- can we make the last updated date show the time of last update of the file in git instead of the build time? 
-- "edit this page" link to go to the github repo and open the file for editing feature.

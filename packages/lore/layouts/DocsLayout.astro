@@ -21,9 +21,10 @@ interface Props {
   showToc: boolean;
   prev: FlatNavItem | null;
   next: FlatNavItem | null;
+  lastUpdated?: Date | null;
 }
 
-const { title, description, sidebar, toc, showToc, prev, next } = Astro.props;
+const { title, description, sidebar, toc, showToc, prev, next, lastUpdated } = Astro.props;
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/docs";
 const siteTitle = config.title;
 const githubUrl = config.social?.github;
@@ -149,9 +150,11 @@ const primaryHue = config.primaryHue;
 
           <PrevNext prev={prev} next={next} />
 
-          <div class="mt-8 text-xs text-fd-muted-foreground">
-            Last updated on {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-          </div>
+          {lastUpdated && (
+            <div class="mt-8 text-xs text-fd-muted-foreground">
+              Last updated on {lastUpdated.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            </div>
+          )}
         </article>
 
         <!-- Table of contents -->

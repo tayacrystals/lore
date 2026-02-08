@@ -52,6 +52,7 @@ let toc: { depth: number; slug: string; text: string }[] = [];
 let showToc = true;
 let Content: any = null;
 let sectionItems: { label: string; href: string; description?: string }[] = [];
+let lastUpdated: Date | null = null;
 
 if (Astro.props.isSection) {
   // Section listing page
@@ -138,6 +139,20 @@ if (Astro.props.isSection) {
   Content = rendered.Content;
   toc = (await import("../utils/toc")).buildToc(rendered.headings);
   showToc = entry.data.toc;
+
+  // Get last git commit date for this file
+  try {
+    const { execSync } = await import("child_process");
+    const timestamp = execSync(
+      `git log -1 --format=%cI -- "src/content/docs/${entry.id}.mdx" "src/content/docs/${entry.id}.md"`,
+      { encoding: "utf-8", timeout: 5000 },
+    ).trim();
+    if (timestamp) {
+      lastUpdated = new Date(timestamp);
+    }
+  } catch {
+    // Fallback: no git date available
+  }
 }
 ---
 
@@ -149,6 +164,7 @@ if (Astro.props.isSection) {
   showToc={showToc}
   prev={prev}
   next={next}
+  lastUpdated={lastUpdated}
 >
   {Content ? (
     <Content />
