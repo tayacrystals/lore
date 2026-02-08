@@ -1,0 +1,30 @@
+---
+title: Accordion
+description: Use accordions for collapsible content sections.
+order: 6
+---
+
+import { Accordion, Callout } from "astrodocs/components";
+
+Use accordions for collapsible content sections:
+
+<Accordion title="What is AstroDocs?">
+AstroDocs is an Astro integration that gives you a beautiful documentation site out of the box. It handles layout, navigation, search, dark mode, and more.
+</Accordion>
+
+<Accordion title="Can I customize the theme?">
+Yes! Use the `customCss` option to load your own stylesheets and override design tokens. See the [Styling](/docs/customization/styling) guide for details.
+</Accordion>
+
+```mdx
+<Accordion title="Your question">
+  The answer...
+</Accordion>
+```
+
+## Props
+
+| Prop    | Type      | Default | Description         |
+| ------- | --------- | ------- | ------------------- |
+| `title` | `string`  | ---     | Summary text        |
+| `open`  | `boolean` | `false` | Open by default     |

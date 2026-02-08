@@ -10,7 +10,8 @@ export default defineConfig({
       sidebar: {
         "getting-started": { label: "Getting Started", order: 1 },
         guides: { label: "Guides", order: 2 },
-        customization: { label: "Customization", order: 3 },
+        components: { label: "Components", order: 3 },
+        customization: { label: "Customization", order: 4 },
       },
       social: {
         github: "https://github.com",

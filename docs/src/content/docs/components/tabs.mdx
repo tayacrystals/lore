@@ -1,0 +1,61 @@
+---
+title: Tabs
+description: Use tabs to organize alternative content or code examples.
+order: 5
+---
+
+import { Tabs, Tab, Callout } from "astrodocs/components";
+
+Organize alternative content or code examples:
+
+<Tabs id="lang-example">
+  <Tab label="JavaScript">
+    ```javascript
+    const greeting = "Hello, World!";
+    console.log(greeting);
+    ```
+  </Tab>
+
+  <Tab label="TypeScript">
+    ```typescript
+    const greeting: string = "Hello, World!";
+    console.log(greeting);
+    ```
+  </Tab>
+
+  <Tab label="Python">
+    ```python
+    greeting = "Hello, World!"
+    print(greeting)
+    ```
+  </Tab>
+</Tabs>
+
+```mdx
+<Tabs>
+  <Tab label="Option 1">
+    Content for option 1...
+  </Tab>
+  <Tab label="Option 2">
+    Content for option 2...
+  </Tab>
+</Tabs>
+```
+
+<Callout type="note">
+  Tab selections are persisted in localStorage across page navigations.
+</Callout>
+
+## Props
+
+### Tabs
+
+| Prop | Type     | Default | Description                          |
+| ---- | -------- | ------- | ------------------------------------ |
+| `id` | `string` | random  | Key for localStorage tab persistence |
+
+### Tab
+
+| Prop    | Type     | Default | Description    |
+| ------- | -------- | ------- | -------------- |
+| `label` | `string` | ---     | Tab button text |

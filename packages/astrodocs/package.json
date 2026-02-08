@@ -6,7 +6,8 @@
     ".": "./index.ts",
     "./schema": "./schema.ts",
     "./loaders": "./loaders.ts",
-    "./components": "./components.ts"
+    "./components": "./components.ts",
+    "./styles/*": "./styles/*"
   },
   "peerDependencies": {
     "astro": "^5.0.0"

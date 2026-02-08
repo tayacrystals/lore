@@ -138,3 +138,11 @@
 .fd-prose strong {
   font-weight: 600;
 }
+
+.fd-prose .callout-content p {
+  margin-bottom: 0;
+}
+
+.fd-prose .callout-content p:not(:last-child) {
+  margin-bottom: 0.25rem;
+}

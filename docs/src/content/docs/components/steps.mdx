@@ -1,0 +1,47 @@
+---
+title: Steps
+description: Use steps to display sequential instructions in your documentation.
+order: 4
+---
+
+import { Steps, Step, Callout } from "astrodocs/components";
+
+Perfect for tutorials and sequential instructions:
+
+<Steps>
+  <Step title="Install">
+    Install the required packages.
+
+    ```bash
+    npm install astrodocs
+    ```
+  </Step>
+
+  <Step title="Configure">
+    Update your Astro config.
+  </Step>
+
+  <Step title="Run">
+    Start the development server.
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+```mdx
+<Steps>
+  <Step title="Step Title">
+    Content...
+  </Step>
+</Steps>
+```
+
+## Props
+
+### Step
+
+| Prop    | Type     | Default | Description     |
+| ------- | -------- | ------- | --------------- |
+| `title` | `string` | ---     | Step heading    |

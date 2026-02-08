@@ -1,4 +1,4 @@
-import type { SidebarEntry, SidebarItem } from "./sidebar";
+import type { SidebarEntry } from "./sidebar";
 
 export interface FlatNavItem {
   label: string;
@@ -11,9 +11,7 @@ export function flattenSidebar(entries: SidebarEntry[]): FlatNavItem[] {
     if (entry.type === "link") {
       result.push({ label: entry.label, href: entry.href });
     } else {
-      for (const item of entry.items) {
-        result.push({ label: item.label, href: item.href });
-      }
+      result.push(...flattenSidebar(entry.items));
     }
   }
   return result;

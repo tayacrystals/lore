@@ -19,7 +19,7 @@ export function vitePluginAstroDocs(config: AstroDocsConfig): Plugin {
       }
       if (id === RESOLVED_USER_CSS) {
         const imports = config.customCss
-          .map((css, i) => `import "${css}";`)
+          .map((css) => `import "${css}";`)
           .join("\n");
         return imports || "// No custom CSS";
       }

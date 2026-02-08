@@ -1,4 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
+
 interface Props {
   title: string;
   open?: boolean;
@@ -10,15 +12,7 @@ const { title, open = false } = Astro.props;
 <details class="my-4 rounded-lg border border-fd-border group" open={open}>
   <summary class="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-medium hover:bg-fd-muted/50 transition-colors rounded-lg select-none list-none [&::-webkit-details-marker]:hidden">
     <span>{title}</span>
-    <svg
-      class="w-4 h-4 text-fd-muted-foreground transition-transform group-open:rotate-180"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      stroke-width="2"
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
+    <Icon name="lucide:chevron-down" class="w-4 h-4 text-fd-muted-foreground transition-transform group-open:rotate-180" />
   </summary>
   <div class="px-4 pb-4 text-sm [&>p]:mb-2">
     <slot />

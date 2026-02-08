@@ -36,6 +36,14 @@ export function defineIntegration(userConfig: AstroDocsUserConfig = {}): AstroIn
                 if (theme.name === "github-dark") return ".dark";
                 return ":root:not(.dark)";
               },
+              defaultProps: {
+                frame: "code",
+                overridesByLang: {
+                  "bash,sh,shell,zsh,powershell,ps,bat,cmd,terminal": {
+                    frame: "code",
+                  },
+                },
+              },
               styleOverrides: {
                 borderRadius: "0.5rem",
                 codeFontFamily: "'Geist Mono', monospace",

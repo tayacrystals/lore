@@ -5,36 +5,168 @@ import { buildSidebar } from "../utils/sidebar";
 import { buildToc } from "../utils/toc";
 import { flattenSidebar, getPrevNext } from "../utils/navigation";
 import config from "virtual:astrodocs/config";
+import type { SidebarGroupConfig } from "../config";
 
 export async function getStaticPaths() {
   const entries = await getCollection("docs", ({ data }) => !data.draft);
-  return entries.map((entry) => ({
+
+  // Content entry paths
+  const entryPaths = entries.map((entry) => ({
     params: {
       slug: entry.id === "index" ? undefined : entry.id,
     },
-    props: { entry },
+    props: { entry, isSection: false as const },
   }));
-}
 
-const { entry } = Astro.props;
-const { Content, headings } = await render(entry);
+  // Collect ALL intermediate path prefixes as group slugs
+  const groupSlugs = new Set<string>();
+  for (const entry of entries) {
+    const parts = entry.id.split("/");
+    // Build up path prefixes: e.g. "a/b/c.mdx" -> "a", "a/b"
+    for (let i = 1; i < parts.length; i++) {
+      groupSlugs.add(parts.slice(0, i).join("/"));
+    }
+  }
+
+  // Only create section pages for groups that don't have a matching content entry
+  const entryIds = new Set(entries.map((e) => e.id));
+  const sectionPaths = [...groupSlugs]
+    .filter((slug) => !entryIds.has(slug))
+    .map((slug) => ({
+      params: { slug },
+      props: { groupSlug: slug, isSection: true as const },
+    }));
+
+  return [...entryPaths, ...sectionPaths];
+}
 
 const allEntries = await getCollection("docs");
 const sidebar = buildSidebar(allEntries, config.sidebar);
-const toc = buildToc(headings);
 const flatItems = flattenSidebar(sidebar);
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/docs";
 const { prev, next } = getPrevNext(flatItems, currentPath);
+
+let title: string;
+let description: string | undefined;
+let toc: { depth: number; slug: string; text: string }[] = [];
+let showToc = true;
+let Content: any = null;
+let sectionItems: { label: string; href: string; description?: string }[] = [];
+
+if (Astro.props.isSection) {
+  // Section listing page
+  const groupSlug = Astro.props.groupSlug;
+
+  // Traverse nested config to find label for this group
+  const slugParts = groupSlug.split("/");
+  let currentConfig: Record<string, SidebarGroupConfig> = config.sidebar ?? {};
+  let label = slugParts[slugParts.length - 1];
+  for (const part of slugParts) {
+    const found = currentConfig[part];
+    if (found) {
+      label = found.label;
+      currentConfig = found.children ?? {};
+    } else {
+      // Use titleCase fallback
+      label = part.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+      break;
+    }
+  }
+
+  title = label;
+  description = `Browse all pages in ${title}.`;
+  showToc = false;
+
+  // Get direct children entries (one level deep)
+  const groupEntries = allEntries
+    .filter((e) => {
+      if (e.data.draft) return false;
+      if (!e.id.startsWith(groupSlug + "/")) return false;
+      const rest = e.id.slice(groupSlug.length + 1);
+      return !rest.includes("/"); // direct children only
+    })
+    .sort((a, b) => a.data.order - b.data.order);
+
+  sectionItems = groupEntries.map((e) => ({
+    label: e.data.title,
+    href: `/docs/${e.id}`,
+    description: e.data.description,
+  }));
+
+  // Also add sub-group links
+  const subGroups = new Set<string>();
+  for (const entry of allEntries) {
+    if (entry.data.draft) continue;
+    if (!entry.id.startsWith(groupSlug + "/")) continue;
+    const rest = entry.id.slice(groupSlug.length + 1);
+    const parts = rest.split("/");
+    if (parts.length > 1) {
+      subGroups.add(parts[0]);
+    }
+  }
+
+  for (const sub of subGroups) {
+    const subSlug = `${groupSlug}/${sub}`;
+    // Traverse config tree to find the label for this specific sub-group
+    let subLabel = sub.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+    let cfg = config.sidebar as Record<string, SidebarGroupConfig>;
+    for (const part of subSlug.split("/")) {
+      const found = cfg[part];
+      if (found) {
+        cfg = found.children ?? {};
+        // Only use label from the final segment (the sub-group itself)
+        if (part === sub) {
+          subLabel = found.label;
+        }
+      } else {
+        break;
+      }
+    }
+
+    sectionItems.push({
+      label: subLabel,
+      href: `/docs/${subSlug}`,
+      description: `Browse ${subLabel} pages.`,
+    });
+  }
+} else {
+  // Regular content page
+  const { entry } = Astro.props;
+  title = entry.data.title;
+  description = entry.data.description;
+  const rendered = await render(entry);
+  Content = rendered.Content;
+  toc = (await import("../utils/toc")).buildToc(rendered.headings);
+  showToc = entry.data.toc;
+}
 ---
 
 <DocsLayout
-  title={entry.data.title}
-  description={entry.data.description}
+  title={title}
+  description={description}
   sidebar={sidebar}
   toc={toc}
-  showToc={entry.data.toc}
+  showToc={showToc}
   prev={prev}
   next={next}
 >
-  <Content />
+  {Content ? (
+    <Content />
+  ) : (
+    <ul class="not-prose list-none p-0 m-0 space-y-3">
+      {sectionItems.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="block rounded-lg border border-fd-border p-4 hover:bg-fd-muted/50 transition-colors no-underline"
+          >
+            <span class="font-medium text-fd-foreground">{item.label}</span>
+            {item.description && (
+              <span class="block text-sm text-fd-muted-foreground mt-1">{item.description}</span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
 </DocsLayout>

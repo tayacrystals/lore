@@ -1,17 +1,12 @@
 import type { CollectionEntry } from "astro:content";
-
-export interface SidebarConfig {
-  [group: string]: {
-    label: string;
-    order: number;
-  };
-}
+import type { SidebarGroupConfig } from "../config";
 
 export interface SidebarItem {
   type: "link";
   label: string;
   href: string;
   order: number;
+  icon?: string;
 }
 
 export interface SidebarGroup {
@@ -19,59 +14,78 @@ export interface SidebarGroup {
   label: string;
   order: number;
   slug: string;
-  items: SidebarItem[];
+  items: SidebarEntry[];
 }
 
 export type SidebarEntry = SidebarItem | SidebarGroup;
 
+function titleCase(str: string): string {
+  return str
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function buildSidebar(
   entries: CollectionEntry<"docs">[],
-  sidebarGroups: SidebarConfig,
+  sidebarConfig: Record<string, SidebarGroupConfig>,
 ): SidebarEntry[] {
   const published = entries.filter((e) => !e.data.draft);
-  const groups = new Map<string, SidebarItem[]>();
+  return buildLevel(published, sidebarConfig, "", 0);
+}
+
+function buildLevel(
+  entries: CollectionEntry<"docs">[],
+  configAtLevel: Record<string, SidebarGroupConfig>,
+  prefix: string,
+  depth: number,
+): SidebarEntry[] {
+  const groups = new Map<string, CollectionEntry<"docs">[]>();
   const topLevel: SidebarItem[] = [];
 
-  for (const entry of published) {
-    const parts = entry.id.split("/");
-    const href = entry.id === "index" ? "/docs" : `/docs/${entry.id}`;
-
-    const item: SidebarItem = {
-      type: "link",
-      label: entry.data.title,
-      href,
-      order: entry.data.order,
-    };
+  for (const entry of entries) {
+    const relativePath = prefix ? entry.id.slice(prefix.length + 1) : entry.id;
+    const parts = relativePath.split("/");
 
     if (parts.length > 1) {
       const groupSlug = parts[0];
       if (!groups.has(groupSlug)) {
         groups.set(groupSlug, []);
       }
-      groups.get(groupSlug)!.push(item);
+      groups.get(groupSlug)!.push(entry);
     } else {
-      topLevel.push(item);
+      const href = entry.id === "index" ? "/docs" : `/docs/${entry.id}`;
+      topLevel.push({
+        type: "link",
+        label: entry.data.title,
+        href,
+        order: entry.data.order,
+        icon: entry.data.icon,
+      });
     }
   }
 
   const result: SidebarEntry[] = [];
 
-  // Add top-level items (excluding index)
+  // Add top-level items (excluding index at root level only)
   for (const item of topLevel) {
-    if (item.href !== "/docs") {
-      result.push(item);
-    }
+    if (depth === 0 && item.href === "/docs") continue;
+    result.push(item);
   }
 
-  // Add groups
-  for (const [slug, items] of groups) {
-    const config = sidebarGroups[slug];
+  // Add groups (recursively)
+  for (const [slug, groupEntries] of groups) {
+    const fullSlug = prefix ? `${prefix}/${slug}` : slug;
+    const config = configAtLevel[slug];
+    const childConfig = config?.children ?? {};
+
+    const items = buildLevel(groupEntries, childConfig, fullSlug, depth + 1);
     items.sort((a, b) => a.order - b.order);
+
     result.push({
       type: "group",
-      label: config?.label ?? slug,
+      label: config?.label ?? titleCase(slug),
       order: config?.order ?? 999,
-      slug,
+      slug: fullSlug,
       items,
     });
   }

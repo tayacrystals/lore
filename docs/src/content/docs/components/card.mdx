@@ -1,0 +1,51 @@
+---
+title: Card & CardGrid
+description: Use cards to link to related content in a visually appealing grid layout.
+order: 3
+---
+
+import { Card, CardGrid, Callout } from "astrodocs/components";
+
+Cards are perfect for linking to related content:
+
+<CardGrid>
+  <Card title="Quick Start" icon="lucide:rocket" href="/docs/getting-started/installation">
+    Get up and running in minutes.
+  </Card>
+
+  <Card title="Configuration" icon="lucide:settings" href="/docs/getting-started/configuration">
+    Learn how to configure your site.
+  </Card>
+
+  <Card title="Writing Content" icon="lucide:pen-tool" href="/docs/guides/writing-content">
+    Master writing great documentation.
+  </Card>
+
+  <Card title="Styling" icon="lucide:palette" href="/docs/customization/styling">
+    Customize the look and feel.
+  </Card>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <Card title="Title" icon="lucide:icon-name" href="/path">
+    Description text.
+  </Card>
+</CardGrid>
+```
+
+## Props
+
+### Card
+
+| Prop    | Type     | Default | Description          |
+| ------- | -------- | ------- | -------------------- |
+| `title` | `string` | ---     | Card heading         |
+| `icon`  | `string` | ---     | Lucide icon name     |
+| `href`  | `string` | ---     | Link URL (optional)  |
+
+### CardGrid
+
+| Prop   | Type      | Default | Description    |
+| ------ | --------- | ------- | -------------- |
+| `cols` | `2 \| 3` | `2`     | Column count   |

@@ -1,0 +1,39 @@
+---
+title: Callout
+description: Learn how to use callouts to highlight important information in your documentation.
+order: 2
+---
+
+import { Callout, Card, CardGrid, Steps, Step, Tabs, Tab, Accordion } from "astrodocs/components";
+
+
+Use callouts to draw attention to important information. Four types are available:
+
+<Callout type="note">
+  This is a **note** callout. Use it for general information.
+</Callout>
+
+<Callout type="tip">
+  This is a **tip** callout. Use it for helpful suggestions.
+</Callout>
+
+<Callout type="warning">
+  This is a **warning** callout. Use it for cautionary information.
+</Callout>
+
+<Callout type="danger">
+  This is a **danger** callout. Use it for critical warnings.
+</Callout>
+
+```mdx
+<Callout type="tip">
+  Your content here...
+</Callout>
+```
+
+## Props
+
+| Prop    | Type                                       | Default  | Description      |
+| ------- | ------------------------------------------ | -------- | ---------------- |
+| `type`  | `"note" \| "warning" \| "tip" \| "danger"` | `"note"` | Callout style    |
+| `title` | `string`                                   | ---      | Optional heading |
