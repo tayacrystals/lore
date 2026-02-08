@@ -3,7 +3,8 @@ import { defineConfig } from "astro/config";
 import lore from "lore";
 
 export default defineConfig({
-  site: "https://lore.example.com",
+  site: "https://tayacrystals.github.io",
+  base: "/lore/",
   integrations: [
     lore({
       title: "Lore",
