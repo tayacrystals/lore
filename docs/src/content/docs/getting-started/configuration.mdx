@@ -15,6 +15,9 @@ lore({
   // Site title shown in sidebar header and page titles
   title: "My Docs",
 
+  // Primary accent hue (0–360 on OKLCH color wheel)
+  primaryHue: 55,
+
   // Sidebar group configuration
   sidebar: {
     "getting-started": { label: "Getting Started", order: 1 },
@@ -34,12 +37,40 @@ lore({
 
 ### Options Reference
 
-| Option      | Type                                           | Default  | Description                          |
-| ----------- | ---------------------------------------------- | -------- | ------------------------------------ |
-| `title`     | `string`                                       | `"Docs"` | Site title                           |
-| `sidebar`   | `Record<string, { label: string; order: number }>` | `{}`     | Sidebar group labels and ordering    |
-| `social`    | `{ github?: string }`                          | `{}`     | Social links in sidebar footer       |
-| `customCss` | `string[]`                                     | `[]`     | Additional CSS files to import       |
+| Option       | Type                                                   | Default | Description                                 |
+| ------------ | ------------------------------------------------------ | ------- | ------------------------------------------- |
+| `title`      | `string`                                               | `"Docs"` | Site title                                 |
+| `primaryHue` | `number`                                               | `55`    | Accent color hue (0–360, OKLCH color wheel) |
+| `sidebar`    | `Record<string, SidebarGroup>`                         | `{}`    | Sidebar group labels, ordering, and nesting |
+| `social`     | `{ github?: string }`                                  | `{}`    | Social links in sidebar footer              |
+| `customCss`  | `string[]`                                             | `[]`    | Additional CSS files to import              |
+
+## Primary Hue
+
+The `primaryHue` option controls the accent color used throughout the site — links, active states, selections, and focus rings. It maps to an OKLCH hue value (0–360):
+
+```ts
+lore({
+  primaryHue: 55,   // warm amber (default)
+})
+```
+
+Some common hue values:
+
+| Hue   | Color        |
+| ----- | ------------ |
+| `0`   | Pink/Red     |
+| `30`  | Orange       |
+| `55`  | Amber        |
+| `90`  | Yellow-Green |
+| `145` | Green        |
+| `210` | Blue         |
+| `270` | Purple       |
+| `330` | Magenta      |
+
+<Callout type="tip">
+  The hue is applied via the `--fd-hue` CSS custom property. All theme colors derived from it update automatically in both light and dark mode.
+</Callout>
 
 ## Sidebar Groups
 
@@ -49,6 +80,22 @@ Sidebar groups are defined in the `sidebar` config option. Each key is a folder 
 sidebar: {
   "getting-started": { label: "Getting Started", order: 1 },
   guides: { label: "Guides", order: 2 },
+}
+```
+
+### Nested Groups
+
+Groups can contain `children` for nested sidebar sections. Each child key corresponds to a subfolder:
+
+```ts
+sidebar: {
+  guides: {
+    label: "Guides",
+    order: 1,
+    children: {
+      advanced: { label: "Advanced", order: 1 },
+    },
+  },
 }
 ```
 
