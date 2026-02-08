@@ -1,0 +1,96 @@
+---
+title: File Tree
+description: Display file and directory structures with icons and collapsible folders.
+order: 7
+---
+
+import { FileTree } from "astrodocs/components";
+
+Use the `<FileTree>` component to display file and directory structures. Write a standard Markdown unordered list inside the component. Directories are detected automatically when they contain nested items or end with `/`.
+
+<FileTree>
+- src/
+  - content/
+    - docs/
+      - **getting-started/**
+        - installation.mdx
+        - configuration.mdx
+      - guides/
+        - writing-content.mdx
+  - pages/
+    - index.astro
+- astro.config.mjs
+- package.json
+</FileTree>
+
+## Highlighting entries
+
+Wrap a filename in `**bold**` to highlight it:
+
+<FileTree>
+- src/
+  - components/
+    - **Button.astro**
+    - Card.astro
+  - layouts/
+    - **Layout.astro**
+- astro.config.mjs
+</FileTree>
+
+```mdx
+<FileTree>
+- src/
+  - components/
+    - **Button.astro**
+    - Card.astro
+</FileTree>
+```
+
+## Placeholders
+
+Use `...` to indicate truncated content:
+
+<FileTree>
+- src/
+  - components/
+    - ...
+  - pages/
+    - index.astro
+    - ...
+</FileTree>
+
+## Comments
+
+Add text after the filename to show a comment:
+
+<FileTree>
+- src/
+  - env.d.ts TypeScript declarations
+  - pages/
+    - index.astro home page
+- **astro.config.mjs** your Astro config
+- package.json
+</FileTree>
+
+```mdx
+<FileTree>
+- src/
+  - env.d.ts TypeScript declarations
+  - pages/
+    - index.astro home page
+- **astro.config.mjs** your Astro config
+</FileTree>
+```
+
+## Empty directories
+
+Append `/` to a name to mark it as a directory even without children:
+
+<FileTree>
+- src/
+  - assets/
+  - content/
+    - docs/
+      - index.mdx
+- public/
+</FileTree>

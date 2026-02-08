@@ -22,7 +22,11 @@
     "astro-expressive-code": "^0.41.6",
     "astro-icon": "^1.1.5",
     "astro-pagefind": "^1.8.5",
+    "hast-util-to-html": "^9.0.5",
+    "hastscript": "^9.0.1",
+    "rehype": "^13.0.2",
     "tailwindcss": "^4.1.18",
+    "unist-util-visit": "^5.1.0",
     "zod": "^3.24.0"
   }
 }

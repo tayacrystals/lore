@@ -6,4 +6,5 @@ export { default as Tab } from "./components/mdx/Tab.astro";
 export { default as Steps } from "./components/mdx/Steps.astro";
 export { default as Step } from "./components/mdx/Step.astro";
 export { default as Accordion } from "./components/mdx/Accordion.astro";
+export { default as FileTree } from "./components/mdx/FileTree.astro";
 export { Icon } from "astro-icon/components";

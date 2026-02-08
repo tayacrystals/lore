@@ -1,0 +1,117 @@
+---
+import { transformFileTree } from "../../utils/rehype-file-tree";
+
+const html = await Astro.slots.render("default");
+const transformed = await transformFileTree(html);
+---
+
+<div class="ft-root not-prose" set:html={transformed} />
+
+<style>
+  .ft-root {
+    --ft-indent: 1.25rem;
+    --ft-icon-size: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.625;
+    border: 1px solid var(--color-fd-border);
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-fd-card);
+  }
+
+  .ft-root :global(.ft-list) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ft-root :global(.ft-list .ft-list) {
+    padding-left: var(--ft-indent);
+  }
+
+  .ft-root :global(.ft-entry) {
+    position: relative;
+  }
+
+  .ft-root :global(.ft-entry-inner) {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.0625rem 0;
+  }
+
+  .ft-root :global(.ft-icon) {
+    width: var(--ft-icon-size);
+    height: var(--ft-icon-size);
+    flex-shrink: 0;
+    color: var(--color-fd-muted-foreground);
+  }
+
+  .ft-root :global(.ft-directory > details > .ft-dir-summary .ft-icon),
+  .ft-root :global(.ft-directory > .ft-entry-inner .ft-icon) {
+    color: var(--color-fd-primary);
+  }
+
+  .ft-root :global(.ft-name) {
+    color: var(--color-fd-foreground);
+  }
+
+  .ft-root :global(.ft-highlight) {
+    font-weight: 600;
+    color: var(--color-fd-primary);
+  }
+
+  .ft-root :global(.ft-comment) {
+    color: var(--color-fd-muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .ft-root :global(.ft-placeholder-text) {
+    color: var(--color-fd-muted-foreground);
+    user-select: none;
+  }
+
+  /* Collapsible directories */
+  .ft-root :global(details) {
+    position: relative;
+  }
+
+  .ft-root :global(summary) {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .ft-root :global(summary::-webkit-details-marker) {
+    display: none;
+  }
+
+  .ft-root :global(summary::marker) {
+    display: none;
+    content: "";
+  }
+
+  .ft-root :global(.ft-dir-summary) {
+    border-radius: 0.25rem;
+  }
+
+  .ft-root :global(.ft-dir-summary:hover) {
+    background: var(--color-fd-muted);
+  }
+
+  /* Tree lines for nested items */
+  .ft-root :global(.ft-list .ft-list) {
+    border-left: 1px solid var(--color-fd-border);
+    margin-left: calc(var(--ft-icon-size) / 2);
+  }
+
+  .ft-root :global(a) {
+    color: var(--color-fd-foreground);
+    text-decoration: underline;
+    text-decoration-color: var(--color-fd-border);
+    text-underline-offset: 2px;
+  }
+
+  .ft-root :global(a:hover) {
+    text-decoration-color: var(--color-fd-foreground);
+  }
+</style>
