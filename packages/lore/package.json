@@ -1,6 +1,6 @@
 {
-  "name": "lore",
-  "version": "0.1.0",
+  "name": "@tayacrystals/lore",
+  "version": "0.1.2",
   "type": "module",
   "exports": {
     ".": "./index.ts",
@@ -8,6 +8,19 @@
     "./loaders": "./loaders.ts",
     "./components": "./components.ts",
     "./styles/*": "./styles/*"
+  },
+  "files": [
+    "*.ts",
+    "*.d.ts",
+    "components/",
+    "layouts/",
+    "routes/",
+    "styles/",
+    "utils/",
+    "!**/*.test.ts"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "peerDependencies": {
     "astro": "^5.0.0"

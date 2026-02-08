@@ -4,7 +4,7 @@ description: Get started with Lore by installing the integration into your Astro
 order: 1
 ---
 
-import { Callout, Steps, Step, CodeTabs, Tab, FileTree } from "lore/components";
+import { Callout, Steps, Step, CodeTabs, Tab, FileTree } from "@tayacrystals/lore/components";
 
 ## Prerequisites
 
@@ -44,17 +44,17 @@ Before you begin, make sure you have the following installed:
     <CodeTabs id="install">
       <Tab label="npm">
         ```bash
-        npm install lore
+        npm install @tayacrystals/lore
         ```
       </Tab>
       <Tab label="pnpm">
         ```bash
-        pnpm add lore
+        pnpm add @tayacrystals/lore
         ```
       </Tab>
       <Tab label="bun">
         ```bash
-        bun add lore
+        bun add @tayacrystals/lore
         ```
       </Tab>
     </CodeTabs>
@@ -66,7 +66,7 @@ Before you begin, make sure you have the following installed:
     ```js
     // astro.config.mjs
     import { defineConfig } from "astro/config";
-    import lore from "lore";
+    import lore from "@tayacrystals/lore";
 
     export default defineConfig({
       integrations: [
@@ -89,8 +89,8 @@ Before you begin, make sure you have the following installed:
 
     ```ts
     import { defineCollection } from "astro:content";
-    import { docsLoader } from "lore/loaders";
-    import { docsSchema } from "lore/schema";
+    import { docsLoader } from "@tayacrystals/lore/loaders";
+    import { docsSchema } from "@tayacrystals/lore/schema";
 
     const docs = defineCollection({
       loader: docsLoader(),
