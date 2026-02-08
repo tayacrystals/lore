@@ -1,6 +1,8 @@
 import type { CollectionEntry } from "astro:content";
 import type { SidebarGroupConfig } from "../config";
 
+const BASE_URL = import.meta.env.BASE_URL || "/";
+
 export interface SidebarItem {
   type: "link";
   label: string;
@@ -53,7 +55,7 @@ function buildLevel(
       }
       groups.get(groupSlug)!.push(entry);
     } else {
-      const href = entry.id === "index" ? "/docs" : `/docs/${entry.id}`;
+      const href = entry.id === "index" ? `${BASE_URL}docs` : `${BASE_URL}docs/${entry.id}`;
       topLevel.push({
         type: "link",
         label: entry.data.title,

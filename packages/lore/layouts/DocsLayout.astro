@@ -25,7 +25,8 @@ interface Props {
 }
 
 const { title, description, sidebar, toc, showToc, prev, next, lastUpdated } = Astro.props;
-const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/docs";
+const BASE_URL = import.meta.env.BASE_URL || "/";
+const currentPath = Astro.url.pathname.replace(/\/$/, "") || `${BASE_URL}docs`;
 const siteTitle = config.title;
 const githubUrl = config.social?.github;
 const primaryHue = config.primaryHue;
@@ -37,7 +38,7 @@ const primaryHue = config.primaryHue;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description || "Documentation"} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${BASE_URL}favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
     <title>{`${title} - ${siteTitle}`}</title>
     <style set:html={`:root { --fd-hue: ${primaryHue}; }`}></style>
@@ -62,7 +63,7 @@ const primaryHue = config.primaryHue;
     >
       <!-- Sidebar header -->
       <div class="flex items-center justify-between h-(--height-header) px-4 shrink-0">
-        <a href="/" class="flex items-center gap-2 font-semibold text-[15px]">
+        <a href={BASE_URL} class="flex items-center gap-2 font-semibold text-[15px]">
           <Icon name="lucide:book-open" class="w-5 h-5 text-fd-primary" />
           <span>{siteTitle}</span>
         </a>
@@ -122,7 +123,7 @@ const primaryHue = config.primaryHue;
         >
           <Icon name="lucide:menu" class="w-4.5 h-4.5" />
         </button>
-        <a href="/" class="font-semibold text-sm">{siteTitle}</a>
+        <a href={BASE_URL} class="font-semibold text-sm">{siteTitle}</a>
       </div>
       <div class="flex items-center gap-1">
         <button
@@ -179,7 +180,7 @@ const primaryHue = config.primaryHue;
       >
         <!-- Mobile sidebar header -->
         <div class="flex items-center justify-between h-(--height-header) px-4 shrink-0">
-          <a href="/" class="flex items-center gap-2 font-semibold text-[15px]">
+          <a href={BASE_URL} class="flex items-center gap-2 font-semibold text-[15px]">
             <Icon name="lucide:book-open" class="w-5 h-5 text-fd-primary" />
             <span>{siteTitle}</span>
           </a>

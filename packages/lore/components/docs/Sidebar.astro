@@ -9,10 +9,12 @@ interface Props {
 }
 
 const { entries, currentPath } = Astro.props;
+const BASE_URL = import.meta.env.BASE_URL || "/";
+const docsHref = `${BASE_URL}docs`;
 ---
 
 <div class="space-y-1">
-  <SidebarItem label="Overview" href="/docs" active={currentPath === "/docs"} />
+  <SidebarItem label="Overview" href={docsHref} active={currentPath === docsHref} />
   {
     entries.map((entry) => {
       if (entry.type === "link") {

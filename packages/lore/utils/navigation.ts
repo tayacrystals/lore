@@ -21,7 +21,8 @@ export function getPrevNext(
   flatItems: FlatNavItem[],
   currentPath: string,
 ): { prev: FlatNavItem | null; next: FlatNavItem | null } {
-  const normalized = currentPath.replace(/\/$/, "") || "/docs";
+  const BASE_URL = import.meta.env.BASE_URL || "/";
+  const normalized = currentPath.replace(/\/$/, "") || `${BASE_URL}docs`;
   const index = flatItems.findIndex((item) => item.href === normalized);
 
   return {
