@@ -1,0 +1,45 @@
+---
+import "../styles/global.css";
+import "../styles/prose.css";
+import Navbar from "../components/global/Navbar.astro";
+import Footer from "../components/global/Footer.astro";
+import SearchModal from "../components/global/SearchModal.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "A modern documentation site built with Astro" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        if (
+          stored === "dark" ||
+          (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Navbar />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+    <SearchModal />
+  </body>
+</html>

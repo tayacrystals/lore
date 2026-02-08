@@ -1,0 +1,23 @@
+---
+import SidebarItem from "./SidebarItem.astro";
+import type { SidebarItem as SidebarItemType } from "../../utils/sidebar";
+
+interface Props {
+  label: string;
+  items: SidebarItemType[];
+  currentPath: string;
+}
+
+const { label, items, currentPath } = Astro.props;
+---
+
+<div class="mt-4 first:mt-0">
+  <p class="px-2 mb-1 text-xs font-semibold text-fd-foreground/80 tracking-wide">{label}</p>
+  <div class="space-y-0.5">
+    {
+      items.map((item) => (
+        <SidebarItem label={item.label} href={item.href} active={item.href === currentPath} />
+      ))
+    }
+  </div>
+</div>

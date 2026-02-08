@@ -1,0 +1,122 @@
+---
+title: Configuration
+description: Customize your AstroDocs site with design tokens, navigation, and content settings.
+order: 2
+---
+
+import Callout from "../../../components/mdx/Callout.astro";
+import Accordion from "../../../components/mdx/Accordion.astro";
+
+## Site Configuration
+
+The main configuration file is `astro.config.mjs`. Here's a complete example:
+
+```js
+// astro.config.mjs
+import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import expressiveCode from "astro-expressive-code";
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
+
+export default defineConfig({
+  site: "https://your-site.com",
+  integrations: [
+    expressiveCode({
+      themes: ["github-dark", "github-light"],
+      themeCssSelector: (theme) => {
+        if (theme.name === "github-dark") return ".dark";
+        return ":root:not(.dark)";
+      },
+    }),
+    mdx(),
+    sitemap(),
+  ],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+```
+
+## Design Tokens
+
+AstroDocs uses Tailwind CSS v4's `@theme` directive for design tokens. Edit `src/styles/global.css` to customize:
+
+```css
+@theme {
+  --color-fd-primary: oklch(0.623 0.214 259);
+  --color-fd-background: oklch(1 0 0);
+  --color-fd-foreground: oklch(0.145 0.014 285);
+  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+}
+```
+
+<Callout type="tip">
+  Use [oklch.com](https://oklch.com) to pick colors in the OKLCH color space. This gives you perceptually uniform color adjustments.
+</Callout>
+
+## Navigation
+
+### Top Navigation
+
+Edit `src/data/navigation.ts` to configure the top navigation bar:
+
+```ts
+export const topNav = [
+  { label: "Docs", href: "/docs" },
+  { label: "Guides", href: "/docs/guides/writing-content" },
+];
+```
+
+### Sidebar Groups
+
+Sidebar groups are configured in the same file:
+
+```ts
+export const sidebarGroups = {
+  "getting-started": {
+    label: "Getting Started",
+    order: 1,
+  },
+  guides: {
+    label: "Guides",
+    order: 2,
+  },
+};
+```
+
+## Frontmatter Schema
+
+Each documentation page supports these frontmatter fields:
+
+| Field         | Type      | Default | Description                     |
+| ------------- | --------- | ------- | ------------------------------- |
+| `title`       | `string`  | —       | Page title (required)           |
+| `description` | `string`  | —       | Page description for SEO        |
+| `order`       | `number`  | `999`   | Sort order within sidebar group |
+| `group`       | `string`  | —       | Override sidebar group          |
+| `toc`         | `boolean` | `true`  | Show table of contents          |
+| `draft`       | `boolean` | `false` | Hide from production build      |
+
+<Accordion title="How does ordering work?">
+  Pages are sorted by their `order` field within each sidebar group. Lower numbers appear first. If two pages have the same order, they're sorted alphabetically by title.
+
+  Groups are also sorted by their `order` field in the `sidebarGroups` configuration.
+</Accordion>
+
+<Accordion title="How do I add a new sidebar group?">
+  1. Create a new folder in `src/content/docs/` (e.g., `src/content/docs/api/`)
+  2. Add the group to `sidebarGroups` in `src/data/navigation.ts`
+  3. Create MDX files in the new folder with appropriate frontmatter
+</Accordion>
+
+## Dark Mode
+
+Dark mode is handled automatically with:
+
+1. **System detection** — respects `prefers-color-scheme`
+2. **Manual toggle** — persisted to `localStorage`
+3. **No flash** — inline script in `<head>` prevents FOUC
+
+The dark theme overrides are defined in `global.css` under the `.dark` selector.

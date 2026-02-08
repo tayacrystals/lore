@@ -1,0 +1,82 @@
+---
+import type { TocItem } from "../../utils/toc";
+
+interface Props {
+  items: TocItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Table of contents">
+  <p class="text-xs font-semibold text-fd-foreground/80 mb-3 tracking-wide">On this page</p>
+  <ul class="space-y-0.5 text-[13px] border-l border-fd-border" id="toc-list">
+    {
+      items.map((item) => (
+        <li>
+          <a
+            href={`#${item.slug}`}
+            class="toc-link block py-1 pl-3 -ml-px border-l border-transparent text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+            data-slug={item.slug}
+          >
+            {item.text}
+          </a>
+          {item.children.length > 0 && (
+            <ul class="space-y-0.5">
+              {item.children.map((child) => (
+                <li>
+                  <a
+                    href={`#${child.slug}`}
+                    class="toc-link block py-1 pl-6 -ml-px border-l border-transparent text-fd-muted-foreground hover:text-fd-foreground transition-colors text-[12px]"
+                    data-slug={child.slug}
+                  >
+                    {child.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  const links = document.querySelectorAll<HTMLAnchorElement>(".toc-link");
+  const headings: { id: string; el: Element }[] = [];
+
+  links.forEach((link) => {
+    const slug = link.dataset.slug;
+    if (slug) {
+      const el = document.getElementById(slug);
+      if (el) headings.push({ id: slug, el });
+    }
+  });
+
+  function setActive(slug: string) {
+    links.forEach((link) => {
+      if (link.dataset.slug === slug) {
+        link.classList.add("text-fd-primary", "font-medium", "!border-fd-primary");
+        link.classList.remove("text-fd-muted-foreground", "border-transparent");
+      } else {
+        link.classList.remove("text-fd-primary", "font-medium", "!border-fd-primary");
+        link.classList.add("text-fd-muted-foreground", "border-transparent");
+      }
+    });
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+          break;
+        }
+      }
+    },
+    { rootMargin: "-80px 0px -70% 0px" },
+  );
+
+  headings.forEach(({ el }) => observer.observe(el));
+</script>

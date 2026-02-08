@@ -1,0 +1,161 @@
+---
+---
+
+<dialog
+  id="search-dialog"
+  class="fixed inset-0 z-50 m-0 w-full h-full max-w-full max-h-full bg-transparent p-0 open:flex items-start justify-center pt-[15vh]"
+>
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="search-backdrop"></div>
+  <div class="relative w-full max-w-xl mx-4 bg-fd-popover rounded-2xl shadow-2xl border border-fd-border overflow-hidden">
+    <!-- Search header -->
+    <div class="flex items-center gap-3 px-4 border-b border-fd-border">
+      <svg class="w-5 h-5 text-fd-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </svg>
+      <input
+        id="search-input"
+        type="search"
+        placeholder="Search documentation..."
+        class="flex-1 py-4 bg-transparent text-fd-foreground placeholder:text-fd-muted-foreground outline-none text-sm"
+        autocomplete="off"
+      />
+      <kbd class="hidden sm:inline-flex items-center rounded border border-fd-border bg-fd-muted px-1.5 py-0.5 text-[10px] font-mono text-fd-muted-foreground">
+        ESC
+      </kbd>
+    </div>
+
+    <!-- Search results -->
+    <div id="search-results" class="max-h-80 overflow-y-auto p-2 scrollbar-thin">
+      <div class="text-center py-8 text-sm text-fd-muted-foreground" id="search-empty">
+        Start typing to search...
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center gap-4 px-4 py-2.5 border-t border-fd-border text-xs text-fd-muted-foreground">
+      <span class="flex items-center gap-1">
+        <kbd class="inline-flex items-center rounded border border-fd-border bg-fd-muted px-1 py-0.5 font-mono">↵</kbd>
+        to select
+      </span>
+      <span class="flex items-center gap-1">
+        <kbd class="inline-flex items-center rounded border border-fd-border bg-fd-muted px-1 py-0.5 font-mono">↑↓</kbd>
+        to navigate
+      </span>
+      <span class="flex items-center gap-1">
+        <kbd class="inline-flex items-center rounded border border-fd-border bg-fd-muted px-1 py-0.5 font-mono">esc</kbd>
+        to close
+      </span>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("search-dialog") as HTMLDialogElement;
+  const input = document.getElementById("search-input") as HTMLInputElement;
+  const backdrop = document.getElementById("search-backdrop");
+  const results = document.getElementById("search-results");
+  const empty = document.getElementById("search-empty");
+  let pagefind: any = null;
+
+  async function loadPagefind() {
+    if (pagefind) return pagefind;
+    try {
+      // pagefind = await import("/pagefind/pagefind.js");
+      // await pagefind.init();
+    } catch {
+      // Pagefind not available in dev mode
+      pagefind = null;
+    }
+    return pagefind;
+  }
+
+  function openSearch() {
+    dialog?.showModal();
+    input?.focus();
+    loadPagefind();
+  }
+
+  function closeSearch() {
+    dialog?.close();
+    if (input) input.value = "";
+    if (results && empty) {
+      results.innerHTML = "";
+      results.appendChild(empty);
+      empty.textContent = "Start typing to search...";
+    }
+  }
+
+  // Triggers
+  document.getElementById("search-trigger")?.addEventListener("click", openSearch);
+  document.getElementById("search-trigger-mobile")?.addEventListener("click", openSearch);
+  backdrop?.addEventListener("click", closeSearch);
+
+  // Keyboard shortcut
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      if (dialog?.open) closeSearch();
+      else openSearch();
+    }
+    if (e.key === "Escape" && dialog?.open) {
+      closeSearch();
+    }
+  });
+
+  // Search input
+  let debounce: ReturnType<typeof setTimeout>;
+  input?.addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(async () => {
+      const query = input.value.trim();
+      if (!query || !results) {
+        if (results && empty) {
+          results.innerHTML = "";
+          results.appendChild(empty);
+          empty.textContent = query ? "No results found." : "Start typing to search...";
+        }
+        return;
+      }
+
+      const pf = await loadPagefind();
+      if (!pf) {
+        if (results && empty) {
+          results.innerHTML = "";
+          results.appendChild(empty);
+          empty.textContent = "Search is available after building the site.";
+        }
+        return;
+      }
+
+      const search = await pf.search(query);
+      results.innerHTML = "";
+
+      if (search.results.length === 0) {
+        results.appendChild(empty!);
+        empty!.textContent = "No results found.";
+        return;
+      }
+
+      for (const result of search.results.slice(0, 8)) {
+        const data = await result.data();
+        const a = document.createElement("a");
+        a.href = data.url;
+        a.className =
+          "block px-3 py-2.5 rounded-lg hover:bg-fd-muted transition-colors group";
+        a.innerHTML = `
+          <div class="font-medium text-sm text-fd-foreground group-hover:text-fd-primary transition-colors">${data.meta.title || "Untitled"}</div>
+          <div class="text-xs text-fd-muted-foreground mt-0.5 line-clamp-1">${data.excerpt}</div>
+        `;
+        a.addEventListener("click", closeSearch);
+        results.appendChild(a);
+      }
+    }, 200);
+  });
+</script>
+
+<style>
+  dialog::backdrop {
+    background: transparent;
+  }
+</style>

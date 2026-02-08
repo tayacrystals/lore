@@ -1,0 +1,140 @@
+.fd-prose {
+  line-height: 1.7;
+  max-width: none;
+  font-size: 0.9375rem;
+}
+
+.fd-prose h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.fd-prose h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 4rem;
+}
+
+.fd-prose h2 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.fd-prose h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 4rem;
+}
+
+.fd-prose h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fd-prose p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.fd-prose a {
+  color: var(--color-fd-foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--color-fd-border);
+  transition: text-decoration-color 0.15s;
+}
+
+.fd-prose a:hover {
+  text-decoration-color: var(--color-fd-foreground);
+}
+
+.fd-prose code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.8125em;
+  background-color: var(--color-fd-muted);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.fd-prose pre {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+}
+
+.fd-prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.fd-prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.fd-prose li {
+  margin-bottom: 0.25rem;
+}
+
+.fd-prose li > ul,
+.fd-prose li > ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.fd-prose blockquote {
+  border-left: 2px solid var(--color-fd-border);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--color-fd-muted-foreground);
+}
+
+.fd-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.fd-prose thead th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid var(--color-fd-border);
+}
+
+.fd-prose tbody td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+
+.fd-prose hr {
+  border: none;
+  border-top: 1px solid var(--color-fd-border);
+  margin: 2rem 0;
+}
+
+.fd-prose img {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+.fd-prose strong {
+  font-weight: 600;
+}

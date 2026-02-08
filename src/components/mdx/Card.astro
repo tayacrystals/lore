@@ -1,0 +1,26 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+  href?: string;
+  icon?: string;
+}
+
+const { title, href, icon } = Astro.props;
+const Tag = href ? "a" : "div";
+---
+
+<Tag
+  href={href}
+  class:list={[
+    "block rounded-lg border border-fd-border p-4 transition-colors",
+    href && "hover:border-fd-primary/50 hover:bg-fd-muted/50",
+  ]}
+>
+  {icon && <Icon name={icon} class="w-5 h-5 mb-2 text-fd-primary" />}
+  <h3 class="font-semibold text-sm mb-1">{title}</h3>
+  <div class="text-sm text-fd-muted-foreground [&>p]:mb-0">
+    <slot />
+  </div>
+</Tag>

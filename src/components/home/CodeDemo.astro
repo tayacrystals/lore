@@ -1,0 +1,64 @@
+---
+---
+
+<section class="py-20 px-4 bg-fd-muted/30">
+  <div class="mx-auto max-w-5xl">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <!-- Left: Description -->
+      <div>
+        <h2 class="text-3xl font-bold tracking-tight mb-4">Write docs, not boilerplate</h2>
+        <p class="text-fd-muted-foreground mb-6 leading-relaxed">
+          Focus on your content with MDX. Use powerful components like callouts,
+          tabs, and code blocks right in your markdown files.
+        </p>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3 text-sm">
+            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-fd-primary/10 text-fd-primary text-xs">✓</span>
+            <span>Content collections with type-safe frontmatter</span>
+          </li>
+          <li class="flex items-start gap-3 text-sm">
+            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-fd-primary/10 text-fd-primary text-xs">✓</span>
+            <span>Syntax highlighting with Expressive Code</span>
+          </li>
+          <li class="flex items-start gap-3 text-sm">
+            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-fd-primary/10 text-fd-primary text-xs">✓</span>
+            <span>Auto-generated sidebar and table of contents</span>
+          </li>
+          <li class="flex items-start gap-3 text-sm">
+            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-fd-primary/10 text-fd-primary text-xs">✓</span>
+            <span>Previous/next navigation between pages</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Right: Code preview -->
+      <div class="rounded-xl border border-fd-border bg-fd-card overflow-hidden shadow-lg">
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-fd-border bg-fd-muted/50">
+          <div class="flex gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-red-400/60"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-400/60"></div>
+            <div class="w-3 h-3 rounded-full bg-green-400/60"></div>
+          </div>
+          <span class="text-xs text-fd-muted-foreground ml-2">installation.mdx</span>
+        </div>
+        <pre class="p-4 text-sm font-mono overflow-x-auto leading-relaxed"><code><span class="text-fd-muted-foreground">---</span>
+<span class="text-purple-400">title</span>: <span class="text-green-400">Installation</span>
+<span class="text-purple-400">description</span>: <span class="text-green-400">Get started quickly</span>
+<span class="text-purple-400">order</span>: <span class="text-amber-400">1</span>
+<span class="text-fd-muted-foreground">---</span>
+
+<span class="text-blue-400">import</span> { <span class="text-amber-400">Callout</span> } <span class="text-blue-400">from</span> <span class="text-green-400">'../components'</span>
+
+<span class="text-fd-muted-foreground"># Getting Started</span>
+
+<span class="text-blue-400">&lt;Callout</span> <span class="text-purple-400">type</span>=<span class="text-green-400">"tip"</span><span class="text-blue-400">&gt;</span>
+  This is a helpful tip!
+<span class="text-blue-400">&lt;/Callout&gt;</span>
+
+```bash
+bun create astro@latest
+```</code></pre>
+      </div>
+    </div>
+  </div>
+</section>

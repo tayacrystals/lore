@@ -1,0 +1,73 @@
+---
+const testimonials = [
+  {
+    quote: "The cleanest documentation template I've ever used. Setup was incredibly fast.",
+    author: "Sarah Chen",
+    role: "Frontend Developer",
+  },
+  {
+    quote: "Finally a docs framework that looks as good as Fumadocs but runs on Astro. Love it!",
+    author: "Marcus Johnson",
+    role: "Open Source Maintainer",
+  },
+  {
+    quote: "The MDX components are beautiful. Callouts, tabs, steps — everything just works.",
+    author: "Priya Sharma",
+    role: "Technical Writer",
+  },
+  {
+    quote: "Dark mode, search, responsive layout — all out of the box. Saved us weeks of work.",
+    author: "Alex Rivera",
+    role: "Lead Engineer",
+  },
+  {
+    quote: "Performance is incredible. Our docs load instantly thanks to Astro's zero-JS approach.",
+    author: "Kim Tanaka",
+    role: "DevRel Engineer",
+  },
+  {
+    quote: "The Tailwind v4 design system makes customization a breeze. Highly recommend.",
+    author: "Jordan Ellis",
+    role: "UI Designer",
+  },
+];
+
+// Duplicate for seamless scroll
+const allTestimonials = [...testimonials, ...testimonials];
+---
+
+<section class="py-20 overflow-hidden">
+  <div class="text-center mb-12 px-4">
+    <h2 class="text-3xl font-bold tracking-tight mb-4">Loved by developers</h2>
+    <p class="text-fd-muted-foreground text-lg">See what people are saying about AstroDocs.</p>
+  </div>
+
+  <div class="relative">
+    <div class="flex gap-4 animate-marquee">
+      {
+        allTestimonials.map((t) => (
+          <div class="shrink-0 w-80 rounded-xl border border-fd-border bg-fd-card p-6">
+            <p class="text-sm text-fd-foreground/90 mb-4 leading-relaxed">"{t.quote}"</p>
+            <div>
+              <div class="font-medium text-sm">{t.author}</div>
+              <div class="text-xs text-fd-muted-foreground">{t.role}</div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+</style>

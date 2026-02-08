@@ -1,0 +1,299 @@
+---
+title: Components
+description: Explore all the built-in components available for your documentation
+order: 2
+group: guides
+---
+
+import Callout from '../../../components/mdx/Callout.astro';
+import Card from '../../../components/mdx/Card.astro';
+import CardGrid from '../../../components/mdx/CardGrid.astro';
+import Steps from '../../../components/mdx/Steps.astro';
+import Step from '../../../components/mdx/Step.astro';
+import Tabs from '../../../components/mdx/Tabs.astro';
+import Tab from '../../../components/mdx/Tab.astro';
+import Accordion from '../../../components/mdx/Accordion.astro';
+
+## Overview
+
+This documentation site comes with a rich set of custom components that you can use in your MDX files to create engaging and interactive content.
+
+<Callout type="tip">
+  All components are imported at the top of your MDX file and used like regular JSX components.
+</Callout>
+
+## Callout Component
+
+Use callouts to draw attention to important information. There are four types available:
+
+### Note Callout
+
+<Callout type="note">
+  This is a **note** callout. Use it for general information or helpful context.
+</Callout>
+
+```mdx
+<Callout type="note">
+  Your note content here...
+</Callout>
+```
+
+### Tip Callout
+
+<Callout type="tip">
+  This is a **tip** callout. Use it for helpful suggestions and best practices.
+</Callout>
+
+```mdx
+<Callout type="tip">
+  Your tip content here...
+</Callout>
+```
+
+### Warning Callout
+
+<Callout type="warning">
+  This is a **warning** callout. Use it for important cautionary information.
+</Callout>
+
+```mdx
+<Callout type="warning">
+  Your warning content here...
+</Callout>
+```
+
+### Danger Callout
+
+<Callout type="danger">
+  This is a **danger** callout. Use it for critical warnings and breaking changes.
+</Callout>
+
+```mdx
+<Callout type="danger">
+  Your danger content here...
+</Callout>
+```
+
+## Card Components
+
+Cards are perfect for linking to related content or highlighting features.
+
+### Single Card
+
+<Card title="API Reference" icon="lucide:book-open" href="/docs">
+  Learn about all the available API endpoints and how to use them.
+</Card>
+
+```mdx
+<Card title="API Reference" icon="lucide:book-open" href="/docs">
+  Your card content...
+</Card>
+```
+
+### Card Grid
+
+Display multiple cards in a responsive grid:
+
+<CardGrid>
+  <Card title="Quick Start" icon="lucide:rocket" href="/docs/getting-started/installation">
+    Get up and running in minutes with our quick start guide.
+  </Card>
+  
+  <Card title="Configuration" icon="lucide:settings" href="/docs/getting-started/configuration">
+    Learn how to configure your documentation site.
+  </Card>
+  
+  <Card title="Writing Content" icon="lucide:pen-tool" href="/docs/guides/writing-content">
+    Master the art of writing great documentation.
+  </Card>
+  
+  <Card title="Components" icon="lucide:component" href="/docs/guides/components">
+    Explore all available components.
+  </Card>
+</CardGrid>
+
+```mdx
+<CardGrid>
+  <Card title="Card 1" icon="lucide:icon-name" href="/path">
+    Content...
+  </Card>
+  <Card title="Card 2" icon="lucide:icon-name" href="/path">
+    Content...
+  </Card>
+</CardGrid>
+```
+
+## Steps Component
+
+Perfect for tutorials and sequential instructions:
+
+<Steps>
+  <Step>
+    ### Install Dependencies
+    
+    First, install the required packages:
+    
+    ```bash
+    bun install
+    ```
+  </Step>
+  
+  <Step>
+    ### Configure Your Site
+    
+    Update the configuration in `astro.config.mjs`:
+    
+    ```javascript
+    export default defineConfig({
+      site: 'https://yoursite.com',
+    });
+    ```
+  </Step>
+  
+  <Step>
+    ### Start Development Server
+    
+    Run the development server:
+    
+    ```bash
+    bun run dev
+    ```
+    
+    Your site will be available at `http://localhost:4321`
+  </Step>
+</Steps>
+
+```mdx
+<Steps>
+  <Step>
+    ### Step Title
+    Your content...
+  </Step>
+  <Step>
+    ### Next Step
+    More content...
+  </Step>
+</Steps>
+```
+
+## Tabs Component
+
+Use tabs to organize alternative content or different code examples:
+
+<Tabs>
+  <Tab label="JavaScript">
+    ```javascript
+    const greeting = 'Hello, World!';
+    console.log(greeting);
+    ```
+    
+    Standard JavaScript syntax.
+  </Tab>
+  
+  <Tab label="TypeScript">
+    ```typescript
+    const greeting: string = 'Hello, World!';
+    console.log(greeting);
+    ```
+    
+    TypeScript with type annotations.
+  </Tab>
+  
+  <Tab label="Python">
+    ```python
+    greeting = 'Hello, World!'
+    print(greeting)
+    ```
+    
+    Python syntax for comparison.
+  </Tab>
+</Tabs>
+
+```mdx
+<Tabs>
+  <Tab label="Option 1">
+    Content for option 1...
+  </Tab>
+  <Tab label="Option 2">
+    Content for option 2...
+  </Tab>
+</Tabs>
+```
+
+<Callout type="note">
+  Tab state is preserved in localStorage, so selected tabs persist across page navigation!
+</Callout>
+
+## Accordion Component
+
+Use accordions for collapsible content sections:
+
+<Accordion title="What is Astro?">
+Astro is a modern web framework designed for building fast, content-focused websites. It allows you to use your favorite UI framework while shipping zero JavaScript by default.
+</Accordion>
+
+<Accordion title="Why use MDX?">
+MDX combines the simplicity of Markdown with the power of JSX components, allowing you to create rich, interactive documentation while maintaining readability.
+</Accordion>
+
+<Accordion title="How do I customize the theme?">
+The theme is built with Tailwind CSS v4 using `@theme` tokens. You can customize colors, fonts, and other design tokens in `src/styles/global.css`.
+</Accordion>
+
+```mdx
+<Accordion title="Your Question">
+  The answer to the question...
+</Accordion>
+```
+
+## Using Icons
+
+Many components support icons via the `icon` prop. Use any icon from [Lucide](https://lucide.dev/) by specifying `lucide:icon-name`:
+
+<CardGrid>
+  <Card title="Rocket" icon="lucide:rocket" href="#">
+    Fast and efficient
+  </Card>
+  <Card title="Lock" icon="lucide:lock" href="#">
+    Secure by default
+  </Card>
+  <Card title="Zap" icon="lucide:zap" href="#">
+    Lightning quick
+  </Card>
+</CardGrid>
+
+## Component Import Reference
+
+Here's how to import each component:
+
+```mdx
+---
+title: Your Page
+---
+
+import Callout from '../../../components/mdx/Callout.astro';
+import Card from '../../../components/mdx/Card.astro';
+import CardGrid from '../../../components/mdx/CardGrid.astro';
+import Steps from '../../../components/mdx/Steps.astro';
+import Step from '../../../components/mdx/Step.astro';
+import Tabs from '../../../components/mdx/Tabs.astro';
+import Tab from '../../../components/mdx/Tab.astro';
+import Accordion from '../../../components/mdx/Accordion.astro';
+```
+
+<Callout type="tip">
+  Adjust the `../` path based on your file's location in the `src/content/docs` directory.
+</Callout>
+
+## Best Practices
+
+When using components:
+
+- **Don't overuse callouts** - Too many callouts can be distracting  
+- **Choose the right component** - Use cards for navigation, steps for tutorials
+- **Keep content readable** - Components should enhance, not overwhelm
+- **Test responsiveness** - Preview on different screen sizes
+
+<Callout type="note">
+  Have questions or suggestions for new components? Check the project repository!
+</Callout>

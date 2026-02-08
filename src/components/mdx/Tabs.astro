@@ -1,0 +1,75 @@
+---
+interface Props {
+  id?: string;
+}
+
+const { id = "tabs-" + Math.random().toString(36).slice(2, 8) } = Astro.props;
+const tabs = await Astro.slots.render("default");
+const labels: string[] = [];
+
+// Extract labels from Tab components
+const labelMatches = tabs.matchAll(/data-tab-label="([^"]+)"/g);
+for (const match of labelMatches) {
+  labels.push(match[1]);
+}
+---
+
+<div class="tabs-wrapper my-5 rounded-lg border border-fd-border overflow-hidden" data-tabs-id={id}>
+  <!-- Tab buttons -->
+  <div class="flex border-b border-fd-border bg-fd-muted/50" role="tablist">
+    {
+      labels.map((label, i) => (
+        <button
+          role="tab"
+          class:list={[
+            "tabs-trigger px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+            i === 0
+              ? "border-fd-primary text-fd-foreground"
+              : "border-transparent text-fd-muted-foreground hover:text-fd-foreground",
+          ]}
+          data-tab-index={i}
+          aria-selected={i === 0 ? "true" : "false"}
+        >
+          {label}
+        </button>
+      ))
+    }
+  </div>
+  <!-- Tab panels -->
+  <div class="tabs-panels p-4" set:html={tabs} />
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".tabs-wrapper").forEach((wrapper) => {
+    const triggers = wrapper.querySelectorAll<HTMLButtonElement>(".tabs-trigger");
+    const panels = wrapper.querySelectorAll<HTMLElement>(":scope > .tabs-panels > .tab-panel");
+    const id = wrapper.dataset.tabsId || "";
+
+    function activate(index: number) {
+      triggers.forEach((t, i) => {
+        const active = i === index;
+        t.setAttribute("aria-selected", String(active));
+        t.classList.toggle("border-fd-primary", active);
+        t.classList.toggle("text-fd-foreground", active);
+        t.classList.toggle("border-transparent", !active);
+        t.classList.toggle("text-fd-muted-foreground", !active);
+      });
+      panels.forEach((p, i) => {
+        p.classList.toggle("hidden", i !== index);
+      });
+      if (id) localStorage.setItem(`tab-${id}`, String(index));
+    }
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        activate(Number(trigger.dataset.tabIndex));
+      });
+    });
+
+    // Restore from localStorage
+    if (id) {
+      const stored = localStorage.getItem(`tab-${id}`);
+      if (stored !== null) activate(Number(stored));
+    }
+  });
+</script>

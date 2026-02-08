@@ -1,0 +1,76 @@
+---
+import { topNav } from "../../data/navigation";
+---
+
+<!-- Hamburger button -->
+<button
+  id="mobile-menu-toggle"
+  class="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-fd-muted transition-colors"
+  aria-label="Toggle menu"
+>
+  <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+</button>
+
+<!-- Overlay -->
+<div id="mobile-menu-overlay" class="md:hidden fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
+  <div
+    class="absolute right-0 top-0 bottom-0 w-72 bg-fd-background border-l border-fd-border p-6 transform transition-transform duration-200 translate-x-full"
+    id="mobile-menu-panel"
+  >
+    <div class="flex justify-end mb-6">
+      <button id="mobile-menu-close" class="p-1 rounded hover:bg-fd-muted" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <nav class="flex flex-col gap-1">
+      {
+        topNav.map((link) => (
+          <a
+            href={link.href}
+            class="px-3 py-2 text-sm rounded-md hover:bg-fd-muted text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <hr class="my-3 border-fd-border" />
+      <a
+        href="https://github.com"
+        target="_blank"
+        rel="noopener"
+        class="px-3 py-2 text-sm rounded-md hover:bg-fd-muted text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+      >
+        GitHub
+      </a>
+    </nav>
+  </div>
+</div>
+
+<script>
+  const toggle = document.getElementById("mobile-menu-toggle");
+  const overlay = document.getElementById("mobile-menu-overlay");
+  const backdrop = document.getElementById("mobile-menu-backdrop");
+  const panel = document.getElementById("mobile-menu-panel");
+  const close = document.getElementById("mobile-menu-close");
+
+  function openMenu() {
+    overlay?.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      panel?.classList.remove("translate-x-full");
+    });
+  }
+
+  function closeMenu() {
+    panel?.classList.add("translate-x-full");
+    setTimeout(() => overlay?.classList.add("hidden"), 200);
+  }
+
+  toggle?.addEventListener("click", openMenu);
+  backdrop?.addEventListener("click", closeMenu);
+  close?.addEventListener("click", closeMenu);
+</script>

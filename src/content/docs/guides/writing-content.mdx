@@ -1,0 +1,194 @@
+---
+title: Writing Content
+description: Learn how to write and structure your documentation using MDX
+order: 1
+group: guides
+---
+
+import Callout from '../../../components/mdx/Callout.astro';
+import Steps from '../../../components/mdx/Steps.astro';
+import Step from '../../../components/mdx/Step.astro';
+import Tabs from '../../../components/mdx/Tabs.astro';
+import Tab from '../../../components/mdx/Tab.astro';
+
+## Introduction
+
+This guide will teach you how to write effective documentation using MDX. MDX combines Markdown with JSX components, allowing you to create rich, interactive documentation.
+
+<Callout type="note">
+  MDX allows you to use both Markdown syntax and custom components in the same file.
+</Callout>
+
+## Getting Started with MDX
+
+MDX files use the `.mdx` extension and support all standard Markdown features plus custom components.
+
+### Basic Markdown Syntax
+
+You can use all standard Markdown features:
+
+- **Bold text** with `**text**`
+- *Italic text* with `*text*`
+- `Inline code` with backticks
+- [Links](https://example.com) with `[text](url)`
+
+### Code Blocks
+
+Code blocks support syntax highlighting:
+
+```javascript
+// JavaScript example
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+console.log(greet('World'));
+```
+
+```typescript
+// TypeScript example
+interface User {
+  name: string;
+  role: string;
+}
+
+const user: User = {
+  name: 'Alice',
+  role: 'Developer'
+};
+```
+
+## Step-by-Step Guides
+
+Use the Steps component for sequential instructions:
+
+<Steps>
+  <Step>
+    ### Create a new MDX file
+    
+    Create a new `.mdx` file in the `src/content/docs` directory.
+  </Step>
+  
+  <Step>
+    ### Add frontmatter
+    
+    Include title, description, and other metadata at the top of your file:
+    
+    ```yaml
+    ---
+    title: My Page
+    description: Page description
+    order: 1
+    ---
+    ```
+  </Step>
+  
+  <Step>
+    ### Write your content
+    
+    Use Markdown syntax and import custom components as needed.
+  </Step>
+</Steps>
+
+## Callouts and Alerts
+
+Use callouts to highlight important information:
+
+<Callout type="note">
+  This is a note callout for general information.
+</Callout>
+
+<Callout type="tip">
+  This is a tip callout for helpful suggestions.
+</Callout>
+
+<Callout type="warning">
+  This is a warning callout for important cautionary information.
+</Callout>
+
+<Callout type="danger">
+  This is a danger callout for critical warnings.
+</Callout>
+
+## Tabbed Content
+
+Use tabs to organize alternative content or code examples:
+
+<Tabs>
+  <Tab label="npm">
+    ```bash
+    npm install astro
+    ```
+  </Tab>
+  
+  <Tab label="pnpm">
+    ```bash
+    pnpm add astro
+    ```
+  </Tab>
+  
+  <Tab label="yarn">
+    ```bash
+    yarn add astro
+    ```
+  </Tab>
+  
+  <Tab label="bun">
+    ```bash
+    bun add astro
+    ```
+  </Tab>
+</Tabs>
+
+## Tables
+
+Standard Markdown tables are supported:
+
+| Feature | Supported | Notes |
+|---------|-----------|-------|
+| Markdown | ✅ | Full support |
+| MDX Components | ✅ | Custom components |
+| Syntax Highlighting | ✅ | Via Expressive Code |
+| Dark Mode | ✅ | Auto-switching |
+
+## Lists
+
+### Unordered Lists
+
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+### Ordered Lists
+
+1. First step
+2. Second step
+   1. Sub-step A
+   2. Sub-step B
+3. Third step
+
+## Blockquotes
+
+> This is a blockquote. Use it for quotes, important notes, or to highlight specific content.
+>
+> You can have multiple paragraphs in a blockquote.
+
+## Best Practices
+
+<Callout type="tip">
+  Keep your documentation organized with clear headings and logical structure. Use components wisely to enhance readability.
+</Callout>
+
+When writing documentation:
+
+- Use clear, concise headings
+- Break up long sections with subheadings
+- Include code examples where helpful
+- Use callouts to highlight key information
+- Structure step-by-step instructions clearly
+
+## Next Steps
+
+Now that you know how to write content, learn about the available [components](/docs/guides/components) you can use in your documentation.

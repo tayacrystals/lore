@@ -1,0 +1,26 @@
+---
+import SidebarItem from "./SidebarItem.astro";
+import SidebarGroup from "./SidebarGroup.astro";
+import type { SidebarEntry } from "../../utils/sidebar";
+
+interface Props {
+  entries: SidebarEntry[];
+  currentPath: string;
+}
+
+const { entries, currentPath } = Astro.props;
+---
+
+<div class="space-y-1">
+  <SidebarItem label="Overview" href="/docs" active={currentPath === "/docs"} />
+  {
+    entries.map((entry) => {
+      if (entry.type === "link") {
+        return <SidebarItem label={entry.label} href={entry.href} active={entry.href === currentPath} />;
+      }
+      return (
+        <SidebarGroup label={entry.label} items={entry.items} currentPath={currentPath} />
+      );
+    })
+  }
+</div>
