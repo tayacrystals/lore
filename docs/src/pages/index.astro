@@ -5,6 +5,7 @@ import "lore/styles/prose.css";
 import config from "virtual:lore/config";
 
 const primaryHue = config.primaryHue;
+const BASE_URL = import.meta.env.BASE_URL || "/";
 ---
 
 <!doctype html>
@@ -13,7 +14,7 @@ const primaryHue = config.primaryHue;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="A beautiful documentation theme for Astro. Fast, accessible, and easy to customize." />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${BASE_URL}favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
     <title>Lore</title>
     <style set:html={`:root { --fd-hue: ${primaryHue}; }`}></style>
@@ -33,12 +34,12 @@ const primaryHue = config.primaryHue;
     <!-- Header -->
     <header class="sticky top-0 z-40 border-b border-fd-border bg-fd-background/80 backdrop-blur-lg">
       <div class="max-w-6xl mx-auto flex items-center justify-between h-14 px-6">
-        <a href="/" class="flex items-center gap-2 font-semibold text-[15px]">
+        <a href={BASE_URL} class="flex items-center gap-2 font-semibold text-[15px]">
           <Icon name="lucide:book-open" class="w-5 h-5 text-fd-primary" />
           <span>Lore</span>
         </a>
         <nav class="flex items-center gap-4">
-          <a href="/docs" class="text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors">Docs</a>
+          <a href={`${BASE_URL}docs`} class="text-sm text-fd-muted-foreground hover:text-fd-foreground transition-colors">Docs</a>
           <a
             href="https://github.com"
             target="_blank"
@@ -85,14 +86,14 @@ const primaryHue = config.primaryHue;
 
           <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="/docs/getting-started/installation"
+              href={`${BASE_URL}docs/getting-started/installation`}
               class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-fd-primary text-fd-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
             >
               Get Started
               <Icon name="lucide:arrow-right" class="w-4 h-4" />
             </a>
             <a
-              href="/docs"
+              href={`${BASE_URL}docs`}
               class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-fd-border text-fd-foreground font-medium text-sm hover:bg-fd-muted transition-colors"
             >
               Browse Docs
@@ -159,7 +160,7 @@ const primaryHue = config.primaryHue;
     <footer class="border-t border-fd-border">
       <div class="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-fd-muted-foreground">
         <p>Built with Lore</p>
-        <a href="/docs" class="hover:text-fd-foreground transition-colors">Documentation</a>
+        <a href={`${BASE_URL}docs`} class="hover:text-fd-foreground transition-colors">Documentation</a>
       </div>
     </footer>
 
