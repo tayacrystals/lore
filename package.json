@@ -39,8 +39,7 @@
     "url": "https://github.com/tayacrystals/lore/issues"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/js-yaml": "^4.0.9"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
