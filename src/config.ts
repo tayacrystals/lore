@@ -1,11 +1,10 @@
-import yaml from "js-yaml";
 import type { Config } from "./types.ts";
 
 export async function loadConfig(docsDir: string): Promise<Config> {
   const file = Bun.file(`${docsDir}/lore.yml`);
   if (!(await file.exists())) return {};
   const text = await file.text();
-  return (yaml.load(text) as Config) ?? {};
+  return (Bun.YAML.parse(text) as Config) ?? {};
 }
 
 // WCAG AA compliant colors (≥4.5:1 contrast on white)

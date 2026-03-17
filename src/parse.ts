@@ -1,5 +1,3 @@
-import yaml from "js-yaml";
-
 export interface ParsedPage {
   frontmatter: Record<string, unknown>;
   content: string;
@@ -20,7 +18,7 @@ export function parsePage(raw: string): ParsedPage {
     if (end !== -1) {
       const fmText = content.slice(3, end).trim();
       if (fmText) {
-        frontmatter = (yaml.load(fmText) as Record<string, unknown>) ?? {};
+        frontmatter = (Bun.YAML.parse(fmText) as Record<string, unknown>) ?? {};
       }
       content = content.slice(end + 4).trimStart();
     }
