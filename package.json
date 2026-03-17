@@ -1,8 +1,37 @@
 {
-  "name": "lore-2",
-  "module": "index.ts",
+  "name": "@tayacrystals/lore",
+  "version": "2.0.0",
+  "description": "Simple documentation site generator with versioning and internationalization support",
   "type": "module",
-  "private": true,
+  "bin": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "bun run src/index.ts build",
+    "dev": "bun run src/index.ts dev",
+    "serve": "bun run src/index.ts serve"
+  },
+  "keywords": [
+    "documentation",
+    "static-site-generator",
+    "docs",
+    "markdown",
+    "mdx",
+    "cli"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tayacrystals/lore.git"
+  },
+  "homepage": "https://github.com/tayacrystals/lore#readme",
+  "bugs": {
+    "url": "https://github.com/tayacrystals/lore/issues"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/js-yaml": "^4.0.9"
@@ -22,9 +51,7 @@
     "shiki": "^4.0.2",
     "unified": "^11.0.5"
   },
-  "scripts": {
-    "build": "bun run src/index.ts ./docs",
-    "dev": "bun run src/index.ts dev ./docs",
-    "serve": "bun run src/index.ts serve ./docs"
+  "engines": {
+    "bun": ">=1.0.0"
   }
 }
