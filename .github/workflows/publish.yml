@@ -21,10 +21,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
       - run: bun install
 
       - name: Publish to npm
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
         run: npm publish --access public --provenance
