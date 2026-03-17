@@ -31,10 +31,11 @@ export function parseUrl(url: string, config: Config): RouteContext {
 
 export function buildUrl(
   path: string,
-  opts: { locale?: string; version?: string }
+  opts: { locale?: string; version?: string; baseUrl?: string }
 ): string {
   const parts: string[] = [];
 
+  if (opts.baseUrl) parts.push(opts.baseUrl.replace(/^\//, "").replace(/\/$/, ""));
   if (opts.locale) parts.push(opts.locale);
   if (opts.version) parts.push(opts.version);
 

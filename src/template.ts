@@ -12,14 +12,15 @@ function renderVersionSwitcher(
   versions: VersionInfo[],
   currentVersion: string | undefined,
   currentLocale: string | undefined,
-  currentPath: string
+  currentPath: string,
+  baseUrl?: string
 ): string {
   if (!versions.length) return "";
 
   const items = versions
     .map((v) => {
       const isActive = v.name === currentVersion;
-      const url = buildUrl(currentPath, { locale: currentLocale, version: v.name });
+      const url = buildUrl(currentPath, { locale: currentLocale, version: v.name, baseUrl });
       return `<option value="${url}"${isActive ? " selected" : ""}>${escHtml(v.label ?? v.name)}</option>`;
     })
     .join("");
@@ -33,14 +34,15 @@ function renderLanguageSwitcher(
   locales: LocaleInfo[],
   currentLocale: string | undefined,
   currentVersion: string | undefined,
-  currentPath: string
+  currentPath: string,
+  baseUrl?: string
 ): string {
   if (!locales.length) return "";
 
   const items = locales
     .map((l) => {
       const isActive = l.code === currentLocale;
-      const url = buildUrl(currentPath, { locale: l.code, version: currentVersion });
+      const url = buildUrl(currentPath, { locale: l.code, version: currentVersion, baseUrl });
       return `<option value="${url}"${isActive ? " selected" : ""}>${escHtml(l.label ?? getLocaleLabel(l.code))}</option>`;
     })
     .join("");
@@ -54,13 +56,14 @@ function sectionContainsUrl(
   items: SidebarItem[],
   url: string,
   locale?: string,
-  version?: string
+  version?: string,
+  baseUrl?: string
 ): boolean {
-  const prefix = buildUrl("", { locale, version });
+  const prefix = buildUrl("", { locale, version, baseUrl });
   for (const item of items) {
     if (item.type === "page" && prefix + item.url === url) return true;
     if (item.type === "section") {
-      if (prefix + item.url === url || sectionContainsUrl(item.items, url, locale, version)) return true;
+      if (prefix + item.url === url || sectionContainsUrl(item.items, url, locale, version, baseUrl)) return true;
     }
   }
   return false;
@@ -70,9 +73,10 @@ function renderSidebarItems(
   items: SidebarItem[],
   currentUrl: string,
   locale?: string,
-  version?: string
+  version?: string,
+  baseUrl?: string
 ): string {
-  const prefix = buildUrl("", { locale, version });
+  const prefix = buildUrl("", { locale, version, baseUrl });
   const hasPrefix = prefix !== "/";
 
   return items
@@ -92,13 +96,13 @@ function renderSidebarItems(
         const active = item.url === currentUrl;
         return `<li><a href="${url}" class="sidebar-row${active ? " active" : ""}">${escHtml(item.title)}</a></li>`;
       } else {
-        const open = sectionContainsUrl(item.items, currentUrl, locale, version) || item.url === currentUrl;
+        const open = sectionContainsUrl(item.items, currentUrl, locale, version, baseUrl) || item.url === currentUrl;
         const active = item.url === currentUrl;
         const titleEl = item.url
           ? `<a href="${url}" class="section-link">${escHtml(item.title)}</a>`
           : `<span class="section-link">${escHtml(item.title)}</span>`;
         const inner = item.items.length > 0
-          ? `<ul class="section-items">${renderSidebarItems(item.items, currentUrl, locale, version)}</ul>`
+          ? `<ul class="section-items">${renderSidebarItems(item.items, currentUrl, locale, version, baseUrl)}</ul>`
           : "";
         return `<li class="section${open ? " open" : ""}" data-section="${escHtml(item.title)}">
           <div class="sidebar-row${active ? " active" : ""}">
@@ -157,6 +161,7 @@ export interface PageTemplateOptions {
   currentVersion?: string;
   currentLocale?: string;
   translationOf?: string;
+  baseUrl?: string;
 }
 
 export function renderPage(opts: PageTemplateOptions): string {
@@ -174,10 +179,11 @@ export function renderPage(opts: PageTemplateOptions): string {
     currentVersion,
     currentLocale,
     translationOf,
+    baseUrl,
   } = opts;
 
   const accent = resolveColor(config.color);
-  const homeUrl = buildUrl("", { locale: currentLocale, version: currentVersion });
+  const homeUrl = buildUrl("", { locale: currentLocale, version: currentVersion, baseUrl });
   const siteTitle = config.title ?? "Docs";
   const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
   const metaDesc = description ?? config.description ?? "";
@@ -225,8 +231,8 @@ export function renderPage(opts: PageTemplateOptions): string {
         <a href="${escHtml(homeUrl)}" class="logo">${logoSrc ? `<img src="${escHtml(logoSrc)}" alt="" width="24" height="24" class="logo-img">` : ""}${escHtml(siteTitle)}</a>
       </div>
       <div class="header-right">
-        ${renderVersionSwitcher(versions ?? [], currentVersion, currentLocale, currentUrl)}
-        ${renderLanguageSwitcher(locales ?? [], currentLocale, currentVersion, currentUrl)}
+        ${renderVersionSwitcher(versions ?? [], currentVersion, currentLocale, currentUrl, baseUrl)}
+        ${renderLanguageSwitcher(locales ?? [], currentLocale, currentVersion, currentUrl, baseUrl)}
         <nav class="header-links">
           ${renderHeaderLinks(config.links)}
         </nav>
@@ -244,7 +250,7 @@ export function renderPage(opts: PageTemplateOptions): string {
     <aside class="sidebar">
       <nav>
         <ul class="sidebar-nav">
-          ${renderSidebarItems(sidebar, currentUrl, currentLocale, currentVersion)}
+          ${renderSidebarItems(sidebar, currentUrl, currentLocale, currentVersion, baseUrl)}
         </ul>
       </nav>
     </aside>

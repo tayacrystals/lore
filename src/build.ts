@@ -7,12 +7,12 @@ import { renderPage } from "./template.ts";
 import { detectVersions, getDefaultVersion } from "./version.ts";
 import { detectLocales, getDefaultLocale } from "./i18n.ts";
 
-async function findLogo(docsDir: string, outDir: string): Promise<string | undefined> {
+async function findLogo(docsDir: string, outDir: string, baseUrl?: string): Promise<string | undefined> {
   for (const name of ["logo.svg", "logo.png"]) {
     const src = Bun.file(`${docsDir}/${name}`);
     if (await src.exists()) {
       await Bun.write(`${outDir}/${name}`, src);
-      return `/${name}`;
+      return `${baseUrl || ''}/${name}`.replace(/\/+/g, '/');
     }
   }
 }
@@ -32,7 +32,7 @@ export async function build(
   }
 
   const config = await loadConfig(docsDir);
-  const logoSrc = await findLogo(docsDir, outDir);
+  const logoSrc = await findLogo(docsDir, outDir, config.baseUrl);
 
   const hasVersioning = config.versioning;
   const hasI18n = config.internationalization;
@@ -96,6 +96,7 @@ export async function build(
         currentVersion,
         currentLocale,
         translationOf: page.context.translationOf,
+        baseUrl: config.baseUrl,
       });
 
       const urlParts: string[] = [];
@@ -134,14 +135,14 @@ export async function build(
     const redirectHtml = `<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="refresh" content="0; url=${redirectPath}">
-  <script>window.location.href = "${redirectPath}";</script>
+  <meta http-equiv="refresh" content="0; url=${config.baseUrl || ''}${redirectPath}">
+  <script>window.location.href = "${config.baseUrl || ''}${redirectPath}";</script>
 </head>
 <body></body>
 </html>`;
     const outputPath = path.join(outDir, "index.html");
     await Bun.write(outputPath, redirectHtml);
-    console.log(`  / → ${path.relative(process.cwd(), outputPath)} (redirect to ${redirectPath})`);
+    console.log(`  / → ${path.relative(process.cwd(), outputPath)} (redirect to ${config.baseUrl || ''}${redirectPath})`);
   }
 
   console.log(`\nDone! Built ${totalPages} pages to ${outDir}`);

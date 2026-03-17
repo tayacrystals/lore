@@ -8,6 +8,7 @@ export interface Config {
   internationalization?: boolean;
   defaultVersion?: string;
   defaultLocale?: string;
+  baseUrl?: string;
 }
 
 export interface VersionInfo {
