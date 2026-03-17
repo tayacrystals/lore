@@ -7,13 +7,13 @@ Zero-setup documentation static site generator.
 Run lore in your docs directory:
 
 ```bash
-bunx lore
+bunx @tayacrystals/lore
 ```
 
 This builds your documentation to `./build`. To start a dev server:
 
 ```bash
-bunx lore dev
+bunx @tayacrystals/lore dev
 ```
 
 ## Documentation
