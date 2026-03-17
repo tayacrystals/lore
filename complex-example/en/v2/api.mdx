@@ -1,0 +1,73 @@
+# API Guide
+
+## REST API
+
+Lore provides a simple REST API for programmatic access.
+
+### Endpoints
+
+#### Get Documentation
+
+```http
+GET /api/docs/:locale/:version
+```
+
+Response:
+
+```json
+{
+  "locale": "en",
+  "version": "v2",
+  "pages": [
+    {
+      "title": "Installation",
+      "url": "/en/v2/installation",
+      "description": "Installation guide"
+    }
+  ]
+}
+```
+
+#### Get Page Content
+
+```http
+GET /api/page/:locale/:version/:slug
+```
+
+## GraphQL API
+
+Lore v2 includes a GraphQL API:
+
+```graphql
+query GetPage($locale: String!, $version: String!, $slug: String!) {
+  page(locale: $locale, version: $version, slug: $slug) {
+    title
+    content
+    metadata
+  }
+}
+```
+
+## Authentication
+
+API requests require an API key:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Rate Limiting
+
+- Free tier: 100 requests/hour
+- Pro tier: 10,000 requests/hour
+- Enterprise: Custom limits
+
+## Webhooks
+
+Configure webhooks to receive notifications:
+
+```yaml
+webhooks:
+  - url: https://example.com/webhook
+    events: [page.created, page.updated]
+```

@@ -1,0 +1,102 @@
+---
+translation-of: configuration
+---
+
+# Configuration
+
+## Configuration de Base
+
+Créez un fichier `lore.yml` dans votre répertoire de documentation :
+
+```yaml
+title: Ma Documentation
+description: Une description de vos docs
+color: blue
+```
+
+## Versionnage
+
+Activez le versionnage dans votre configuration :
+
+```yaml
+versioning: true
+defaultVersion: v2
+```
+
+Ensuite, créez des répertoires de version :
+
+```
+docs/
+  v1/
+    index.mdx
+  v2/
+    index.mdx
+```
+
+## Internationalisation
+
+Activez l'internationalisation :
+
+```yaml
+internationalization: true
+defaultLocale: en
+```
+
+Créez des répertoires de langue :
+
+```
+docs/
+  en/
+    index.mdx
+  fr/
+    index.mdx
+```
+
+## Liens de Traduction
+
+Reliez les pages traduites en utilisant `translation-of` :
+
+```yaml
+---
+translation-of: installation
+---
+
+# Guide d'Installation
+```
+
+## Fonctionnalités Combinées
+
+Lors de l'utilisation des deux fonctionnalités ensemble :
+
+```yaml
+versioning: true
+internationalization: true
+defaultVersion: v2
+defaultLocale: en
+```
+
+Structurez vos docs comme suit :
+
+```
+docs/
+  en/
+    v1/
+    v2/
+  fr/
+    v1/
+    v2/
+```
+
+## Options
+
+| Option | Type | Par Défaut | Description |
+|--------|------|------------|-------------|
+| `title` | string | "Docs" | Titre du site |
+| `description` | string | - | Méta description |
+| `color` | string | "#1d4ed8" | Couleur d'accentuation |
+| `links` | array | - | Liens d'en-tête |
+| `plugins` | array | - | Plugins activés |
+| `versioning` | boolean | false | Activer le versionnage |
+| `defaultVersion` | string | "latest" | Version par défaut |
+| `internationalization` | boolean | false | Activer i18n |
+| `defaultLocale` | string | "en" | Langue par défaut |

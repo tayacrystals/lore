@@ -7,9 +7,37 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeStringify from "rehype-stringify";
 import { codeToHtml } from "shiki";
 import { lucideIcon } from "./icons.ts";
+import { buildUrl } from "./routing.ts";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function addLinkPrefix(html: string, locale?: string, version?: string): string {
+  if (!locale && !version) return html;
+
+  const prefix = buildUrl("", { locale, version });
+
+  return html.replace(
+    /(href|src)=(["'])([^"']+)["']/g,
+    (match, attr, quote, url) => {
+      const trimmed = url.trim();
+
+      if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
+        return `${attr}=${quote}${prefix}${trimmed}${quote}`;
+      }
+      if (!trimmed.startsWith("/") &&
+          !trimmed.startsWith("http://") &&
+          !trimmed.startsWith("https://") &&
+          !trimmed.startsWith("mailto:") &&
+          !trimmed.startsWith("tel:") &&
+          !trimmed.startsWith("#")) {
+        const cleanUrl = trimmed.replace(/^\.?\//, "");
+        return `${attr}=${quote}${prefix}/${cleanUrl}${quote}`;
+      }
+      return match;
+    }
+  );
 }
 
 function parseAttrs(attrStr: string): Record<string, string> {
@@ -210,7 +238,12 @@ async function renderInner(
   return html;
 }
 
-export async function renderMdx(content: string): Promise<string> {
+export async function renderMdx(
+  content: string,
+  opts: { locale?: string; version?: string } = {}
+): Promise<string> {
+  const { locale, version } = opts;
+
   // 1. Extract fenced code blocks and inline code spans so component regexes
   //    don't accidentally match tags inside them.
   const codeBlocks = new Map<string, { lang: string; meta: string; code: string }>();
@@ -239,5 +272,10 @@ export async function renderMdx(content: string): Promise<string> {
 
   // 3. Restore inline spans, render markdown, restore code blocks
   for (const [id, raw] of inlineSpans) content = content.replace(id, raw);
-  return renderInner(content, codeBlocks);
+  let html = await renderInner(content, codeBlocks);
+
+  // 4. Add locale/version prefix to relative links
+  html = addLinkPrefix(html, locale, version);
+
+  return html;
 }

@@ -1,10 +1,14 @@
 import path from "node:path";
 import { stat } from "node:fs/promises";
 import { build } from "./build.ts";
+import { loadConfig } from "./config.ts";
+import { getDefaultVersion } from "./version.ts";
+import { getDefaultLocale } from "./i18n.ts";
 
 const STATIC_EXTS = new Set([".svg", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2"]);
 
 export async function serve(docsDir: string, outDir: string, port = 3000): Promise<void> {
+  const config = await loadConfig(docsDir);
   await build(docsDir, outDir);
 
   Bun.serve({
@@ -12,6 +16,26 @@ export async function serve(docsDir: string, outDir: string, port = 3000): Promi
     idleTimeout: 0,
     async fetch(req) {
       const url = new URL(req.url);
+
+      // Redirect from root to default version/locale
+      if (url.pathname === "/") {
+        const defaultLocale = config.internationalization
+          ? getDefaultLocale(config)
+          : undefined;
+        const defaultVersion = config.versioning
+          ? getDefaultVersion(config)
+          : undefined;
+
+        const redirectPathParts: string[] = [];
+        if (defaultLocale) redirectPathParts.push(defaultLocale);
+        if (defaultVersion) redirectPathParts.push(defaultVersion);
+
+        if (redirectPathParts.length > 0) {
+          const redirectPath = "/" + redirectPathParts.join("/") + "/";
+          return Response.redirect(url.origin + redirectPath, 302);
+        }
+      }
+
       let filePath = path.join(outDir, url.pathname);
       try {
         const s = await stat(filePath);

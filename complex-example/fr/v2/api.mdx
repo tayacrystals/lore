@@ -1,0 +1,77 @@
+---
+translation-of: api
+---
+
+# Guide API
+
+## API REST
+
+Lore fournit une API REST simple pour l'accès programmatique.
+
+### Points de Terminaison
+
+#### Obtenir la Documentation
+
+```http
+GET /api/docs/:locale/:version
+```
+
+Réponse :
+
+```json
+{
+  "locale": "en",
+  "version": "v2",
+  "pages": [
+    {
+      "title": "Installation",
+      "url": "/en/v2/installation",
+      "description": "Guide d'installation"
+    }
+  ]
+}
+```
+
+#### Obtenir le Contenu de la Page
+
+```http
+GET /api/page/:locale/:version/:slug
+```
+
+## API GraphQL
+
+Lore v2 inclut une API GraphQL :
+
+```graphql
+query GetPage($locale: String!, $version: String!, $slug: String!) {
+  page(locale: $locale, version: $version, slug: $slug) {
+    title
+    content
+    metadata
+  }
+}
+```
+
+## Authentification
+
+Les requêtes API nécessitent une clé API :
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Limitation de Taux
+
+- Niveau gratuit : 100 requêtes/heure
+- Niveau Pro : 10 000 requêtes/heure
+- Entreprise : Limites personnalisées
+
+## Webhooks
+
+Configurez des webhooks pour recevoir des notifications :
+
+```yaml
+webhooks:
+  - url: https://example.com/webhook
+    events: [page.created, page.updated]
+```

@@ -1,34 +1,104 @@
 import type { Config } from "./types.ts";
 import type { SidebarItem } from "./types.ts";
+import type { VersionInfo, LocaleInfo } from "./types.ts";
 import { resolveColor } from "./config.ts";
 import { linkIcon, linkHref } from "./icons.ts";
+import { buildUrl } from "./routing.ts";
+import { getLocaleLabel } from "./i18n.ts";
 
 const CHEVRON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 
-function sectionContainsUrl(items: SidebarItem[], url: string): boolean {
+function renderVersionSwitcher(
+  versions: VersionInfo[],
+  currentVersion: string | undefined,
+  currentLocale: string | undefined,
+  currentPath: string
+): string {
+  if (!versions.length) return "";
+
+  const items = versions
+    .map((v) => {
+      const isActive = v.name === currentVersion;
+      const url = buildUrl(currentPath, { locale: currentLocale, version: v.name });
+      return `<option value="${url}"${isActive ? " selected" : ""}>${escHtml(v.label ?? v.name)}</option>`;
+    })
+    .join("");
+
+  return `<select class="version-switcher" onchange="location.href = this.value;">
+    ${items}
+  </select>`;
+}
+
+function renderLanguageSwitcher(
+  locales: LocaleInfo[],
+  currentLocale: string | undefined,
+  currentVersion: string | undefined,
+  currentPath: string
+): string {
+  if (!locales.length) return "";
+
+  const items = locales
+    .map((l) => {
+      const isActive = l.code === currentLocale;
+      const url = buildUrl(currentPath, { locale: l.code, version: currentVersion });
+      return `<option value="${url}"${isActive ? " selected" : ""}>${escHtml(l.label ?? getLocaleLabel(l.code))}</option>`;
+    })
+    .join("");
+
+  return `<select class="locale-switcher" onchange="location.href = this.value;">
+    ${items}
+  </select>`;
+}
+
+function sectionContainsUrl(
+  items: SidebarItem[],
+  url: string,
+  locale?: string,
+  version?: string
+): boolean {
+  const prefix = buildUrl("", { locale, version });
   for (const item of items) {
-    if (item.type === "page" && item.url === url) return true;
+    if (item.type === "page" && prefix + item.url === url) return true;
     if (item.type === "section") {
-      if (item.url === url || sectionContainsUrl(item.items, url)) return true;
+      if (prefix + item.url === url || sectionContainsUrl(item.items, url, locale, version)) return true;
     }
   }
   return false;
 }
 
-function renderSidebarItems(items: SidebarItem[], currentUrl: string): string {
+function renderSidebarItems(
+  items: SidebarItem[],
+  currentUrl: string,
+  locale?: string,
+  version?: string
+): string {
+  const prefix = buildUrl("", { locale, version });
+  const hasPrefix = prefix !== "/";
+
   return items
     .map((item) => {
+      let url: string;
+      if (item.url?.startsWith("/")) {
+        if (hasPrefix) {
+          url = item.url === "/" ? prefix : prefix + item.url;
+        } else {
+          url = item.url;
+        }
+      } else {
+        url = item.url ?? "#";
+      }
+
       if (item.type === "page") {
         const active = item.url === currentUrl;
-        return `<li><a href="${item.url}" class="sidebar-row${active ? " active" : ""}">${escHtml(item.title)}</a></li>`;
+        return `<li><a href="${url}" class="sidebar-row${active ? " active" : ""}">${escHtml(item.title)}</a></li>`;
       } else {
-        const open = sectionContainsUrl(item.items, currentUrl) || item.url === currentUrl;
+        const open = sectionContainsUrl(item.items, currentUrl, locale, version) || item.url === currentUrl;
         const active = item.url === currentUrl;
         const titleEl = item.url
-          ? `<a href="${item.url}" class="section-link">${escHtml(item.title)}</a>`
+          ? `<a href="${url}" class="section-link">${escHtml(item.title)}</a>`
           : `<span class="section-link">${escHtml(item.title)}</span>`;
         const inner = item.items.length > 0
-          ? `<ul class="section-items">${renderSidebarItems(item.items, currentUrl)}</ul>`
+          ? `<ul class="section-items">${renderSidebarItems(item.items, currentUrl, locale, version)}</ul>`
           : "";
         return `<li class="section${open ? " open" : ""}" data-section="${escHtml(item.title)}">
           <div class="sidebar-row${active ? " active" : ""}">
@@ -82,11 +152,32 @@ export interface PageTemplateOptions {
   currentUrl: string;
   logoSrc?: string;
   devMode?: boolean;
+  versions?: VersionInfo[];
+  locales?: LocaleInfo[];
+  currentVersion?: string;
+  currentLocale?: string;
+  translationOf?: string;
 }
 
 export function renderPage(opts: PageTemplateOptions): string {
-  const { config, title, description, contentHtml, sidebar, currentUrl, logoSrc, devMode } = opts;
+  const {
+    config,
+    title,
+    description,
+    contentHtml,
+    sidebar,
+    currentUrl,
+    logoSrc,
+    devMode,
+    versions,
+    locales,
+    currentVersion,
+    currentLocale,
+    translationOf,
+  } = opts;
+
   const accent = resolveColor(config.color);
+  const homeUrl = buildUrl("", { locale: currentLocale, version: currentVersion });
   const siteTitle = config.title ?? "Docs";
   const pageTitle = title ? `${title} — ${siteTitle}` : siteTitle;
   const metaDesc = description ?? config.description ?? "";
@@ -131,9 +222,11 @@ export function renderPage(opts: PageTemplateOptions): string {
             <line x1="2" y1="13.5" x2="16" y2="13.5"/>
           </svg>
         </button>
-        <a href="/" class="logo">${logoSrc ? `<img src="${escHtml(logoSrc)}" alt="" width="24" height="24" class="logo-img">` : ""}${escHtml(siteTitle)}</a>
+        <a href="${escHtml(homeUrl)}" class="logo">${logoSrc ? `<img src="${escHtml(logoSrc)}" alt="" width="24" height="24" class="logo-img">` : ""}${escHtml(siteTitle)}</a>
       </div>
       <div class="header-right">
+        ${renderVersionSwitcher(versions ?? [], currentVersion, currentLocale, currentUrl)}
+        ${renderLanguageSwitcher(locales ?? [], currentLocale, currentVersion, currentUrl)}
         <nav class="header-links">
           ${renderHeaderLinks(config.links)}
         </nav>
@@ -151,7 +244,7 @@ export function renderPage(opts: PageTemplateOptions): string {
     <aside class="sidebar">
       <nav>
         <ul class="sidebar-nav">
-          ${renderSidebarItems(sidebar, currentUrl)}
+          ${renderSidebarItems(sidebar, currentUrl, currentLocale, currentVersion)}
         </ul>
       </nav>
     </aside>
@@ -511,6 +604,28 @@ article th { background: var(--bg-sidebar); font-weight: 600; }
 `;
 
 const COMPONENT_CSS = `
+/* ── Version/Locale Switchers ─────────────────────────────────── */
+.version-switcher, .locale-switcher {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 28px 4px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23636366' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  margin-right: 4px;
+}
+.version-switcher:hover, .locale-switcher:hover {
+  border-color: var(--text-muted);
+}
+
 /* ── Shiki dual-theme ───────────────────────────────────── */
 .shiki, .shiki span { color: var(--shiki-light) !important; background-color: var(--shiki-light-bg) !important; }
 :root.dark .shiki, :root.dark .shiki span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }

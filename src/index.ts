@@ -7,14 +7,16 @@ import { serve } from "./serve.ts";
 const args = process.argv.slice(2);
 
 let command: "build" | "dev" | "serve" = "build";
-let i = 0;
+let dirArg: string | undefined;
 
-if (args[i] === "dev" || args[i] === "build" || args[i] === "serve") {
-  command = args[i] as "build" | "dev" | "serve";
-  i++;
+if (args[0] === "dev" || args[0] === "build" || args[0] === "serve") {
+  command = args[0] as "build" | "dev" | "serve";
+  dirArg = args[1];
+} else {
+  dirArg = args[0];
 }
 
-const docsDir = args[i] ? path.resolve(args[i]) : process.cwd();
+const docsDir = dirArg ? path.resolve(dirArg) : process.cwd();
 const outDir = path.join(process.cwd(), "build");
 
 if (command === "dev") {

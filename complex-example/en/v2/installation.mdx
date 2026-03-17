@@ -1,0 +1,81 @@
+# Installation Guide (v2)
+
+## Prerequisites
+
+Before installing Lore v2, make sure you have:
+
+- Node.js 20+
+- Bun (optional but recommended)
+
+## Installation
+
+### Using Bun (Recommended)
+
+```bash
+bun install -g lore
+```
+
+### Using npm
+
+```bash
+npm install -g lore
+```
+
+### Using pnpm
+
+```bash
+pnpm add -g lore
+```
+
+## Quick Start
+
+1. Create a new docs directory:
+
+```bash
+mkdir my-docs
+cd my-docs
+```
+
+2. Initialize your docs:
+
+```bash
+lore init
+```
+
+3. Start the dev server:
+
+```bash
+lore dev
+```
+
+## What's New in v2
+
+### Faster Builds
+
+Lore v2 builds are 3x faster thanks to incremental compilation.
+
+### Better TypeScript Support
+
+Improved type inference and auto-import features.
+
+### New Features
+
+- Inline code component support
+- Enhanced markdown extensions
+- Better error messages
+- Improved hot reload
+
+## Migration from v1
+
+If you're upgrading from v1, update your `lore.yml`:
+
+```yaml
+# Old v1 format
+version: "1.0.0"
+
+# New v2 format (removed, use semantic versioning in versions/)
+```
+
+## Next Steps
+
+After installation, check out the [Configuration](./configuration) guide.

@@ -1,11 +1,18 @@
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { parsePage, filenameToTitle } from "./parse.ts";
-import type { PageInfo, SidebarItem } from "./types.ts";
+import type { PageInfo, SidebarItem, VersionInfo, LocaleInfo } from "./types.ts";
+import { loadConfig } from "./config.ts";
+import { detectVersions, getDefaultVersion } from "./version.ts";
+import { detectLocales, getDefaultLocale } from "./i18n.ts";
 
 export interface DocTree {
   pages: PageInfo[];
   sidebar: SidebarItem[];
+  versions?: VersionInfo[];
+  locales?: LocaleInfo[];
+  currentVersion?: string;
+  currentLocale?: string;
 }
 
 /** Strip numeric prefix: "01-configuration" → "configuration" */
@@ -32,7 +39,7 @@ function generateListing(title: string, url: string, items: SidebarItem[]): Page
     const href = item.type === "page" ? item.url : (item.url ?? "#");
     lines.push(`- [${item.title}](${href})`);
   }
-  return { filePath: url, url, title, content: lines.join("\n") };
+  return { filePath: url, url, title, content: lines.join("\n"), context: {} };
 }
 
 /** Sort entries: index.mdx first, then alphabetically */
@@ -46,11 +53,70 @@ function sortEntries(entries: string[]): string[] {
   });
 }
 
-export async function buildDocTree(docsDir: string): Promise<DocTree> {
+export async function buildDocTree(
+  docsDir: string,
+  opts: {
+    version?: string;
+    locale?: string;
+  } = {}
+): Promise<DocTree> {
+  const config = await loadConfig(docsDir);
+  const hasVersioning = config.versioning;
+  const hasI18n = config.internationalization;
+
+  let versions: VersionInfo[] = [];
+  let locales: LocaleInfo[] = [];
+
+  if (hasI18n) {
+    locales = await detectLocales(docsDir);
+  }
+
+  if (hasVersioning) {
+    if (hasI18n && locales.length > 0) {
+      const locale = opts.locale ?? getDefaultLocale(config);
+      const localeDir = path.join(docsDir, locale);
+      versions = await detectVersions(localeDir);
+    } else {
+      versions = await detectVersions(docsDir);
+    }
+  }
+
+  let contentDir = docsDir;
+  let currentVersion: string | undefined;
+  let currentLocale: string | undefined;
+
+  if (hasI18n) {
+    currentLocale = opts.locale ?? getDefaultLocale(config);
+    contentDir = path.join(contentDir, currentLocale);
+  }
+
+  if (hasVersioning) {
+    currentVersion = opts.version ?? getDefaultVersion(config);
+    contentDir = path.join(contentDir, currentVersion);
+  }
+
   const pages: PageInfo[] = [];
   const sidebar: SidebarItem[] = [];
-  await walkDir(docsDir, docsDir, [], pages, sidebar, true);
-  return { pages, sidebar };
+
+  await walkDir(
+    docsDir,
+    contentDir,
+    [],
+    pages,
+    sidebar,
+    true,
+    currentLocale,
+    currentVersion
+  );
+
+  return {
+    pages,
+    sidebar,
+    versions: versions.length > 0 ? versions : undefined,
+    locales: locales.length > 0 ? locales : undefined,
+    currentVersion,
+    currentLocale,
+  };
 }
 
 async function walkDir(
@@ -59,12 +125,14 @@ async function walkDir(
   pathParts: string[],
   pages: PageInfo[],
   sidebar: SidebarItem[],
-  isRoot: boolean
+  isRoot: boolean,
+  currentLocale?: string,
+  currentVersion?: string
 ): Promise<void> {
   const entries = sortEntries(await readdir(dir));
 
   for (const entry of entries) {
-    if (entry === "lore.yml") continue;
+    if (entry === "lore.yml" || entry.startsWith(".")) continue;
 
     const fullPath = path.join(dir, entry);
     const s = await stat(fullPath);
@@ -74,7 +142,7 @@ async function walkDir(
       const sectionItems: SidebarItem[] = [];
       const sectionPages: PageInfo[] = [];
 
-      await walkDir(docsDir, fullPath, [...pathParts, entry], sectionPages, sectionItems, false);
+      await walkDir(docsDir, fullPath, [...pathParts, entry], sectionPages, sectionItems, false, currentLocale, currentVersion);
 
       const sectionUrl = buildUrl([...pathParts, entry]);
       const hasIndex = sectionPages.some((p) => p.url === sectionUrl);
@@ -105,6 +173,11 @@ async function walkDir(
         title,
         description: parsed.description,
         content: parsed.content,
+        context: {
+          version: currentVersion,
+          locale: currentLocale,
+          translationOf: parsed.frontmatter["translation-of"] as string | undefined,
+        },
       };
       pages.push(page);
 

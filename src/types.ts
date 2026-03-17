@@ -10,12 +10,29 @@ export interface Config {
   defaultLocale?: string;
 }
 
+export interface VersionInfo {
+  name: string;
+  label?: string;
+}
+
+export interface LocaleInfo {
+  code: string;
+  label?: string;
+}
+
+export interface PageContext {
+  version?: string;
+  locale?: string;
+  translationOf?: string;
+}
+
 export interface PageInfo {
   filePath: string;
   url: string;
   title: string;
   description?: string;
-  content: string; // markdown content with frontmatter stripped
+  content: string;
+  context: PageContext;
 }
 
 export interface SidebarPage {

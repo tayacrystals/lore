@@ -1,0 +1,7 @@
+title: Lore Complex Example
+description: A demonstration of versioning and internationalization
+color: blue
+versioning: true
+defaultVersion: v2
+internationalization: true
+defaultLocale: en
