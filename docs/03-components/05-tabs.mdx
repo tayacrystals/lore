@@ -1,0 +1,76 @@
+---
+---
+
+# Tabs
+
+<Tabs>
+  <Tab label="npm">
+    ```sh
+    npm install my-package
+    ```
+  </Tab>
+  <Tab label="yarn">
+    ```sh
+    yarn add my-package
+    ```
+  </Tab>
+</Tabs>
+
+```mdx
+<Tabs>
+  <Tab label="npm">
+    ```sh
+    npm install my-package
+    ```
+  </Tab>
+  <Tab label="yarn">
+    ```sh
+    yarn add my-package
+    ```
+  </Tab>
+</Tabs>
+```
+
+## Synced tab groups
+
+Use a `group` prop to sync tabs across multiple `<Tabs>` instances. When the user switches tabs in one, all others with the same group switch to the matching label.
+
+<Tabs group="package-manager">
+  <Tab label="npm">
+    ```sh
+    npm install my-package
+    ```
+  </Tab>
+  <Tab label="yarn">
+    ```sh
+    yarn add my-package
+    ```
+  </Tab>
+</Tabs>
+
+<Tabs group="package-manager">
+  <Tab label="npm">
+    ```sh
+    npm run dev
+    ```
+  </Tab>
+  <Tab label="yarn">
+    ```sh
+    yarn dev
+    ```
+  </Tab>
+</Tabs>
+
+```mdx
+<Tabs group="package-manager">
+  <Tab label="npm">...</Tab>
+  <Tab label="yarn">...</Tab>
+</Tabs>
+
+<Tabs group="package-manager">
+  <Tab label="npm">...</Tab>
+  <Tab label="yarn">...</Tab>
+</Tabs>
+```
+
+The selected tab is persisted in `localStorage` so it is remembered across page navigations.

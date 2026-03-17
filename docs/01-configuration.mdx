@@ -1,0 +1,87 @@
+---
+---
+
+# Configuration
+
+Lore is configured via a `lore.yml` file in your docs directory.
+
+```yaml
+title: My Project
+description: My project documentation
+color: blue
+logo: ./logo.svg
+links:
+  - https://github.com/my-org/my-project
+plugins:
+  - js-multi-package-manager
+versioning: false
+internationalization: false
+```
+
+## Options
+
+### `title`
+The name of your project. Displayed in the header and used as the site title.
+
+### `description`
+A short description of your project. Used in meta tags.
+
+### `color`
+Accent color for the site. Accepts any CSS color value or one of the named presets:
+`red` `orange` `yellow` `green` `blue` `purple` `pink` `gray`
+
+### `logo`
+Path to a logo image, relative to the docs directory. Displayed in the header in place of the title text.
+
+### `links`
+A list of URLs to display as icon links in the header. GitHub, npm, and a few other domains are automatically recognized and given the appropriate icon. For other URLs, specify an icon explicitly:
+
+```yaml
+links:
+  - https://github.com/my-org/my-project
+  - url: https://my-project.slack.com
+    icon: message-circle
+```
+
+`icon` accepts any [Lucide](https://lucide.dev/icons/) icon name.
+
+### `plugins`
+A list of plugins to enable. See [Plugins](./plugins).
+
+### `versioning`
+
+```yaml
+versioning: true
+defaultVersion: v2
+```
+
+When enabled, the top level of your docs directory is treated as version directories. If `internationalization` is also enabled, version directories are nested inside each locale instead.
+
+`defaultVersion` is required when versioning is enabled. It determines which version is shown when visiting the site without a version in the URL.
+
+```
+docs/
+  v1/
+  v2/
+```
+
+See [Versioning](./versioning).
+
+### `internationalization`
+
+```yaml
+internationalization: true
+defaultLocale: en
+```
+
+When enabled, the top level of your docs directory is treated as locale directories. If `versioning` is also enabled, version directories are nested inside each locale.
+
+`defaultLocale` is required when internationalization is enabled. It determines which locale is shown when visiting the site without a locale in the URL.
+
+```
+docs/
+  en/
+  fr/
+```
+
+See [Internationalization](./internationalization).

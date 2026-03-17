@@ -1,0 +1,7 @@
+title: Lore
+description: A zero-setup documentation static site generator.
+color: orange
+links:
+  - https://github.com/tayacrystals/lore
+plugins:
+  - js-multi-package-manager

@@ -1,0 +1,117 @@
+---
+---
+
+# Plugins
+
+Plugins extend Lore with additional functionality — transforming content, adding MDX components, or hooking into the MDX pipeline.
+
+## Using Plugins
+
+Add plugins to `lore.yml`:
+
+```yaml
+plugins:
+  - js-multi-package-manager
+  - ./my-local-plugin.js
+```
+
+To pass options to a plugin, use the object form:
+
+```yaml
+plugins:
+  - js-multi-package-manager
+  - name: ./my-local-plugin.js
+    options:
+      foo: bar
+```
+
+## Creating a Plugin
+
+A plugin is a function that receives options and returns a plugin object.
+
+```js
+// my-plugin.js
+export default function myPlugin(options = {}) {
+  return {
+    name: 'my-plugin',
+    remarkPlugins: [],
+    rehypePlugins: [],
+    components: {},
+  }
+}
+```
+
+### `name`
+A unique identifier for the plugin. Used in error messages and logs.
+
+### `remarkPlugins`
+[Remark](https://github.com/remarkjs/remark) plugins to add to the MDX pipeline. These operate on the markdown AST before it is converted to HTML.
+
+### `rehypePlugins`
+[Rehype](https://github.com/rehypejs/rehype) plugins to add to the MDX pipeline. These operate on the HTML AST after markdown conversion.
+
+### `components`
+Additional MDX components to make available on every page, without needing to import them manually. Values should be the component implementation.
+
+```js
+import { MyComponent } from './components.js'
+
+export default function myPlugin(options = {}) {
+  return {
+    name: 'my-plugin',
+    components: {
+      MyComponent,
+    },
+  }
+}
+```
+
+## Example: `js-multi-package-manager`
+
+The `js-multi-package-manager` plugin detects shell code blocks containing package manager commands and automatically converts them into a synced tab group with equivalents for npm, yarn, pnpm, and bun.
+
+Given this code block:
+
+````mdx
+```sh
+npm install fumadocs-core
+```
+````
+
+The plugin outputs:
+
+```mdx
+<Tabs group="package-manager">
+  <Tab label="npm">
+    ```sh
+    npm install fumadocs-core
+    ```
+  </Tab>
+  <Tab label="yarn">
+    ```sh
+    yarn add fumadocs-core
+    ```
+  </Tab>
+  <Tab label="pnpm">
+    ```sh
+    pnpm add fumadocs-core
+    ```
+  </Tab>
+  <Tab label="bun">
+    ```sh
+    bun add fumadocs-core
+    ```
+  </Tab>
+</Tabs>
+```
+
+Because the tabs use `group="package-manager"`, switching package manager once applies everywhere on the page — and is remembered across navigations via `localStorage`.
+
+You can limit which package managers are included via options:
+
+```yaml
+plugins:
+  - name: js-multi-package-manager
+    options:
+      managers: [npm, pnpm, bun]
+```

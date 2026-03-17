@@ -1,0 +1,61 @@
+---
+---
+
+# File Structure
+
+Lore turns your directory structure into navigation. Each `.mdx` file becomes a page, and each directory becomes a section in the sidebar.
+
+```
+docs/
+  lore.yml
+  index.mdx            → /
+  configuration.mdx    → /configuration
+  guides/
+    index.mdx          → /guides
+    quick-start.mdx    → /guides/quick-start
+```
+
+Sidebar order follows the filesystem order. You can control order by prefixing filenames with numbers — the prefix is stripped from the displayed title and the URL.
+
+```
+docs/
+  01-introduction.mdx    → /introduction
+  02-installation.mdx    → /installation
+  03-configuration.mdx   → /configuration
+```
+
+## index.mdx
+
+The root `index.mdx` is the landing page of your site and appears as its own item in the sidebar.
+
+A subfolder `index.mdx` is shown when the user clicks on the section header in the sidebar — the header becomes a link to that page. Without one, the section header only expands and collapses; it doesn't link anywhere. Navigating directly to the section URL still works either way — lore generates an automatic directory listing as a fallback.
+
+## Naming
+
+Page and section titles are inferred from the filename: hyphens and underscores become spaces, and the result is title-cased. If the page has a leading `h1`, that is used instead.
+
+`quick-start.mdx` → "Quick Start"
+
+```mdx
+# A Different Title
+
+...
+```
+
+→ "A Different Title"
+
+## Frontmatter
+
+Each page can include a YAML frontmatter block at the top.
+
+```yaml
+---
+description: A short description of this page.
+---
+```
+
+### `description`
+Used in meta tags for this page.
+
+### `translation-of`
+Used when [internationalization](./internationalization) is enabled. Points to the equivalent page path in the default locale, allowing the language switcher to link between translations. Only needed on non-default locale pages.

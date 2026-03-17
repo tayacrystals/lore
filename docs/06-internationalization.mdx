@@ -1,0 +1,62 @@
+---
+---
+
+# Internationalization
+
+Enable internationalization in `lore.yml`:
+
+```yaml
+internationalization: true
+defaultLocale: en
+```
+
+Each top-level directory in your docs becomes a locale:
+
+```
+docs/
+  en/
+    index.mdx
+    configuration.mdx
+  fr/
+    index.mdx
+    configuration.mdx
+```
+
+Lore adds a language switcher to the header. The `defaultLocale` is the one shown when visiting the site without a locale in the URL — navigating to `/` redirects to `/<defaultLocale>/`.
+
+## Translating Pages
+
+Filenames and URLs can be translated freely. To allow the language switcher to link between equivalent pages across locales, add a `translation-of` field to translated pages pointing to the corresponding path in the default locale:
+
+```
+docs/
+  en/
+    quick-start.mdx
+  fr/
+    demarrage-rapide.mdx
+```
+
+```yaml
+---
+# fr/demarrage-rapide.mdx
+translation-of: quick-start
+---
+```
+
+Pages without a `translation-of` field will not be linked in the language switcher. Default locale pages don't need any special frontmatter.
+
+## With Versioning
+
+If `versioning` is also enabled, version directories are nested inside locale directories:
+
+```
+docs/
+  en/
+    v1/
+    v2/
+  fr/
+    v1/
+    v2/
+```
+
+See [Versioning](./versioning).

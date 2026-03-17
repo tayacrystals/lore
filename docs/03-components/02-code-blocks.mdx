@@ -1,0 +1,90 @@
+---
+---
+
+# Code Blocks
+
+Code blocks are powered by [Expressive Code](https://expressive-code.com). All features are configured via the opening fence's meta string.
+
+## Filename & frames
+
+````mdx
+```ts title="greet.ts"
+function greet(name: string) {
+  return `Hello, ${name}!`
+}
+```
+````
+
+Use `frame="terminal"` to render a terminal frame instead of an editor frame, or `frame="none"` to remove the frame entirely.
+
+## Line markers
+
+Highlight lines with `{n}`, ranges with `{n-m}`, or mark insertions and deletions:
+
+````mdx
+```ts {1} ins={3} del={2}
+const name = "world"
+console.log("Hello, world!")
+console.log(`Hello, ${name}!`)
+```
+````
+
+## Inline text markers
+
+Mark specific text with quoted strings or regular expressions:
+
+````mdx
+```ts "name" ins="greet" del="hello"
+function hello(name: string) {
+  return `Hello, ${name}!`
+}
+```
+````
+
+## Diff
+
+Use `diff` as the language with `+`/`-` prefixes, combined with `lang` to keep syntax highlighting:
+
+````mdx
+```diff lang="ts"
+- function hello() {
++ function greet(name: string) {
+-   return "Hello, world!"
++   return `Hello, ${name}!`
+  }
+```
+````
+
+## Collapsible sections
+
+````mdx
+```ts collapse={1-5}
+// lots of boilerplate...
+import { foo } from "foo"
+import { bar } from "bar"
+import { baz } from "baz"
+
+// the interesting part
+export function main() {}
+```
+````
+
+## Line numbers
+
+````mdx
+```ts showLineNumbers
+function greet(name: string) {
+  return `Hello, ${name}!`
+}
+```
+````
+
+## Word wrap
+
+````mdx
+```ts wrap
+// a very long line that would otherwise scroll horizontally...
+```
+````
+
+For the full feature reference see [expressive-code.com](https://expressive-code.com).
