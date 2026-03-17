@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Simple documentation site generator with versioning and internationalization support",
   "type": "module",
-  "bin": "./src/index.ts",
+  "bin": {
+    "lore": "src/index.ts"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
