@@ -1,6 +1,6 @@
 {
   "name": "@tayacrystals/lore",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple documentation site generator with versioning and internationalization support",
   "type": "module",
   "bin": {
