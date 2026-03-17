@@ -24,6 +24,7 @@
   },
   "scripts": {
     "build": "bun run src/index.ts ./docs",
-    "dev": "bun run src/index.ts dev ./docs"
+    "dev": "bun run src/index.ts dev ./docs",
+    "serve": "bun run src/index.ts serve ./docs"
   }
 }

@@ -5,24 +5,24 @@
 
 Lore turns your directory structure into navigation. Each `.mdx` file becomes a page, and each directory becomes a section in the sidebar.
 
-```
+<FileTree>
 docs/
   lore.yml
-  index.mdx            → /
-  configuration.mdx    → /configuration
+  index.mdx
+  configuration.mdx
   guides/
-    index.mdx          → /guides
-    quick-start.mdx    → /guides/quick-start
-```
+    index.mdx
+    quick-start.mdx
+</FileTree>
 
 Sidebar order follows the filesystem order. You can control order by prefixing filenames with numbers — the prefix is stripped from the displayed title and the URL.
 
-```
+<FileTree>
 docs/
-  01-introduction.mdx    → /introduction
-  02-installation.mdx    → /installation
-  03-configuration.mdx   → /configuration
-```
+  01-introduction.mdx
+  02-installation.mdx
+  03-configuration.mdx
+</FileTree>
 
 ## index.mdx
 

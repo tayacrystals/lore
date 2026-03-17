@@ -30,7 +30,7 @@ function renderSidebarItems(items: SidebarItem[], currentUrl: string): string {
         const inner = item.items.length > 0
           ? `<ul class="section-items">${renderSidebarItems(item.items, currentUrl)}</ul>`
           : "";
-        return `<li class="section${open ? " open" : ""}">
+        return `<li class="section${open ? " open" : ""}" data-section="${escHtml(item.title)}">
           <div class="sidebar-row${active ? " active" : ""}">
             ${titleEl}
             <button class="section-toggle" aria-label="Toggle section">${CHEVRON}</button>
@@ -63,6 +63,15 @@ function escHtml(str: string): string {
 
 const SUN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
 const MOON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`;
+
+function minifyCss(css: string): string {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, "")  // strip comments
+    .replace(/\s+/g, " ")               // collapse whitespace
+    .replace(/ *([{}:;,]) */g, "$1")    // remove spaces around punctuation
+    .replace(/;}/g, "}")                // remove trailing semicolons
+    .trim();
+}
 
 export interface PageTemplateOptions {
   config: Config;
@@ -97,10 +106,19 @@ export function renderPage(opts: PageTemplateOptions): string {
       if (t) document.documentElement.classList.add(t);
     })();
   </script>
-  <style>
-    ${CSS.replace("__ACCENT__", accent)}
-    ${COMPONENT_CSS}
-  </style>
+  <style>${CSS_MIN.replace("__ACCENT__", accent)}${COMPONENT_CSS_MIN}</style>
+  <noscript><style>
+    .section-items { display: block !important; }
+    .section-toggle { display: none !important; }
+    .tab-panel { display: block !important; }
+    .tab-list { display: none !important; }
+    @media (max-width: 768px) {
+      .sidebar { transform: none !important; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+      .menu-btn { display: none !important; }
+      .layout { flex-direction: column; }
+      .content { margin-left: 0; }
+    }
+  </style></noscript>
 </head>
 <body>
   <header>
@@ -113,7 +131,7 @@ export function renderPage(opts: PageTemplateOptions): string {
             <line x1="2" y1="13.5" x2="16" y2="13.5"/>
           </svg>
         </button>
-        <a href="/" class="logo">${logoSrc ? `<img src="${escHtml(logoSrc)}" alt="${escHtml(siteTitle)}" class="logo-img">` : ""}${escHtml(siteTitle)}</a>
+        <a href="/" class="logo">${logoSrc ? `<img src="${escHtml(logoSrc)}" alt="" width="24" height="24" class="logo-img">` : ""}${escHtml(siteTitle)}</a>
       </div>
       <div class="header-right">
         <nav class="header-links">
@@ -153,9 +171,20 @@ export function renderPage(opts: PageTemplateOptions): string {
         document.body.classList.remove('sidebar-open');
       });
     });
+    document.querySelectorAll('.section[data-section]').forEach(function(section) {
+      var key = 'sidebar:' + section.dataset.section;
+      if (section.classList.contains('open')) {
+        localStorage.setItem(key, '1');
+      } else {
+        if (localStorage.getItem(key) === '1') section.classList.add('open');
+      }
+    });
     document.querySelectorAll('.section-toggle').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        btn.closest('.section').classList.toggle('open');
+        var section = btn.closest('.section');
+        section.classList.toggle('open');
+        var key = section.dataset.section;
+        if (key) localStorage.setItem('sidebar:' + key, section.classList.contains('open') ? '1' : '0');
       });
     });
     // Tabs
@@ -543,7 +572,7 @@ const COMPONENT_CSS = `
   padding: 12px 16px;
   margin-bottom: 16px;
 }
-.file-tree ul { list-style: none; padding-left: 20px; }
+.file-tree ul { list-style: none; padding-left: 20px; margin-bottom: 0; }
 .file-tree > ul { padding-left: 0; }
 .file-tree li { padding: 2px 0; }
 .tree-row { display: flex; align-items: center; gap: 6px; }
@@ -598,3 +627,6 @@ const COMPONENT_CSS = `
 .tab-panel.active { display: block; }
 .tab-panel > *:last-child { margin-bottom: 0; }
 `;
+
+const CSS_MIN = minifyCss(CSS);
+const COMPONENT_CSS_MIN = minifyCss(COMPONENT_CSS);

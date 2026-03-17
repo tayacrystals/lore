@@ -8,18 +8,19 @@ export async function loadConfig(docsDir: string): Promise<Config> {
   return (yaml.load(text) as Config) ?? {};
 }
 
+// WCAG AA compliant colors (≥4.5:1 contrast on white)
 const NAMED_COLORS: Record<string, string> = {
-  red: "#ef4444",
-  orange: "#f97316",
-  yellow: "#eab308",
-  green: "#22c55e",
-  blue: "#3b82f6",
-  purple: "#a855f7",
-  pink: "#ec4899",
-  gray: "#6b7280",
+  red: "#b91c1c",
+  orange: "#c2410c",
+  yellow: "#a16207",
+  green: "#15803d",
+  blue: "#1d4ed8",
+  purple: "#6d28d9",
+  pink: "#be185d",
+  gray: "#374151",
 };
 
 export function resolveColor(color?: string): string {
-  if (!color) return "#3b82f6";
+  if (!color) return "#1d4ed8";
   return NAMED_COLORS[color] ?? color;
 }
