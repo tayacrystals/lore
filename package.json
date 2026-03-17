@@ -25,6 +25,10 @@
     "mdx",
     "cli"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
