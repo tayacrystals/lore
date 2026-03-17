@@ -1,0 +1,135 @@
+---
+---
+
+# Deployment
+
+Lore can be deployed to GitHub Pages using GitHub Actions.
+
+## Setup
+
+Enable GitHub Pages in your repository settings:
+
+1. Go to **Settings** → **Pages**
+2. Set **Source** to **GitHub Actions**
+
+## Workflow
+
+Create `.github/workflows/deploy-pages.yml`:
+
+<FileTree>
+.github/
+  workflows/
+    deploy-pages.yml
+</FileTree>
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build docs
+        run: bun run build docs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+<Callout type="tip">
+You can customize the `branches` trigger to deploy on specific branches or add additional triggers like tags.
+</Callout>
+
+## Configuration
+
+### `baseUrl`
+
+If deploying to a subdirectory (e.g., `https://username.github.io/repo/`), configure the `baseUrl` in your `lore.yml`:
+
+```yaml
+baseUrl: /repo
+```
+
+For root deployments (e.g., `https://username.github.io/`), omit the `baseUrl` field or set it to `/`.
+
+### Build Directory
+
+By default, Lore builds to `./build` in the current working directory. If your docs directory is at the root of your repository, the workflow above will work as-is. If your docs are in a subdirectory, adjust the build command:
+
+```yaml
+- name: Build docs
+  run: bun run build path/to/docs
+```
+
+## Permissions
+
+The workflow requires these permissions:
+
+- `contents: read` - to checkout the repository
+- `pages: write` - to deploy to GitHub Pages
+- `id-token: write` - required for OIDC authentication with GitHub Pages
+
+## Custom Triggers
+
+### On Tag Push
+
+Deploy when a new version tag is pushed:
+
+```yaml
+on:
+  push:
+    tags:
+      - 'v*'
+```
+
+### Manual Trigger
+
+Deploy manually from the Actions tab:
+
+```yaml
+on:
+  workflow_dispatch:
+```
+
+### Multiple Triggers
+
+Combine multiple triggers:
+
+```yaml
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+```
