@@ -321,6 +321,12 @@ export function renderPage(opts: PageTemplateOptions): string {
       });
     });
 
+    document.querySelectorAll('button.tree-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        btn.closest('.tree-dir').classList.toggle('tree-dir-open');
+      });
+    });
+
     function toggleTheme() {
       var html = document.documentElement;
       var isDark = html.classList.contains('dark') ||
@@ -699,6 +705,16 @@ const COMPONENT_CSS = `
 .tree-row { display: flex; align-items: center; gap: 6px; }
 .tree-icon { display: flex; flex-shrink: 0; color: var(--text-muted); }
 .tree-dir-icon { color: var(--accent); }
+.tree-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  padding: 0; flex-shrink: 0;
+}
+button.tree-toggle svg { transition: transform 0.15s ease; }
+.tree-dir-open > .tree-row > button.tree-toggle svg { transform: rotate(90deg); }
+.tree-dir:not(.tree-dir-open) > ul { display: none; }
 
 /* ── Steps ──────────────────────────────────────────────── */
 .steps { margin-bottom: 16px; }

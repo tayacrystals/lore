@@ -29,8 +29,14 @@ export async function dev(docsDir: string, outDir: string): Promise<void> {
   }
 
   // Watch docs dir and rebuild on changes
+  const outDirRel = path.relative(docsDir, outDir);
+  const outDirInDocsDir = !outDirRel.startsWith("..");
+
   let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
   watch(docsDir, { recursive: true }, (_event, filename) => {
+    if (!filename) return;
+    // Ignore writes to the build output dir — otherwise each rebuild triggers another
+    if (outDirInDocsDir && (filename === outDirRel || filename.startsWith(outDirRel + "/"))) return;
     if (rebuildTimer) clearTimeout(rebuildTimer);
     rebuildTimer = setTimeout(async () => {
       console.log(`\n${filename} changed — rebuilding...`);

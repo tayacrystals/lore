@@ -141,12 +141,21 @@ function parseTree(lines: string[]): TreeNode[] {
 
 const FOLDER_ICON = lucideIcon("folder") ?? "📁";
 const FILE_ICON = lucideIcon("file") ?? "📄";
+const CHEVRON_ICON = lucideIcon("chevron-right") ?? "";
 
 function renderTree(nodes: TreeNode[]): string {
   return nodes.map((n) => {
     const icon = `<span class="tree-icon${n.isDir ? " tree-dir-icon" : ""}">${n.isDir ? FOLDER_ICON : FILE_ICON}</span>`;
-    const kids = n.isDir && n.children.length > 0 ? `<ul>${renderTree(n.children)}</ul>` : "";
-    return `<li class="${n.isDir ? "tree-dir" : "tree-file"}"><div class="tree-row">${icon}<span>${esc(n.name)}</span></div>${kids}</li>`;
+    if (n.isDir) {
+      const hasKids = n.children.length > 0;
+      const toggle = hasKids
+        ? `<button class="tree-toggle" aria-label="Toggle folder">${CHEVRON_ICON}</button>`
+        : `<span class="tree-toggle"></span>`;
+      const kids = hasKids ? `<ul>${renderTree(n.children)}</ul>` : "";
+      return `<li class="tree-dir tree-dir-open"><div class="tree-row">${toggle}${icon}<span>${esc(n.name)}</span></div>${kids}</li>`;
+    } else {
+      return `<li class="tree-file"><div class="tree-row"><span class="tree-toggle"></span>${icon}<span>${esc(n.name)}</span></div></li>`;
+    }
   }).join("");
 }
 
@@ -253,7 +262,7 @@ export async function renderMdx(
   content = content.replace(/^([ \t]*)(`{3,})(\w*)(.*)\n([\s\S]*?)\n\1\2[ \t]*$/gm, (_, indent, _fence, lang, meta, code) => {
     const id = `LORECODE${ci++}`;
     const dedented = indent ? code.replace(new RegExp(`^${indent}`, "gm"), "") : code;
-    codeBlocks.set(id, { lang, meta: meta.trim(), code: dedented });
+    codeBlocks.set(id, { lang, meta: meta.trim(), code: dedented.trimEnd() });
     return `\n${id}\n`;
   });
   // Inline code spans (single or multi backtick)
