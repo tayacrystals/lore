@@ -6,6 +6,7 @@ import { buildDocTree } from "./files.ts";
 import { renderPage } from "./template.ts";
 import { detectVersions, getDefaultVersion } from "./version.ts";
 import { detectLocales, getDefaultLocale } from "./i18n.ts";
+import { loadPlugins } from "./plugins.ts";
 
 async function findLogo(docsDir: string, outDir: string, baseUrl?: string): Promise<string | undefined> {
   for (const name of ["logo.svg", "logo.png"]) {
@@ -32,6 +33,7 @@ export async function build(
   }
 
   const config = await loadConfig(docsDir);
+  const plugins = await loadPlugins(docsDir, config);
   const logoSrc = await findLogo(docsDir, outDir, config.baseUrl);
 
   const hasVersioning = config.versioning;
@@ -67,7 +69,7 @@ export async function build(
 
   for (const buildOpts of builds) {
     const { pages, sidebar, versions, locales, currentVersion, currentLocale } =
-      await buildDocTree(docsDir, buildOpts);
+      await buildDocTree(docsDir, { ...buildOpts, plugins });
 
     const buildLabel = [
       currentLocale,

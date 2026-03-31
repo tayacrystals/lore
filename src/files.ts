@@ -5,6 +5,7 @@ import type { PageInfo, SidebarItem, VersionInfo, LocaleInfo } from "./types.ts"
 import { loadConfig } from "./config.ts";
 import { detectVersions, getDefaultVersion } from "./version.ts";
 import { detectLocales, getDefaultLocale } from "./i18n.ts";
+import type { LorePlugin } from "./plugins.ts";
 
 export interface DocTree {
   pages: PageInfo[];
@@ -26,7 +27,7 @@ function toSlug(filename: string): string {
 }
 
 /** Build the URL from a list of path parts relative to docs dir */
-function buildUrl(parts: string[]): string {
+export function buildUrl(parts: string[]): string {
   const segments = parts.map((p) => toSlug(p));
   const filtered = segments.filter((s) => s !== "index");
   if (filtered.length === 0) return "/";
@@ -58,6 +59,7 @@ export async function buildDocTree(
   opts: {
     version?: string;
     locale?: string;
+    plugins?: LorePlugin[];
   } = {}
 ): Promise<DocTree> {
   const config = await loadConfig(docsDir);
@@ -106,7 +108,8 @@ export async function buildDocTree(
     sidebar,
     true,
     currentLocale,
-    currentVersion
+    currentVersion,
+    opts.plugins ?? []
   );
 
   return {
@@ -127,7 +130,8 @@ async function walkDir(
   sidebar: SidebarItem[],
   isRoot: boolean,
   currentLocale?: string,
-  currentVersion?: string
+  currentVersion?: string,
+  plugins: LorePlugin[] = []
 ): Promise<void> {
   const entries = sortEntries(await readdir(dir));
 
@@ -139,27 +143,52 @@ async function walkDir(
 
     if (s.isDirectory()) {
       const sectionTitle = filenameToTitle(entry);
-      const sectionItems: SidebarItem[] = [];
-      const sectionPages: PageInfo[] = [];
-
-      await walkDir(docsDir, fullPath, [...pathParts, entry], sectionPages, sectionItems, false, currentLocale, currentVersion);
-
       const sectionUrl = buildUrl([...pathParts, entry]);
-      const hasIndex = sectionPages.some((p) => p.url === sectionUrl);
 
-      // Auto-generate a directory listing page if there's no explicit index.mdx
-      if (!hasIndex) {
-        sectionPages.push(generateListing(sectionTitle, sectionUrl, sectionItems));
+      // Give plugins a chance to handle this directory before normal recursion
+      let handled = false;
+      for (const plugin of plugins) {
+        if (!plugin.fileSource) continue;
+        const result = await plugin.fileSource(fullPath, {
+          pathParts: [...pathParts, entry],
+          buildUrl,
+          currentLocale,
+          currentVersion,
+        });
+        if (result) {
+          const hasIndex = result.pages.some((p) => p.url === sectionUrl);
+          if (!hasIndex) {
+            result.pages.push(generateListing(sectionTitle, sectionUrl, result.sidebarItems));
+          }
+          pages.push(...result.pages);
+          sidebar.push({ type: "section", title: sectionTitle, url: sectionUrl, items: result.sidebarItems });
+          handled = true;
+          break;
+        }
       }
 
-      pages.push(...sectionPages);
+      if (!handled) {
+        const sectionItems: SidebarItem[] = [];
+        const sectionPages: PageInfo[] = [];
 
-      sidebar.push({
-        type: "section",
-        title: sectionTitle,
-        url: sectionUrl,
-        items: sectionItems,
-      });
+        await walkDir(docsDir, fullPath, [...pathParts, entry], sectionPages, sectionItems, false, currentLocale, currentVersion, plugins);
+
+        const hasIndex = sectionPages.some((p) => p.url === sectionUrl);
+
+        // Auto-generate a directory listing page if there's no explicit index.mdx
+        if (!hasIndex) {
+          sectionPages.push(generateListing(sectionTitle, sectionUrl, sectionItems));
+        }
+
+        pages.push(...sectionPages);
+
+        sidebar.push({
+          type: "section",
+          title: sectionTitle,
+          url: sectionUrl,
+          items: sectionItems,
+        });
+      }
     } else if (entry.endsWith(".mdx")) {
       const url = buildUrl([...pathParts, entry]);
       const raw = await Bun.file(fullPath).text();

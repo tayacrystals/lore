@@ -7,8 +7,14 @@
     "lore": "src/index.ts"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./parse": "./src/parse.ts",
+    "./types": "./src/types.ts",
+    "./plugins": "./src/plugins.ts"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
     "src"
   ],
