@@ -23,6 +23,7 @@ For full documentation, visit [https://tayacrystals.github.io/lore/](https://tay
 ## Features
 
 - Zero setup docs
+- Builds to a fast static website
 - MDX support with custom components
 - Versioning
 - Internationalization

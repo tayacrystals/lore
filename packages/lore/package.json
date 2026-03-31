@@ -12,9 +12,6 @@
     "./types": "./src/types.ts",
     "./plugins": "./src/plugins.ts"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "files": [
     "src"
   ],
