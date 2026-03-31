@@ -136,7 +136,7 @@ async function walkDir(
   const entries = sortEntries(await readdir(dir));
 
   for (const entry of entries) {
-    if (entry === "lore.yml" || entry.startsWith(".")) continue;
+    if (entry === "lore.yml" || entry === "node_modules" || entry.startsWith(".")) continue;
 
     const fullPath = path.join(dir, entry);
     const s = await stat(fullPath);

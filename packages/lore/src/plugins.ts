@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createRequire } from "node:module";
 import type { Config } from "./types.ts";
 import type { PageInfo, SidebarItem } from "./types.ts";
 
@@ -42,9 +43,18 @@ export async function loadPlugins(docsDir: string, config: Config): Promise<Lore
         ? [entry, {}]
         : [entry.name, entry.options ?? {}];
 
-    const resolved = specifier.startsWith("./") || specifier.startsWith("../")
-      ? path.resolve(docsDir, specifier)
-      : specifier;
+    // Resolve the module from docsDir so that packages installed in the
+    // docs project's node_modules are found, not lore's own node_modules.
+    const require = createRequire(path.join(docsDir, "__placeholder__.js"));
+    let resolved: string;
+    try {
+      resolved = specifier.startsWith("./") || specifier.startsWith("../")
+        ? path.resolve(docsDir, specifier)
+        : require.resolve(specifier);
+    } catch (err) {
+      console.warn(`[lore] Failed to resolve plugin "${specifier}": ${err}`);
+      continue;
+    }
 
     let mod: { default?: (opts: Record<string, unknown>) => LorePlugin };
     try {

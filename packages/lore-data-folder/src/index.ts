@@ -1,7 +1,26 @@
 import path from "node:path";
 import type { LorePlugin, FileSourceContext, FileSourceResult } from "@tayacrystals/lore/plugins";
-import { parsePage } from "@tayacrystals/lore/parse";
 import type { PageInfo, SidebarItem } from "@tayacrystals/lore/types";
+
+// Inlined from @tayacrystals/lore/parse to avoid a runtime peer dep resolution
+interface ParsedPage { frontmatter: Record<string, unknown>; content: string; h1Title?: string; description?: string; }
+function parsePage(raw: string): ParsedPage {
+  let content = raw;
+  let frontmatter: Record<string, unknown> = {};
+  if (content.startsWith("---")) {
+    const end = content.indexOf("\n---", 3);
+    if (end !== -1) {
+      const fmText = content.slice(3, end).trim();
+      if (fmText) frontmatter = (Bun.YAML.parse(fmText) as Record<string, unknown>) ?? {};
+      content = content.slice(end + 4).trimStart();
+    }
+  }
+  let h1Title: string | undefined;
+  const h1Match = content.match(/^#\s+(.+)$/m);
+  if (h1Match && content.trimStart().startsWith("#")) h1Title = h1Match[1]?.trim();
+  const description = typeof frontmatter["description"] === "string" ? frontmatter["description"] : undefined;
+  return { frontmatter, content, h1Title, description };
+}
 
 function deriveSlug(entry: Record<string, unknown>): string {
   const val =
