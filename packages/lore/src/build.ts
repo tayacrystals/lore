@@ -115,13 +115,10 @@ function minifyHtml(html: string): string {
 function minifyFragment(html: string): string {
   // Strip HTML comments (but not SSI/IE conditional comments)
   html = html.replace(/<!--[\s\S]*?-->/g, '')
-  // Collapse whitespace between tags
+  // Collapse whitespace between tags — safe for block elements, protected by <pre> split
   html = html.replace(/>\s+</g, '><')
-  // Trim runs of whitespace
+  // Collapse runs of whitespace within text
   html = html.replace(/\s{2,}/g, ' ')
-  // Strip leading/trailing whitespace inside tags
-  html = html.replace(/>\s/g, '>')
-  html = html.replace(/\s</g, '<')
   return html.trim()
 }
 
