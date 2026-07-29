@@ -38,7 +38,11 @@ export function mdx(options?: MdxOptions): LorePlugin {
       })
       const { default: Content } = await run(String(code), { Fragment, jsx, jsxs })
       const components = mergeComponents(ctx)
-      return render(h(Content, { components: components as never }) as never)
+      const html = render(h(Content, { components: components as never }) as never)
+      // preact-render-to-string HTML-escapes text content inside <script> elements,
+      // but browsers parse script content as raw text, so entities like &quot; break JS.
+      // Unescape them only within <script>...</script> blocks.
+      return unescapeScriptEntities(html)
     },
   }
 }
@@ -63,3 +67,13 @@ export type { BuildContext, Page }
 // Preact's jsx/jsxs/Fragment to get Markdown output instead of HTML VNodes.
 export { mdJsx, mdJsxs, mdFragment } from './markdown-jsx-runtime.ts'
 export { markdownComponentMap } from './markdown-components.ts'
+
+/**
+ * Reverses preact-render-to-string's HTML-entity escaping inside <script> blocks.
+ * Browsers treat script content as raw text — entities are never valid JS.
+ */
+function unescapeScriptEntities(html: string): string {
+  return html.replace(/<script[^>]*>[\s\S]*?<\/script>/g, (match) =>
+    match.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  )
+}
