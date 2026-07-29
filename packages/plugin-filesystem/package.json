@@ -1,6 +1,6 @@
 {
   "name": "@loredocs/plugin-filesystem",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "dependencies": { "@loredocs/lore": "^2.0.0" }
