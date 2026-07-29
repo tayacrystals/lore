@@ -102,12 +102,24 @@ async function dirSize(dir: string): Promise<number> {
 
 /** Lightweight HTML minifier. Strips comments, collapses whitespace, minifies inline style/script. */
 function minifyHtml(html: string): string {
+  // Split on <pre> blocks — whitespace inside them is significant (code content)
+  const parts = html.split(/(<pre\b[^>]*>[\s\S]*?<\/pre>)/i)
+  for (let i = 0; i < parts.length; i += 2) {
+    const part = parts[i]
+    if (part !== undefined) parts[i] = minifyFragment(part)
+  }
+  return parts.join('')
+}
+
+/** Minify an HTML fragment that contains no `<pre>` blocks. */
+function minifyFragment(html: string): string {
   // Strip HTML comments (but not SSI/IE conditional comments)
   html = html.replace(/<!--[\s\S]*?-->/g, '')
   // Collapse whitespace between tags
   html = html.replace(/>\s+</g, '><')
   // Trim runs of whitespace
   html = html.replace(/\s{2,}/g, ' ')
+  // Strip leading/trailing whitespace inside tags
   html = html.replace(/>\s/g, '>')
   html = html.replace(/\s</g, '<')
   return html.trim()
