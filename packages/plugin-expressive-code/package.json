@@ -1,17 +1,22 @@
 {
   "name": "@loredocs/plugin-expressive-code",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@loredocs/lore": "^2.0.0",
     "@expressive-code/plugin-collapsible-sections": "^0.44.1",
     "@expressive-code/plugin-line-numbers": "^0.44.1",
     "rehype-expressive-code": "^0.44.1"
-  }
-,
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tayacrystals/lore.git"
   }
 }

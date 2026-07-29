@@ -1,17 +1,22 @@
 {
   "name": "@loredocs/plugin-i18n",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@loredocs/lore": "^2.0.0",
     "@loredocs/plugin-filesystem": "^2.0.0",
     "preact": "^10.29.7",
     "preact-render-to-string": "^6.7.0"
-  }
-,
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tayacrystals/lore.git"
   }
 }

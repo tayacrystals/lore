@@ -1,6 +1,6 @@
 {
   "name": "@loredocs/plugin-ai-agent",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -9,10 +9,13 @@
     "@loredocs/lore": "^2.0.0",
     "@loredocs/plugin-mdx": "^2.0.0",
     "@mdx-js/mdx": "^3.1.1"
-  }
-,
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tayacrystals/lore.git"
   }
 }
