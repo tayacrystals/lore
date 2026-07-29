@@ -1,0 +1,50 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: bun install
+
+      - name: Publish plugins (in dependency order)
+        run: |
+          for pkg in \
+            plugin-filesystem \
+            plugin-mdx \
+            plugin-collections \
+            plugin-components \
+            plugin-dead-links \
+            plugin-expressive-code \
+            plugin-search \
+            plugin-i18n \
+            plugin-versioning \
+            plugin-ai-agent \
+            lore
+          do
+            echo "Publishing @loredocs/$pkg..."
+            cd packages/$pkg
+            npm publish --access public --provenance
+            cd ../..
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

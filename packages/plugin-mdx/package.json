@@ -1,6 +1,6 @@
 {
   "name": "@loredocs/plugin-mdx",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "dependencies": {
@@ -11,5 +11,10 @@
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1"
+  }
+,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

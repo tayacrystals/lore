@@ -1,7 +1,12 @@
 {
   "name": "@loredocs/plugin-search",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "dependencies": { "@loredocs/lore": "workspace:*" }
+,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }
