@@ -1,0 +1,29 @@
+{
+  "name": "@loredocs/lore",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "lore": "./src/index.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@loredocs/plugin-collections": "workspace:*",
+    "@loredocs/plugin-components": "workspace:*",
+    "@loredocs/plugin-dead-links": "workspace:*",
+    "@loredocs/plugin-expressive-code": "workspace:*",
+    "@loredocs/plugin-filesystem": "workspace:*",
+    "@loredocs/plugin-i18n": "workspace:*",
+    "@loredocs/plugin-mdx": "workspace:*",
+    "@loredocs/plugin-search": "workspace:*",
+    "@loredocs/plugin-ai-agent": "workspace:*",
+    "@loredocs/plugin-versioning": "workspace:*",
+    "preact": "^10.29.7",
+    "preact-render-to-string": "^6.7.0",
+    "yaml": "^2.9.0"
+  }
+}

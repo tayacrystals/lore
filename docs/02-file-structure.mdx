@@ -1,0 +1,45 @@
+Lore uses your directory structure to organize your documentation. Each `.mdx` file becomes a page, and each directory becomes a section.
+
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>lore.yml</File>
+    <File>index.mdx</File>
+    <File>configuration.mdx</File>
+    <Folder name="guides">
+      <File>index.mdx</File>
+      <File>quick-start.mdx</File>
+    </Folder>
+  </Folder>
+</FileTree>
+
+Sidebar order follows the filesystem order. You can control order by prefixing filenames with numbers like `01-`. The number prefix will be stripped before using.
+
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>01-introduction.mdx</File>
+    <File>02-installation.mdx</File>
+    <File>03-configuration.mdx</File>
+  </Folder>
+</FileTree>
+
+## index.mdx
+
+The root `index.mdx` is the landing page of your site.
+
+<Callout type="info" title="Section index pages">
+  A subfolder `index.mdx` is shown when the user clicks on the section header in the sidebar: the header becomes a link to that page. Without one, the section header only expands and collapses; it doesn't link anywhere. Navigating directly to the section URL still works either way. Lore generates an automatic directory listing as a fallback.
+</Callout>
+
+## Naming
+
+Page and section titles are inferred from the filename: hyphens and underscores become spaces, and the result is title-cased. If the page has a leading h1, that is used instead.
+
+## Frontmatter
+
+Each page can include a YAML frontmatter block at the top of the file that provides further metadata and configuration for the page.
+
+```mdx title="guides/quick-start.mdx"
+---
+description: A short description of the page.
+---
+```

@@ -1,0 +1,607 @@
+Lore is built on a plugin system. Much of Lore's built-in functionality is provided via plugins: the filesystem content loader, the MDX renderer, syntax highlighting, search, and the built-in MDX components are all default plugins you can override or remove.
+
+The build pipeline runs in five phases (see [Architecture](./architecture)):
+
+```mermaid
+flowchart LR
+  load --> graph --> validate --> render --> emit
+```
+
+Every plugin hook maps onto one of those phases. Plugins are registered first-to-last, and within a phase **the last plugin to provide a hook wins**, so a user plugin that implements `renderBody` replaces the built-in MDX renderer.
+
+## Using Plugins
+
+To add a plugin to your Lore project, add it to your `lore.yml` file.
+
+```yml title="lore.yml"
+plugins:
+  - lore-plugin-xyz
+  - ./my-local-plugin.ts
+```
+
+A plugin spec is one of three things:
+
+- a **string**: a package name (`lore-plugin-xyz`) or a local path (`./my-plugin.ts`)
+- an **object**: the same, plus an `options` map passed to the plugin factory
+- a **plugin instance**: an already-built `LorePlugin` object (handy for the programmatic API)
+
+To pass options to a plugin, use the object form:
+
+```yml title="lore.yml"
+plugins:
+  - name: lore-plugin-xyz
+    options:
+      option1: value1
+      option2: value2
+```
+
+Default plugins (`filesystem`, `mdx`, `dead-links`, `search`, `expressive-code`, `components`, `ai-agent`) are always registered **before** your plugins. You cannot remove a default plugin from `lore.yml`, but you can override its behaviour by registering a plugin that implements the same hook later.
+
+## Creating a Plugin
+
+A plugin is a **factory function** that takes an options object and returns a `LorePlugin`. The plugin object implements only the hooks it needs. Third-party plugins should depend on `@loredocs/lore`; it exports the `LorePlugin` interface, the `Page`/`BuildContext`/`Asset` types, and shared utilities (`slugify`, `parseFrontmatter`, `pathToSlug`, `resolveTitle`, `ROOT_ID`, …).
+
+```ts title="plugins/greet.ts"
+import type { LorePlugin } from '@loredocs/lore'
+
+interface GreetOptions {
+  prefix?: string
+}
+
+export function greet(options?: GreetOptions): LorePlugin {
+  const prefix = options?.prefix ?? 'Note'
+  return {
+    name: 'greet',
+    // Phase: render — transform each page's final HTML document.
+    transformHtml(page, html, ctx) {
+      return html.replace(
+        '<main',
+        `<aside class="greet">${prefix}: hello from ${page.title}</aside><main`,
+      )
+    },
+  }
+}
+
+// Default export is used by the plugin loader when resolving from lore.yml.
+export default greet
+```
+
+<Callout type="tip" title="Default export matters">
+  When Lore resolves a plugin from `lore.yml` (by package name or local path), it
+  imports the module and calls the **default export** (falling back to the named
+  export) as a factory. Always provide a default export so your plugin loads
+  whether it's referenced as `lore-plugin-xyz` or `./my-plugin.ts`.
+</Callout>
+
+### A complete minimal plugin
+
+This plugin contributes a single synthetic page to the graph. No source file is required. It depends only on `@loredocs/lore`:
+
+```ts title="plugins/status-page.ts"
+import type { LorePlugin, Page } from '@loredocs/lore'
+import { ROOT_ID } from '@loredocs/lore'
+
+export interface StatusPageOptions {
+  /** Markdown body for the status page. */
+  body?: string
+}
+
+export function statusPage(options?: StatusPageOptions): LorePlugin {
+  return {
+    name: 'status-page',
+    load(ctx) {
+      const page: Page = {
+        id: 'status',
+        url: '/status',
+        title: 'Status',
+        description: 'Service status',
+        frontmatter: {},
+        body: options?.body ?? '# All systems operational',
+        isSection: false,
+        order: Number.MAX_SAFE_INTEGER,
+        parentId: ROOT_ID,
+        childIds: [],
+        synthetic: true,
+      }
+      return [page]
+    },
+  }
+}
+
+export default statusPage
+```
+
+Register it:
+
+```yml title="lore.yml"
+plugins:
+  - name: ./plugins/status-page.ts
+    options:
+      body: |
+        # Status
+
+        Everything is **fine**.
+```
+
+The page appears in the sidebar and is rendered through the normal MDX pipeline like any other page.
+
+## The `LorePlugin` interface
+
+```ts
+import type { LorePlugin } from '@loredocs/lore'
+```
+
+```ts
+interface LorePlugin {
+  name: string
+  load?(ctx: BuildContext): Page[] | Promise<Page[] | undefined> | undefined
+  validate?(ctx: BuildContext): void | Promise<void>
+  renderBody?(page: Page, ctx: BuildContext): string | Promise<string>
+  transformHtml?(page: Page, html: string, ctx: BuildContext): string | Promise<string>
+  clientAssets?(ctx: BuildContext): Asset[] | Promise<Asset[]>
+  remarkPlugins?: unknown[]
+  rehypePlugins?: unknown[]
+  components?: Record<string, unknown>
+}
+```
+
+Every field except `name` is optional. Implement only the hooks your feature needs.
+
+<Callout type="tip" title="Only implement what you need">
+  A plugin doesn't need to implement every hook. Just the ones relevant to your
+  feature.
+</Callout>
+
+### Hooks
+
+| Hook             | Phase    | Signature                                              | Purpose                                                       |
+| ---------------- | -------- | ------------------------------------------------------ | ------------------------------------------------------------- |
+| `load`           | load     | `(ctx) => Page[]`                                       | Contribute `Page[]` to the content graph.                     |
+| `validate`       | validate | `(ctx) => void`                                         | Inspect the graph; throw to fail the build.                   |
+| `renderBody`     | render   | `(page, ctx) => string`                                 | Compile a page's body to inner HTML. Last provider wins.      |
+| `transformHtml`  | render   | `(page, html, ctx) => string`                           | Rewrite a page's full HTML document.                          |
+| `clientAssets`   | emit     | `(ctx) => Asset[]`                                      | Contribute styles, scripts, and resource assets.              |
+| `remarkPlugins`  | render   | `unknown[]` (property)                                  | Extra remark plugins applied during MDX compilation.          |
+| `rehypePlugins`  | render   | `unknown[]` (property)                                  | Extra rehype plugins applied during MDX compilation.          |
+| `components`     | render   | `Record<string, unknown>` (property)                    | Preact components usable from MDX.                           |
+
+#### `load(ctx)`
+
+Return an array of `Page` objects to insert into the content graph. This is how the filesystem plugin, the collections plugin, and the versioning/i18n plugins all contribute content. Your pages are merged with the rest; use stable, unique `id` values (the page's slug path) as the graph key.
+
+```ts
+load(ctx) {
+  return [
+    { id: 'changelog', url: '/changelog', title: 'Changelog', /* … */ },
+  ]
+}
+```
+
+If you return `undefined` (or omit the hook), the plugin contributes no pages.
+
+#### `validate(ctx)`
+
+Run after the graph is fully built. Inspect `ctx.graph`, and **throw** to fail the build. This is how the built-in `dead-links` plugin reports broken internal links.
+
+```ts
+import type { LorePlugin } from '@loredocs/lore'
+
+export function noDrafts(): LorePlugin {
+  return {
+    name: 'no-drafts',
+    validate(ctx) {
+      for (const page of ctx.graph.pages.values()) {
+        if (page.frontmatter.draft) {
+          throw new Error(`Draft page found: ${page.url}`)
+        }
+      }
+    },
+  }
+}
+```
+
+Compile a page's raw `body` (MDX/markdown source) into inner HTML. The **last plugin** to implement this wins. The built-in `mdx` plugin provides it by default, so a custom `renderBody` replaces MDX rendering entirely. Most plugins should not implement this; prefer `remarkPlugins`/`rehypePlugins` to extend MDX instead.
+
+
+Receive the full HTML document for a page and return a transformed string. This runs **after** `renderBody` and after the layout is applied, so `html` includes the `<head>`, sidebar, and `<main>`. Use it for injecting analytics, version switchers, search inputs, or speculative-loading rules.
+
+
+```ts
+transformHtml(page, html, ctx) {
+  // Inject a script before </body>.
+  return html.replace('</body>', '<script>console.log("hi")</script></body>')
+}
+```
+
+#### `clientAssets(ctx)`
+
+Return an array of `Asset` objects (see [Contributing assets](#contributing-assets)). Assets are collected from all plugins, deduplicated by `id`, ordered by `order`, and either linked from the document or inlined.
+
+#### `remarkPlugins` / `rehypePlugins`
+
+Plain arrays of [remark](https://github.com/remarkjs/remark) / [rehype](https://github.com/rehypejs/rehype) plugins. They merge into the MDX compiler used by the built-in `mdx` plugin, so you do not need to implement `renderBody` yourself.
+```ts
+import remarkGfm from 'remark-gfm'
+import type { LorePlugin } from '@loredocs/lore'
+
+export function gfm(): LorePlugin {
+  return {
+    name: 'gfm',
+    remarkPlugins: [remarkGfm],
+  }
+}
+```
+
+#### `components`
+
+A map of component names to Preact components, made available inside `.mdx` files. The built-in `components` plugin registers `Callout`, `FileTree`, `Steps`, and `Tabs` this way. You can add your own, or override the built-ins by registering a plugin later with the same keys.
+
+```tsx title="plugins/aside.tsx"
+import type { LorePlugin } from '@loredocs/lore'
+import { h } from 'preact'
+
+function Aside({ children }: { children?: preact.ComponentChildren }) {
+  return h('aside', { class: 'my-aside' }, children)
+}
+
+export function aside(): LorePlugin {
+  return {
+    name: 'aside',
+    components: { Aside },
+  }
+}
+```
+
+```mdx
+<Aside>Rendered by my custom plugin.</Aside>
+```
+
+## Core types
+
+### `Page`
+
+A single page (or section) in the content graph. Every field is required unless marked optional.
+
+```ts
+import type { Page } from '@loredocs/lore'
+```
+
+| Field          | Type                | Description                                                          |
+| -------------- | ------------------- | -------------------------------------------------------------------- |
+| `id`           | `string`            | Stable unique id, also the graph key (the page's slug path).         |
+| `url`          | `string`            | Output route, e.g. `/guides/quick-start`. Root index is `/`.         |
+| `title`        | `string`            | Display title. Inferred from filename / leading `h1` / frontmatter. |
+| `description`  | `string?`           | One-line description (frontmatter `description`).                    |
+| `frontmatter`  | `Frontmatter`       | Parsed YAML frontmatter (`Record<string, unknown>`).                 |
+| `body`         | `string`            | Raw source body (MDX text). Empty for synthetic directory listings. |
+| `sourcePath`   | `string?`           | Absolute filesystem path of the source file, when loaded from disk. |
+| `isSection`    | `boolean`           | True when this node represents a directory/section.                  |
+| `order`        | `number`            | Sort key among siblings (numeric prefix, then name).                 |
+| `parentId`     | `string \| null`    | Parent page id, or `null` at the top level.                          |
+| `childIds`     | `string[]`          | Ordered child page ids.                                              |
+| `hidden`       | `boolean?`          | Hidden pages are excluded from the sidebar.                          |
+| `synthetic`    | `boolean?`          | Generated (e.g. directory listings), not from a file.                |
+
+<Callout type="note" title="Root id constant">
+  Top-level pages use `parentId: ROOT_ID` (`'index'`), not `null`. Import the
+  constant from `@loredocs/lore` so your plugin's pages attach to the sidebar root:
+  `import { ROOT_ID } from '@loredocs/lore'`.
+</Callout>
+
+### `BuildContext`
+
+Shared state threaded through every pipeline hook. Every hook receives it as `ctx`.
+
+```ts
+import type { BuildContext } from '@loredocs/lore'
+```
+
+| Field        | Type                | Description                                                        |
+| ------------ | ------------------- | ------------------------------------------------------------------ |
+| `command`    | `'build' \| 'dev'`  | Which command invoked the build.                                   |
+| `root`       | `string`            | Absolute path to the docs root.                                    |
+| `outDir`     | `string`            | Absolute path to the output directory.                             |
+| `config`     | `LoreConfig`        | Resolved site configuration (from `lore.yml`).                     |
+| `graph`      | `ContentGraph`      | The content graph: `pages: Map<string, Page>` and `rootIds: string[]`. Mutated during the load phase. |
+| `plugins`    | `LorePlugin[]`      | Resolved plugin instances, in run order.                           |
+| `components` | `Record<string, unknown>` | MDX component overrides contributed by plugins (rendered into pages). |
+| `assets`     | `Asset[]`           | All resolved assets (core + plugins), ordered, ready to serve/emit. |
+
+The graph is mutated during the `load` phase, so reading `ctx.graph` in `load` only sees pages contributed by earlier plugins. In `validate` and later phases the graph is complete.
+
+### `Asset`
+
+```ts
+import type { Asset } from '@loredocs/lore'
+```
+
+| Field     | Type                              | Description                                                          |
+| --------- | --------------------------------- | -------------------------------------------------------------------- |
+| `id`      | `string`                          | Dedupe key. Two assets with the same `id` collapse to the first.     |
+| `kind`    | `'style' \| 'script' \| 'resource'` | How the asset is linked: styles go in `<head>`, scripts before `</body>`. `resource` is emitted but not linked (e.g. a JSON index). |
+| `source`  | `string?`                         | Absolute path to a source file on disk.                              |
+| `content` | `string?`                         | Inline source text (used when `source` is absent, or always for inline). |
+| `url`     | `string?`                         | Public URL to serve/emit at. Auto-assigned if omitted.               |
+| `order`   | `number?`                         | Link order within its kind (lower first). Core defaults to `0`.      |
+| `inline`  | `boolean?`                        | Inject content directly into HTML instead of referencing `url`.      |
+
+## Contributing assets
+
+Plugins ship CSS, JS, and other resources through the asset registry. An asset is backed by a file (`source`), inline text (`content`), or both, and is served at `url` (dev) / emitted to `dist` (build). When `inline: true`, its content is injected directly into the HTML instead of being referenced by URL.
+
+```ts title="plugins/sparkle.ts"
+import type { LorePlugin } from '@loredocs/lore'
+
+export function sparkle(): LorePlugin {
+  return {
+    name: 'sparkle',
+    clientAssets() {
+      return [
+        {
+          id: 'sparkle:style',
+          kind: 'style',
+          source: import.meta.dir + '/sparkle.css',
+          url: '/__lore__/assets/sparkle.css',
+          order: 10,
+        },
+      ]
+    },
+  }
+}
+
+export default sparkle
+```
+
+`kind` is `'style'` (linked in `<head>`), `'script'` (loaded before `</body>`), or `'resource'` (emitted but not linked, for example a JSON search index). Omit `url` to get an auto-assigned path under `/__lore__/assets/`.
+
+Inline assets skip the file round-trip entirely:
+
+```ts
+clientAssets() {
+  return [
+    {
+      id: 'sparkle:inline-script',
+      kind: 'script',
+      content: 'console.log("sparkle loaded")',
+      inline: true,
+    },
+  ]
+}
+```
+
+## Shared utilities
+
+`@loredocs/lore` re-exports the helpers the built-in plugins use, so your plugin can stay consistent with core behaviour without reimplementing them:
+
+| Export            | Purpose                                                         |
+| ----------------- | --------------------------------------------------------------- |
+| `ROOT_ID`         | The root page id (`'index'`). Use as `parentId` for top-level pages. |
+| `buildGraph`      | Build a `ContentGraph` from a flat `Page[]`.                    |
+| `findPageByUrl`   | Look up a page by its URL.                                      |
+| `breadcrumbs`     | Ordered ancestor pages for a given page id.                     |
+| `siblingsOf`      | Sibling pages (excluding the page itself).                      |
+| `prevNext`        | Previous/next pages in reading order.                           |
+| `slugify`         | Slugify a heading or label.                                     |
+| `parseFrontmatter`| Split leading `---` YAML frontmatter from a body string.        |
+| `parseOrder`      | Strip a leading numeric prefix (`01-`) and report its value.    |
+| `pathToSlug`      | Convert a docs-root-relative path into `{ id, url }`.           |
+| `resolveTitle`    | Infer a page title (frontmatter → `h1` → filename).             |
+| `isHiddenName`    | Whether a filename/dir is hidden (`_`-prefixed).                |
+| `INDEX_BASENAMES` | Set of index basenames (`index`, `readme`).                     |
+
+```ts
+import { ROOT_ID, parseFrontmatter, pathToSlug, resolveTitle } from '@loredocs/lore'
+```
+
+## Composing the filesystem plugin
+
+The `@loredocs/plugin-filesystem` content loader accepts options that make it **composable**. Other plugins (versioning, i18n) instantiate it multiple times to walk different subdirectories with prefixed IDs/URLs.
+
+```ts
+import { filesystem } from '@loredocs/plugin-filesystem'
+```
+
+`FilesystemOptions`:
+
+| Option       | Type       | Description                                                                |
+| ------------ | ---------- | -------------------------------------------------------------------------- |
+| `extensions` | `string[]?`| Extensions treated as page sources. Defaults to `['.mdx', '.md']`.         |
+| `subDir`     | `string?`  | Walk a subdirectory of `ctx.root` instead of the root itself.              |
+| `idPrefix`   | `string?`  | Prefix all page IDs (e.g. `'v1'`). Root page becomes `{prefix}/index`.     |
+| `urlPrefix`  | `string?`  | Prefix all page URLs (e.g. `'/v1'`). Root page becomes `'/v1/'`. Defaults to `/{idPrefix}` when `idPrefix` is set. |
+
+A plugin that composes two filesystem instances, one per content subtree, to merge two source trees into a single site:
+
+```ts title="plugins/dual-source.ts"
+import type { LorePlugin } from '@loredocs/lore'
+import { filesystem } from '@loredocs/plugin-filesystem'
+
+export function dualSource(): LorePlugin {
+  const docs = filesystem()                       // walks ctx.root
+  const extra = filesystem({ subDir: 'extra' })   // walks ctx.root/extra
+  return {
+    name: 'dual-source',
+    async load(ctx) {
+      const a = (await docs.load?.(ctx)) ?? []
+      const b = (await extra.load?.(ctx)) ?? []
+      return [...a, ...b]
+    },
+  }
+}
+
+export default dualSource
+```
+
+This is exactly how the versioning and i18n plugins build their prefixed page sets. See [Versioning](./versioning) and [Internationalization](./i18n).
+
+## Publishing a plugin
+
+A third-party Lore plugin is an npm package that exports a `LorePlugin` factory. Depend on `@loredocs/lore` (peer or regular dependency) for the types and helpers. Nothing else is required.
+
+### `package.json`
+
+```json title="package.json"
+{
+  "name": "lore-plugin-analytics",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "@loredocs/lore": ">=0.1.0"
+  },
+  "dependencies": {}
+}
+```
+
+<Callout type="tip" title="Peer vs. regular dependency">
+  List `@loredocs/lore` as a **peer dependency** so the host project supplies a
+  single copy. If your plugin needs runtime helpers from core at build time
+  (e.g. `slugify`), a regular `dependencies` entry also works, but a peer dep
+  avoids version skew on the shared types.
+</Callout>
+
+### `src/index.ts`
+
+```ts title="src/index.ts"
+import type { LorePlugin } from '@loredocs/lore'
+
+export interface AnalyticsOptions {
+  /** Plausible-style analytics script src. */
+  src: string
+  /** Optional site domain. */
+  domain?: string
+}
+
+export function analytics(options: AnalyticsOptions): LorePlugin {
+  return {
+    name: 'analytics',
+    transformHtml(_page, html) {
+      const tag = `<script defer data-domain="${options.domain ?? ''}" src="${options.src}"></script>`
+      return html.replace('</head>', `${tag}</head>`)
+    },
+  }
+}
+
+export default analytics
+```
+
+### Use it from any Lore project
+
+```yml title="lore.yml"
+plugins:
+  - name: lore-plugin-analytics
+    options:
+      src: https://plausible.io/js/script.js
+      domain: docs.example.com
+```
+
+### Conventions
+
+- **Name** your package `lore-plugin-*` (or `@scope/lore-plugin-*`) so it's discoverable. Lore resolves any package name from `lore.yml`, but the `lore-plugin-` prefix is the community convention.
+- **Default export** the factory. The loader calls `mod.default ?? mod`, so a default export is the most robust choice.
+- **Depend on `@loredocs/lore` only** for types and helpers. Reach for `preact` directly only if your plugin contributes MDX components.
+- **Provide an options interface** and export it, so users get TypeScript autocomplete in `lore.yml`'s `options` map (when using a typed config) or in programmatic usage.
+- **Prefix asset `id`s** with your plugin name (e.g. `analytics:script`) to avoid collisions with core or other plugins.
+
+## Built-in components
+
+Lore ships with four MDX components you can use in your docs out of the box, registered by the `@loredocs/plugin-components` plugin:
+
+- `<Callout>`: styled note, tip, info, warning, or danger boxes
+- `<FileTree>`: directory tree display with `<File>` and `<Folder>`
+- `<Steps>`: auto-numbered step list for tutorials
+- `<Tabs>` with `<Tab>`: CSS-only tabbed panels
+
+### `<Callout>`
+
+```tsx
+interface CalloutProps {
+  type?: 'note' | 'tip' | 'info' | 'warning' | 'danger'
+  title?: string
+  children?: preact.ComponentChildren
+}
+```
+
+`type` defaults to `'note'`; `title` defaults to the capitalised `type`.
+
+```mdx
+<Callout type="warning" title="Heads up">
+  Make sure you have the latest version.
+</Callout>
+
+<Callout type="tip">
+  Use <code>type="tip"</code> for helpful asides.
+</Callout>
+```
+
+### `<FileTree>`, `<File>`, `<Folder>`
+
+```tsx
+interface FolderProps {
+  name: string
+  defaultOpen?: boolean
+  children?: preact.ComponentChildren
+}
+```
+
+`<Folder>` renders as a collapsible `<details>`; set `defaultOpen` to expand it initially.
+
+```mdx
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>index.mdx</File>
+    <Folder name="guides">
+      <File>quick-start.mdx</File>
+    </Folder>
+  </Folder>
+  <File>lore.yml</File>
+</FileTree>
+```
+
+### `<Steps>`
+
+A container that auto-numbers its children for tutorials.
+
+```mdx
+<Steps>
+  1. Install Lore
+  2. Create a `docs/` folder
+  3. Run `lore dev`
+</Steps>
+```
+
+### `<Tabs>` / `<Tab>`
+
+CSS-only tabbed panels: no client-side JavaScript required.
+
+```tsx
+interface TabProps {
+  label: string
+  children?: preact.ComponentChildren
+}
+```
+
+```mdx
+<Tabs>
+  <Tab label="npm">npm install lore</Tab>
+  <Tab label="bun">bun add lore</Tab>
+  <Tab label="pnpm">pnpm add lore</Tab>
+</Tabs>
+```
+
+### Disabling built-in components
+
+The `components` plugin accepts options to disable individual components (they remain registered but you can replace them with your own by registering a plugin that contributes the same component key):
+
+```ts
+interface ComponentsOptions {
+  callout?: boolean   // default true
+  fileTree?: boolean  // default true
+  steps?: boolean     // default true
+  tabs?: boolean      // default true
+}
+```
+
+See the [Architecture](./architecture) page for how plugins flow through the pipeline end to end, and the [Configuration](./configuration) page for the full `lore.yml` schema.

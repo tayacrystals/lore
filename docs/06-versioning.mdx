@@ -1,0 +1,195 @@
+The versioning plugin (`@loredocs/plugin-versioning`) lets you serve multiple versions of your documentation side by side, for example `/v1/`, `/v2/`, `/v3/`. Each version has its own content tree and a dropdown switcher in the header.
+
+## How it works
+
+The plugin composes one filesystem loader instance per version directory. Each version lives in its own subdirectory of your docs root, and the plugin exposes its pages under a URL prefix derived from the version's `dir` (or an explicit `urlPrefix`).
+
+Every page is **always** prefixed, for example `/v1/guides/quick-start` or `/v2/guides/quick-start`. There are no unprefixed duplicates. The root `/` is a synthetic redirect page that performs a `<meta http-equiv="refresh">` to the default version's landing page.
+
+<Callout type="info" title="Filesystem plugin is auto-skipped">
+  When a `versioning` block is present in `lore.yml`, the plugin loader automatically skips the default filesystem plugin. The versioning plugin owns content loading entirely. You only add `@loredocs/plugin-versioning` to `plugins`, not the filesystem plugin.
+</Callout>
+
+## Configuration
+
+Add a `versioning` key to `lore.yml` and list the plugin:
+
+```yml title="lore.yml"
+versioning:
+  versions:
+    - dir: v1
+      label: "1.x"
+    - dir: v2
+      label: "2.x (latest)"
+  defaultVersion: v2
+plugins:
+  - "@loredocs/plugin-versioning"
+```
+
+### Schema
+
+| Field | Type | Required | Description |
+| ----- | ---- | -------- | ----------- |
+| `versions` | `VersionConfig[]` | yes | One entry per version you want to publish. |
+| `defaultVersion` | `string` | no | The `dir` of the version that `/` redirects to. Defaults to the **last** entry in `versions`. |
+
+`VersionConfig`:
+
+| Field | Type | Required | Description |
+| ----- | ---- | -------- | ----------- |
+| `dir` | `string` | yes | Subdirectory under the docs root holding this version's content. Also used as the URL prefix when `urlPrefix` is omitted. |
+| `label` | `string` | yes | Human-readable label shown in the version switcher dropdown (e.g. `"2.x (latest)"`). |
+| `urlPrefix` | `string` | no | URL segment for this version. Defaults to `/${dir}`. Override when you want a different URL than the directory name, for example `dir: v2` with `urlPrefix: /2.x`. |
+
+## Directory layout
+
+Put each version's content in its own subdirectory. Everything you would place at the docs root, like `index.mdx`, `guides/`, and `configuration.mdx`, goes inside the version folder.
+
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>lore.yml</File>
+    <Folder name="v1">
+      <File>index.mdx</File>
+      <Folder name="guides">
+        <File>quick-start.mdx</File>
+        <File>installation.mdx</File>
+      </Folder>
+      <File>configuration.mdx</File>
+    </Folder>
+    <Folder name="v2">
+      <File>index.mdx</File>
+      <Folder name="guides">
+        <File>quick-start.mdx</File>
+        <File>installation.mdx</File>
+      </Folder>
+      <File>configuration.mdx</File>
+    </Folder>
+  </Folder>
+</FileTree>
+
+With the config above, this produces:
+
+| Source | URL |
+| ----- | --- |
+| `v1/index.mdx` | `/v1/` |
+| `v1/guides/quick-start.mdx` | `/v1/guides/quick-start` |
+| `v2/index.mdx` | `/v2/` |
+| `v2/guides/quick-start.mdx` | `/v2/guides/quick-start` |
+| *(synthetic)* | `/` → redirects to `/v2/` |
+
+## URL structure
+
+URLs are **always prefixed** with the version segment. This keeps each version self-contained and avoids ambiguous collisions when a page exists in one version but not another:
+
+- `/v1/guides/quick-start`: the v1 quick-start
+- `/v2/guides/quick-start`: the v2 quick-start
+
+The root path `/` is a synthetic redirect page whose body is a single meta-refresh tag pointing at the default version's prefix:
+
+```html
+<meta http-equiv="refresh" content="0; url=/v2/" />
+```
+
+<Callout type="tip" title="Choosing a default">
+  `defaultVersion` controls where `/` lands. If you omit it, the plugin falls back to the **last** version in the `versions` array, so listing your newest version last is a convenient way to make "latest" the default without saying so explicitly.
+</Callout>
+
+## Version switcher
+
+The plugin injects a `<select>` dropdown into the header, immediately after the brand link. Each `<option>` carries the version's `urlPrefix` as its value and the `label` as its text; the current version's option is marked `selected`.
+
+```html
+<div class="lore-version-switcher">
+  <select data-lore-version-switcher>
+    <option value="/v1">1.x</option>
+    <option value="/v2" selected>2.x (latest)</option>
+  </select>
+</div>
+```
+
+A small client-side script reads `data-lore-version-switcher` and navigates to the selected version's prefix when the user changes the dropdown, preserving the current page path within the new version where it exists.
+
+## Version-scoped sidebar
+
+The sidebar is rebuilt per page so it only shows the current version's tree. For a page under `/v2/...`, the plugin:
+
+1. Resolves the version's root page (`v2/index`).
+2. Builds a scoped `BuildContext` whose `graph.rootIds` is that version root's `childIds`.
+3. Re-renders the `<Sidebar>` against the scoped context and swaps it into the existing `<aside class="lore-sidebar">`.
+
+This means a visitor reading v2 docs never sees v1 entries in the sidebar, and vice versa. The active version is also stamped on the root element as `data-version-dir="v2"` for styling and scripting hooks.
+
+<Callout type="note" title="Default-version pages are still prefixed">
+  Don't try to hide the default version's prefixed pages to create unprefixed duplicates. There are none. The default version's pages live at `/v2/...` just like every other version. The only unprefixed URL is the root `/` redirect.
+</Callout>
+
+## Full worked example
+
+A project publishing two versions of its guides:
+
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>lore.yml</File>
+    <Folder name="v1">
+      <File>index.mdx</File>
+      <Folder name="guides">
+        <File>quick-start.mdx</File>
+      </Folder>
+    </Folder>
+    <Folder name="v2">
+      <File>index.mdx</File>
+      <Folder name="guides">
+        <File>quick-start.mdx</File>
+      </Folder>
+    </Folder>
+  </Folder>
+</FileTree>
+
+```yml title="lore.yml"
+versioning:
+  versions:
+    - dir: v1
+      label: "1.x"
+    - dir: v2
+      label: "2.x (latest)"
+  defaultVersion: v2
+plugins:
+  - "@loredocs/plugin-versioning"
+```
+
+```mdx title="v1/index.mdx"
+---
+description: Legacy 1.x documentation.
+---
+
+# Version 1.x
+
+These docs cover the 1.x release line. For the current release, switch to **2.x** in the header.
+```
+
+```mdx title="v2/guides/quick-start.mdx"
+---
+description: Get started with Lore 2.x.
+---
+
+# Quick start
+
+Install Lore 2.x and scaffold a new site in under a minute.
+```
+
+Run `lore dev` and you'll get:
+
+- `/` → redirects to `/v2/`
+- `/v1/` → the 1.x landing page, sidebar scoped to v1
+- `/v1/guides/quick-start` → the 1.x quick start
+- `/v2/` → the 2.x landing page, sidebar scoped to v2
+- `/v2/guides/quick-start` → the 2.x quick start
+- A version switcher in the header toggling between `1.x` and `2.x (latest)`
+
+## Combining with i18n
+
+If you also need per-locale docs, use the [`@loredocs/plugin-i18n`](./i18n) plugin instead of (or alongside) versioning. The i18n plugin **subsumes** versioning when both are configured: it reads the same `versioning` block and produces the full locale × version cross-product under `/{lang}/{version}/{page}`, with both a locale switcher and a version switcher in the header. You don't need to enable the versioning plugin separately in that case.
+
+<Callout type="tip" title="Pick one loader">
+  Only one content-loading plugin should own the graph at a time. Use versioning alone for multi-version docs, i18n alone for multi-locale docs, or i18n (which folds versioning in) when you need both. Never list both `@loredocs/plugin-versioning` and `@loredocs/plugin-i18n` together, because i18n already handles versions.
+</Callout>

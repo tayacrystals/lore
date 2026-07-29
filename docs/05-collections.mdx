@@ -1,0 +1,212 @@
+# Collections
+
+Collections generate pages from a JSON data file and an MDX template, instead of one file per page. They work well for structured data: changelogs, API endpoints, release notes, or team members, where you want every entry rendered from the same template.
+
+## How it works
+
+Define a `collections` array in `lore.yml`. Each entry points at a JSON file of records and an MDX template. At build time the collections plugin loads the data, interpolates each record into the template, and emits one page per record plus an auto-generated overview page that lists them all.
+
+```yml title="lore.yml"
+collections:
+  - name: changelog
+    source: _data/changelog.json
+    template: _data/entry.mdx
+    sort: date
+    hidden: true
+```
+
+Collections run in the [plugin](./plugins) load phase, so generated pages participate in the content graph alongside your hand-written `.mdx` files. They show up in the sidebar, search index, and dead-link checks just like any other page.
+
+<Callout type="warning" title="Keep data and templates out of the content tree">
+  The JSON source and MDX template must live in a `_`-prefixed directory (e.g. `_data/`). The filesystem plugin skips any file or directory whose name starts with `_` or `.`, so this keeps your raw data from being loaded as standalone pages. If you place them in a regular directory, the filesystem plugin will load the template as a page and MDX will choke on the `{{field}}` placeholders. See the [directory convention](#directory-convention) section.
+</Callout>
+
+## Configuration
+
+Each entry in the `collections` array accepts the following fields:
+
+| Field           | Type     | Default      | Description |
+|-----------------|----------|--------------|-------------|
+| `name`          | string   | — (required) | Collection name. Slugified to form the URL prefix and section id. |
+| `source`        | string   | — (required) | Path to the JSON data file, relative to the docs root. |
+| `template`      | string   | — (required) | Path to the MDX template, relative to the docs root. |
+| `title`         | string   | `{{title}}`  | Template for entry page titles. |
+| `slug`          | string   | `{{slug}}`   | Template for entry URL slugs. Falls back to the slugified entry title. |
+| `sort`          | string   | —            | Field name to sort entries by (ascending, via `localeCompare`). |
+| `perPage`       | number   | `0` (off)    | Split the overview into pages of this many entries. |
+| `hidden`        | boolean  | `false`      | Hide entry pages from the sidebar. The overview page stays visible. |
+| `overviewTitle` | string   | `name`       | Title of the auto-generated overview page. |
+
+`name`, `source`, and `template` are required; the rest are optional.
+
+## Template format
+
+Templates are plain MDX files. The plugin performs string interpolation: every `{{field}}` placeholder is replaced with the matching value from the record. Field names are matched against the record's keys (`{{title}}`, `{{date}}`, `{{body}}`, …).
+
+```mdx title="_data/entry.mdx"
+# {{title}}
+
+Released: {{date}}
+
+{{body}}
+```
+
+<Callout type="note" title="Missing fields are left as-is">
+  If a record doesn't have a referenced field, the placeholder is left untouched in the output: `{{body}}` stays `{{body}}`. This makes gaps in your data easy to spot rather than silently rendering empty.
+</Callout>
+
+The `title` and `slug` options are templates too, so you can compose titles from multiple fields:
+
+```yml title="lore.yml"
+collections:
+  - name: packages
+    source: _data/packages.json
+    template: _data/package.mdx
+    title: "{{name}} v{{version}}"
+```
+
+With a record `{"name": "Widget", "version": "1.0"}`, the entry's title becomes **Widget v1.0** and its slug becomes `widget-v1-0`.
+
+## URL structure
+
+Every entry page is published at `/<collection-name>/<entry-slug>`, where `<entry-slug>` is derived from the `slug` template (defaulting to the slugified entry title). The collection itself gets an overview page at `/<collection-name>`:
+
+| Page          | URL                    |
+|---------------|------------------------|
+| Overview      | `/changelog`           |
+| Entry `v2.0.0`| `/changelog/v2-0-0`    |
+| Entry `v1.0.0`| `/changelog/v1-0-0`    |
+
+The overview page is a section (`isSection: true`) whose `parentId` is the content root, so it appears as a top-level sidebar entry.
+
+## Directory convention
+
+The JSON source and MDX template must be excluded from the normal content walk. Put them inside any `_`-prefixed directory:
+
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>lore.yml</File>
+    <File>index.mdx</File>
+    <Folder name="guides">
+      <File>quick-start.mdx</File>
+    </Folder>
+    <Folder name="_data">
+      <File>changelog.json</File>
+      <File>entry.mdx</File>
+    </Folder>
+  </Folder>
+</FileTree>
+
+The filesystem plugin skips entries whose name starts with `_` or `.`, so `_data/` is invisible to it. The collections plugin reads these files directly by path, so the prefix has no effect on resolution. It only keeps them out of the page graph.
+
+## Overview page
+
+The overview page is generated automatically. It renders a table of every entry, sorted by the `sort` field if one is set. Each title links to its entry page. For the changelog example above, the overview body is a markdown table:
+
+| Title | Date |
+|-------|------|
+| v1.0.0 | 2025-01-01 |
+| v2.0.0 | 2025-07-01 |
+
+Each `Title` cell is a link to the corresponding `/<collection>/<entry-slug>` page.
+
+### Pagination
+
+Set `perPage` to split a large collection across multiple overview pages. The first page lives at `/<collection-name>` and subsequent pages at `/<collection-name>/page/2`, `/page/3`, and so on. Each page appends a `Pages:` navigation row linking to every page in the sequence.
+
+```yml title="lore.yml"
+collections:
+  - name: changelog
+    source: _data/changelog.json
+    template: _data/entry.mdx
+    perPage: 10
+```
+
+<Callout type="info" title="Pagination pages are hidden">
+  Only the first overview page (`/<collection-name>`) appears in the sidebar. Additional pagination pages are marked `hidden`, since the entry list under the section already links to every entry.
+</Callout>
+
+## Sidebar
+
+The overview page appears in the sidebar as a collapsible section, and each entry shows up as a child of it. Set `hidden: true` to keep entries out of the sidebar while still letting them be reached from the overview's table and direct links:
+
+```yml title="lore.yml"
+collections:
+  - name: changelog
+    source: _data/changelog.json
+    template: _data/entry.mdx
+    hidden: true
+```
+
+This is the common choice for changelogs and release notes, where the section header links to the overview and individual entries are reached through it.
+
+## Full example: a changelog
+
+Here is a complete, working changelog collection.
+
+```yml title="lore.yml"
+collections:
+  - name: changelog
+    source: _data/changelog.json
+    template: _data/entry.mdx
+    sort: date
+    hidden: true
+```
+
+```json title="_data/changelog.json"
+[
+  {"title": "v2.0.0", "date": "2025-07-01", "body": "Major release."},
+  {"title": "v1.0.0", "date": "2025-01-01", "body": "Initial release."}
+]
+```
+
+```mdx title="_data/entry.mdx"
+# {{title}}
+
+Released: {{date}}
+
+{{body}}
+```
+
+Running `lore build` produces:
+
+- `/changelog`: the overview, listing both entries sorted by `date` (ascending: v1.0.0, then v2.0.0)
+- `/changelog/v1-0-0`: the v1.0.0 entry, rendered from the template
+- `/changelog/v2-0-0`: the v2.0.0 entry, rendered from the template
+
+Because `hidden: true`, the sidebar shows only the **Changelog** section header; the entries themselves are reached through the overview table or their direct URLs.
+
+<Callout type="tip" title="Sort order">
+  `sort` orders entries ascending via `localeCompare`, so a date-sorted changelog reads oldest-first. For a newest-first feed, pre-sort your JSON or arrange dates so the order you want is the ascending order.
+</Callout>
+
+## Versioned and localized collections
+
+When `versioning` or `i18n` is configured, collections automatically scope to each version/locale combination. Place your `_data/` directory inside each version or locale directory:
+
+<FileTree>
+  <Folder name="docs/">
+    <Folder name="v1/">
+      <Folder name="_data/">
+        <File name="changelog.json" />
+        <File name="entry.mdx" />
+      </Folder>
+    </Folder>
+    <Folder name="v2/">
+      <Folder name="_data/">
+        <File name="changelog.json" />
+        <File name="entry.mdx" />
+      </Folder>
+    </Folder>
+  </Folder>
+</FileTree>
+
+The same `collections` config in `lore.yml` applies to every scope. The collections plugin resolves `source` and `template` relative to each version/locale directory and prefixes all generated page IDs and URLs accordingly:
+
+- Versioned: `/v1/changelog/entry`, `/v2/changelog/entry`
+- Localized: `/en/changelog/entry`, `/fr/changelog/entry`
+- Both: `/en/v2/changelog/entry`, `/fr/v1/changelog/entry`
+
+<Callout type="info" title="How it works">
+  The collections plugin detects `versioning` and `i18n` config keys at build time and generates a complete set of collection pages for each scope. No extra configuration is needed. The same `collections` array applies to every version and locale.
+</Callout>

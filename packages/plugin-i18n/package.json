@@ -1,0 +1,12 @@
+{
+  "name": "@loredocs/plugin-i18n",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@loredocs/lore": "workspace:*",
+    "@loredocs/plugin-filesystem": "workspace:*",
+    "preact": "^10.29.7",
+    "preact-render-to-string": "^6.7.0"
+  }
+}

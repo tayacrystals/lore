@@ -1,0 +1,26 @@
+{
+  "name": "lore-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "lint": "biome lint",
+    "format": "biome format --write",
+    "test": "bun test",
+    "typecheck": "tsc",
+    "docs:build": "bun run packages/lore/src/index.ts build docs",
+    "docs:dev": "bun run packages/lore/src/index.ts dev docs",
+    "docs:serve": "bun run packages/lore/src/index.ts serve docs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.5",
+    "@types/bun": "^1.3.14",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@expressive-code/plugin-collapsible-sections": "^0.44.1",
+    "@expressive-code/plugin-line-numbers": "^0.44.1",
+    "rehype-expressive-code": "^0.44.1"
+  }
+}

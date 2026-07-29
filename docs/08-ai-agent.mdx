@@ -1,0 +1,125 @@
+# AI Agent Support
+
+Lore automatically generates `.md` copies of every page, an `llms.txt` index, and `llms-full.txt` with full page content. These files help AI agents, LLMs, and retrieval systems consume your documentation without parsing HTML.
+
+The feature is built into every Lore site with zero configuration — no `lore.yml` changes needed.
+
+## How it works
+
+For each page in your site, Lore runs the same MDX compilation pipeline but with a **markdown-emitting JSX runtime** instead of the HTML runtime. Custom components (Callout, Steps, Tabs, FileTree) are rendered to meaningful markdown, not stripped or lost:
+
+| Component | HTML output | Markdown output |
+|---|---|---|
+| `<Callout type="info">` | `<div class="lore-callout">...` | `> ℹ️ **Title**\n> body` |
+| `<Tabs><Tab label="bun">` | Radio inputs + labels + panels | `### bun\n\n\`\`\`sh\n...\`\`\`` |
+| `<Steps>` | Numbered div layout | Ordered list |
+| `<FileTree>` | Nested details/summary elements | Indented code block |
+
+This means the markdown output is faithful to what your components actually render — no HTML-to-markdown conversion, no regex stripping.
+
+### Render-to-markdown pipeline
+
+```
+ page body (MDX)
+     │
+     ▼
+ @mdx-js/mdx compile()
+     │
+     ▼
+ JS function body
+     │
+     ▼
+ run() with custom markdown jsx/jsxs/Fragment
+     │
+     ▼
+ Markdown string
+     │
+     ▼
+ Written to dist/page.md
+```
+
+The same `remarkPlugins` from other plugins apply, so GFM tables, task lists, and other markdown extensions are supported. Rehype plugins (which produce HTML, like expressive-code syntax highlighting) are not applied — the markdown output uses plain fenced code blocks.
+
+## Generated files
+
+### `.md` copies
+
+Every page is published as both HTML and Markdown:
+
+| Page | HTML | Markdown |
+|---|---|---|
+| `/` | `dist/index.html` | `dist/index.md` |
+| `/getting-started` | `dist/getting-started/index.html` | `dist/getting-started.md` |
+
+The HTML version uses pretty URLs (`/getting-started/` → `getting-started/index.html`), while the markdown version is a flat file at the same path with a `.md` extension. They never collide.
+
+Each HTML page also includes a `<link>` tag advertising the markdown equivalent:
+
+```html
+<link rel="alternate" type="text/markdown" href="/getting-started.md" />
+```
+
+AI crawlers and tools that follow `rel="alternate"` links can discover the markdown version automatically.
+
+### `llms.txt`
+
+`llms.txt` is an emerging standard (see [llmstxt.org](https://llmstxt.org/)) for helping LLMs discover and navigate documentation. Lore generates one automatically at `/llms.txt`:
+
+```txt
+# Site Title
+
+> Site description.
+
+## Getting Started
+
+- [Getting Started](/getting-started.md): How to get started with the project
+- [Installation](/installation.md): Installation instructions
+
+## Guides
+
+- [Configuration](/guides/configuration.md): Configuring the project
+```
+
+The file lists every page organized by section, with each entry linking to the `.md` version and including the page's description.
+
+### `llms-full.txt`
+
+`llms-full.txt` is the same index but with the full markdown content of every page appended. The content is truncated to `maxContentLength` characters per page when the option is set. This is useful for:
+
+- Pre-loading an LLM with your entire documentation in a single file
+- Generating embeddings for vector search
+- Offline consumption by AI tools
+
+## Configuration
+
+The plugin is registered automatically and requires no configuration. If you need to change its behaviour, pass options in `lore.yml`:
+
+```yml title="lore.yml"
+plugins:
+  - name: @loredocs/plugin-ai-agent
+    options:
+      llmsFull: true           # generate llms-full.txt (default: true)
+      maxContentLength: 50000  # per-page char limit in llms-full.txt
+      hiddenPages: false       # include hidden pages in .md/llms output (default: false)
+```
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `llmsFull` | `boolean` | `true` | Generate `llms-full.txt` with full page content. |
+| `maxContentLength` | `number` | unlimited | Maximum characters per page in `llms-full.txt`. |
+| `hiddenPages` | `boolean` | `false` | Include pages marked `hidden: true` in `.md` and `llms.txt` output. |
+
+## Package
+
+The AI agent support is provided by `@loredocs/plugin-ai-agent`. It is registered automatically as a default plugin and does not need to be added to `lore.yml`.
+
+The plugin exports:
+
+- `aiAgent(options?)` — the plugin factory
+- `AiAgentOptions` — the options interface
+
+## See also
+
+- [llmstxt.org](https://llmstxt.org/) — the `llms.txt` standard
+- [Architecture](./architecture) — how the markdown rendering pipeline works
+- [Plugins](./plugins) — plugin API reference

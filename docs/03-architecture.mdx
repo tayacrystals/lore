@@ -1,0 +1,66 @@
+Lore's build pipeline runs in five ordered phases. Each phase is a hook that any plugin can implement, including the built-in defaults.
+
+## Pipeline
+
+```
+  Config ──► Load ──► Validate ──► Render ──► Transform ──► Emit ──► dist/
+```
+
+<Steps>
+
+### Load
+
+Each plugin's `load()` hook returns `Page[]`. The filesystem plugin walks the docs directory tree, reading `.mdx` and `.md` files. Other plugins can contribute pages from any source: an API, a database, or generated content.
+
+All pages are flattened into a content graph: parent-child relationships are resolved from `parentId`, siblings are sorted by numeric prefix then title, and breadcrumb paths are computed.
+
+### Validate
+
+Every plugin's `validate()` hook inspects the assembled graph. Throw an error to fail the build. The built-in `@loredocs/plugin-dead-links` plugin validates internal links, warning on any link that doesn't resolve to a page in the graph.
+
+### Render
+
+The last plugin to register `renderBody()` compiles each page's source to HTML. The default MDX plugin (`@mdx-js/mdx`) compiles the body to a Preact component and renders it with `preact-render-to-string`. Because user plugins register after defaults, a plugin that implements `renderBody` replaces the built-in renderer entirely.
+
+Remark and rehype plugins from every plugin are merged and applied during compilation.
+
+### Transform
+
+After a page's full HTML document is assembled (head, layout, sidebar, body), each plugin's `transformHtml()` hook can rewrite it. This is useful for injecting analytics snippets, adding meta tags, or wrapping content with custom elements.
+
+### Emit
+
+Assets (styles, scripts, search index) and rendered HTML pages are written to the output directory. Pretty-URL pages become `page-name/index.html`. Static files (images, logos) are copied through unchanged. The search index is emitted as a JSON resource.
+
+</Steps>
+
+## Plugin architecture
+
+<Callout type="info" title="Everything is a plugin">
+  Every built-in feature is a plugin. They register first, so user plugins can override or extend any phase of the pipeline. The default plugins are conditionally composed: for example, the filesystem loader is skipped when versioning or i18n config is present.
+</Callout>
+
+## Package structure
+
+Lore is split into small, focused packages. `@loredocs/lore` holds the engine, types, content graph, pipeline, config, layout, and build/dev entry points. Each built-in capability lives in its own `@loredocs/plugin-*` package:
+
+- `@loredocs/plugin-filesystem`: content loader (`subDir`, `idPrefix`, `urlPrefix` options, composable by other plugins)
+- `@loredocs/plugin-mdx`: MDX rendering
+- `@loredocs/plugin-components`: built-in MDX components (`Callout`, `Steps`, `Tabs`, `FileTree`)
+- `@loredocs/plugin-search`: full-text search index
+- `@loredocs/plugin-expressive-code`: syntax highlighting
+- `@loredocs/plugin-collections`: generates pages from JSON + MDX templates
+- `@loredocs/plugin-versioning`: multi-version docs (replaces the filesystem loader)
+- `@loredocs/plugin-i18n`: multi-locale docs; subsumes versioning when both are configured, producing a `/{lang}/{version}/{page}` cross-product
+- `@loredocs/plugin-dead-links`: build-time internal link validation
+- `@loredocs/plugin-ai-agent`: emits `.md` copies of pages and `llms.txt` for AI agent consumption
+
+`@loredocs/lore` is the CLI and re-exports the core API; it loads plugins declared in `lore.yml` and wires up the defaults. Third-party plugins should depend on `@loredocs/lore` only.
+
+## Speculative loading
+
+<Callout type="tip" title="Speculation Rules API">
+  Every rendered page injects a `<script type="speculationrules">` block that prefetches any hovered link, plus a `<link rel="prefetch">` for the next page in reading order. Chromium uses the rules natively; other browsers ignore them.
+</Callout>
+
+See [Plugins](./plugins) for the full plugin API reference.

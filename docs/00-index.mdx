@@ -1,0 +1,49 @@
+# Lore
+
+Lore is a zero-configuration documentation site generator.
+
+It takes a directory of Markdown (`.mdx` / `.md`) files and produces a static site with full-text search, light and dark themes, a collapsible sidebar, and pretty URLs: all with one command and no configuration file required.
+
+## Quick start
+
+<Tabs>
+  <Tab label="bun">
+
+  ```sh title="terminal"
+  # run lore in your docs directory
+  bunx @loredocs/lore
+
+  # now you have a website in ./dist
+
+  # preview your site while you write
+  bunx @loredocs/lore dev
+  ```
+  </Tab>
+  <Tab label="npm">
+
+  ```sh title="terminal"
+  # run lore in your docs directory
+  npx @loredocs/lore
+
+  # now you have a website in ./dist
+
+  # preview your site while you write
+  npx @loredocs/lore dev
+  ```
+  </Tab>
+</Tabs>
+
+<Callout type="info" title="Zero config">
+  Lore works with any directory of `.mdx` files. No `lore.yml` is required. No build step to configure.
+</Callout>
+
+## Features
+
+- **Zero setup**: one command, sensible defaults, no configuration required
+- **Fast and accessible**: static HTML loads instantly, works without JavaScript
+- **MDX support**: embed Preact components directly in your pages
+- **Full-text search**: built-in client-side search with keyboard navigation
+- **Light / dark theme**: respects system preference, toggle persisted in `localStorage`
+- **Plugin architecture**: extend any phase of the build pipeline with custom plugins
+- **Pretty URLs**: `/guides/quick-start` not `/guides/quick-start.html`
+- **AI agent support**: emits `.md` copies of pages and `llms.txt` for LLM consumption

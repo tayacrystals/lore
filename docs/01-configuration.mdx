@@ -1,0 +1,164 @@
+Lore is configured via a `lore.yml` file in your docs root directory. If no configuration file exists, Lore uses sensible defaults: the site title is inferred from the directory name, and the output goes to `./dist`.
+
+<Callout type="info" title="Config formats">
+  Lore also supports `lore.yaml` and `lore.json`. Pick whatever works for your project.
+</Callout>
+
+## lore.yml reference
+
+<Tabs>
+  <Tab label="YAML">
+
+  ```yml title="lore.yml"
+  title: My Project
+  description: My project documentation
+  color: blue
+  logo: ./logo.svg
+  baseUrl: https://example.com
+  outDir: dist
+  theme: auto
+  plugins:
+    - lore-plugin-xyz
+  ```
+  </Tab>
+  <Tab label="JSON">
+
+  ```json title="lore.json"
+  {
+    "title": "My Project",
+    "description": "My project documentation",
+    "color": "blue",
+    "logo": "./logo.svg",
+    "baseUrl": "https://example.com",
+    "outDir": "dist",
+    "theme": "auto",
+    "plugins": ["lore-plugin-xyz"]
+  }
+  ```
+  </Tab>
+</Tabs>
+
+### `title`
+
+The site title. Shown in the browser tab, page headings, and sidebar header. If omitted, Lore infers the title from the docs directory name: `my-project` → **My Project**.
+
+### `description`
+
+A short one-line description of the site. Used in `<meta name="description">` tags and in search results within the site.
+
+### `color`
+
+The accent color for links, headings, and UI accents. Can be a named color or any CSS color value.
+
+| Named color | Hex |
+|---|---|
+| `blue` | `#3b82f6` |
+| `indigo` | `#6366f1` |
+| `violet` | `#8b5cf6` |
+| `purple` | `#a855f7` |
+| `pink` | `#ec4899` |
+| `red` | `#ef4444` |
+| `orange` | `#f97316` |
+| `amber` | `#f59e0b` |
+| `yellow` | `#eab308` |
+| `green` | `#22c55e` |
+| `teal` | `#14b8a6` |
+| `cyan` | `#06b6d4` |
+
+<Callout type="tip" title="Any CSS color">
+  You can use any CSS hex, rgb, or hsl value: `color: '#9333ea'`. Named colors are just shorthand for common values.
+</Callout>
+
+### `logo`
+
+Path to a logo image, relative to the docs root. Displayed in the sidebar header. SVG, PNG, and webp are supported.
+
+### `baseUrl`
+
+The base URL of the deployed site. Lore uses the path portion of this URL as a prefix for all generated links: page URLs, asset paths, the search index, and the dev server all respect it.
+
+This allows hosting the site under a sub-path. For example, if you deploy to `https://example.com/docs/`, set:
+
+```yml
+baseUrl: https://example.com/docs
+```
+
+Lore will emit correct links like `/docs/getting-started`, `/docs/__lore__/theme.css`, and a canonical `<link>` pointing to the full URL.
+
+If omitted, all links are root-relative (`/getting-started`).
+
+### `outDir`
+
+Output directory, relative to the current working directory. Defaults to `dist`.
+
+### `minify`
+
+Controls HTML output minification during `lore build`. When enabled, inline HTML comments and unnecessary whitespace are stripped, reducing output size by 20-30%.
+
+| Value | Behavior |
+|---|---|
+| `true` (default) | Minify HTML during `build`. |
+| `false` | Preserve readable formatting. |
+
+<Callout type="info">
+  Minification is only applied during `lore build`. The dev server always serves unminified HTML for debugging.
+</Callout>
+
+### `theme`
+
+Controls the theme mode:
+
+| Value | Behavior |
+|---|---|
+| `auto` (default) | Respects the user's system preference (`prefers-color-scheme`). |
+| `light` | Always light mode. |
+| `dark` | Always dark mode. |
+
+<Callout type="note">
+  The user can toggle between light and dark with the theme button in the sidebar header. Their choice is persisted in `localStorage` and takes precedence over the configured theme.
+</Callout>
+
+### `plugins`
+
+A list of plugins to load after the built-in defaults. Each entry is either a package name, a local file path, or an object with `name` and `options`.
+
+```yml
+plugins:
+  - lore-plugin-mermaid       # npm package
+  - ./my-custom-plugin.ts     # local file
+  - name: lore-plugin-analytics
+    options:
+      id: G-XXXXXXXXXX
+```
+
+See [Plugins](./plugins) for authoring your own.
+
+### `exclude`
+
+A list of path prefixes to exclude from the built site. Entries are matched against the relative path from the docs root. A match on a directory excludes the entire subtree.
+
+```yml
+exclude:
+  - private          # excludes docs/private/ and all its children
+  - work-in-progress # excludes docs/work-in-progress.mdx
+```
+
+The filesystem plugin also skips entries starting with `_` or `.` automatically — the `exclude` option covers anything else.
+
+## Per-page frontmatter
+
+Each page can include YAML frontmatter at the top of the file:
+
+```mdx title="my-page.mdx"
+---
+title: Custom Page Title
+description: A short description of the page.
+---
+```
+
+| Field | Description |
+|---|---|
+| `title` | Overrides the page title. Default: inferred from filename or first `h1`. |
+| `description` | Shown in search results and as a subtitle under sidebar links. |
+| `slug` | Overrides the URL slug (last path segment). Useful for translating URLs in i18n setups. E.g. `slug: demarrage-rapide` on `quick-start.mdx` serves the page at `/guides/demarrage-rapide` instead of `/guides/quick-start`. |
+| `hidden` | When `true`, the page is hidden from the sidebar but still accessible via direct URL. |

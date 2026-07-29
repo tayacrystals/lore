@@ -1,0 +1,269 @@
+# Internationalization
+
+The `@loredocs/plugin-i18n` plugin serves your documentation in multiple languages. Each locale lives in its own subdirectory and gets its own URL prefix: `/en/`, `/fr/`, `/ja/`, and so on.
+
+## What it does
+
+When i18n is active, Lore produces **only locale-prefixed pages**: for example `/en/guides/quick-start` or `/fr/guides/quick-start`. There are no unprefixed duplicates. Visiting the bare root URL `/` redirects (via a `<meta http-equiv="refresh">` tag) to the default locale.
+
+Each locale gets:
+
+- A **scoped sidebar** showing only that locale's pages
+- A **locale switcher** `<select>` in the header
+- A **separate search index**, so English queries never surface French results (and vice versa)
+- A correct `<html lang="...">` attribute on every page
+
+## Configuration
+
+Add the plugin to `lore.yml` and declare your locales under the `i18n` key:
+
+```yml title="lore.yml"
+i18n:
+  defaultLocale: en
+  locales:
+    - code: en
+      label: English
+    - code: fr
+      label: Français
+
+plugins:
+  - "@loredocs/plugin-i18n"
+```
+
+### `i18n.locales`
+
+A list of locales. Each entry has:
+
+| Field   | Required | Description                                                                 |
+|---------|----------|-----------------------------------------------------------------------------|
+| `code`  | yes      | ISO code used in URLs, page IDs, and `<html lang>`. e.g. `en`, `fr`, `ja`. |
+| `label` | yes      | Human-readable label shown in the locale switcher. e.g. `English`.         |
+| `dir`   | no       | Directory name on disk. Defaults to `code`.                                 |
+
+### `i18n.defaultLocale`
+
+The `code` of the locale served at the root `/`. If omitted, the first locale in `locales` is used. Root `/` redirects here.
+
+<Callout type="note" title="Pick obvious codes">
+  The `code` is part of every URL, so prefer short, recognizable codes (`en`, `fr`, `pt-BR`) over full names. Use `label` for the human-readable name.
+</Callout>
+
+## Directory layout
+
+Each locale is a subdirectory under your docs root. The directory name matches `code` unless you override it with `dir`.
+
+```
+docs/
+  lore.yml
+  en/
+    index.mdx
+    guides/
+      quick-start.mdx
+  fr/
+    index.mdx
+    guides/
+      quick-start.mdx
+```
+
+<FileTree>
+  <Folder name="docs" defaultOpen>
+    <File>lore.yml</File>
+    <Folder name="en">
+      <File>index.mdx</File>
+      <Folder name="guides">
+        <File>quick-start.mdx</File>
+      </Folder>
+    </Folder>
+    <Folder name="fr">
+      <File>index.mdx</File>
+      <Folder name="guides">
+        <File>quick-start.mdx</File>
+      </Folder>
+    </Folder>
+  </Folder>
+</FileTree>
+
+The plugin composes `@loredocs/plugin-filesystem` instances, one per locale, using the `subDir`, `idPrefix`, and `urlPrefix` options. You do not need to configure the filesystem plugin yourself; the i18n plugin handles it internally.
+
+## URL structure
+
+i18n **always** prefixes pages with the locale code. There are no unprefixed pages.
+
+| File on disk                        | URL                                  |
+|-------------------------------------|--------------------------------------|
+| `docs/en/index.mdx`                 | `/en/`                               |
+| `docs/en/guides/quick-start.mdx`    | `/en/guides/quick-start`            |
+| `docs/fr/guides/quick-start.mdx`    | `/fr/guides/quick-start`            |
+| `/` (root)                          | redirects to `/en/` (default locale) |
+
+<Callout type="warning" title="Don't list the filesystem plugin manually">
+  When `i18n` config is present, Lore's plugin loader automatically skips the default `@loredocs/plugin-filesystem` plugin. The i18n plugin provides its own filesystem instances. Do **not** also add `@loredocs/plugin-filesystem` to your `plugins` list. Likewise, do not add `@loredocs/plugin-versioning` when i18n is active (see below).
+</Callout>
+
+## Combining with versioning
+
+When **both** `i18n` and `versioning` config exist, the i18n plugin **subsumes** versioning. It reads `config.versioning` directly, produces the full locale × version cross-product, and renders both the locale switcher and the version switcher. You only add `@loredocs/plugin-i18n` to `plugins`; you do not add `@loredocs/plugin-versioning`.
+
+URLs take the form `/{lang}/{version}/{page}`, and the directory layout is **locale-first**: each locale contains its own version directories.
+
+```
+docs/
+  en/
+    v2/guides/quick-start.mdx  →  /en/v2/guides/quick-start
+    v1/guides/quick-start.mdx  →  /en/v1/guides/quick-start
+  fr/
+    v2/guides/quick-start.mdx  →  /fr/v2/guides/quick-start
+    v1/guides/quick-start.mdx  →  /fr/v1/guides/quick-start
+```
+
+The root `/` redirects to the default locale **and** the default version: `/en/v2/`.
+
+```yml title="lore.yml"
+i18n:
+  defaultLocale: en
+  locales:
+    - code: en
+      label: English
+    - code: fr
+      label: Français
+
+versioning:
+  defaultVersion: v2
+  versions:
+    - dir: v1
+      label: v1.0
+    - dir: v2
+      label: v2.0
+
+plugins:
+  - "@loredocs/plugin-i18n"
+```
+
+<Callout type="info" title="One plugin, two switchers">
+  With both configs active, the i18n plugin injects a locale switcher **and** a version switcher in the header. Each is scoped to the current page: switching locale keeps you on the same version, and switching version keeps you on the same locale.
+</Callout>
+
+See [Versioning](./versioning) for the versioning config reference. When i18n is present, the versioning options described there are consumed by the i18n plugin rather than the versioning plugin.
+
+## Locale switcher
+
+The locale switcher is a `<select>` element injected into the header, next to the brand link. It lists every locale from `i18n.locales`.
+
+- The current locale is marked `selected`.
+- Locales that **do not have a translation** for the current page are rendered as **disabled** options with an empty value. They cannot be selected. Selecting a translated locale navigates to that page's equivalent in the other language.
+- When combined with versioning, the switcher targets the same version segment as the current page, so `select`ing a locale stays within the current version.
+
+Missing translations fall back to a **404**. There is no automatic content fallback to the default locale. This is intentional: a reader who picks "Français" should not silently land on English content. Either translate the page, or accept the disabled option.
+
+## Per-locale search
+
+Each locale gets its own search index emitted to `/__lore__/search-index/{code}.json`:
+
+```
+/__lore__/search-index/en.json
+/__lore__/search-index/fr.json
+```
+
+The search input on each page carries a `data-index-url` attribute pointing at the current locale's index, so search results never mix languages. Locales with no pages produce no index file.
+
+## Worked examples
+
+### i18n only
+
+A bilingual site, English (default) and French.
+
+```
+docs/
+  lore.yml
+  en/
+    index.mdx
+    guides/
+      quick-start.mdx
+  fr/
+    index.mdx
+    guides/
+      quick-start.mdx
+```
+
+```yml title="lore.yml"
+i18n:
+  defaultLocale: en
+  locales:
+    - code: en
+      label: English
+    - code: fr
+      label: Français
+
+plugins:
+  - "@loredocs/plugin-i18n"
+```
+
+- `/` → redirects to `/en/`
+- `/en/guides/quick-start`: English page
+- `/fr/guides/quick-start`: French page
+- Search indices: `/__lore__/search-index/en.json`, `/__lore__/search-index/fr.json`
+
+### i18n + versioning
+
+A bilingual site with two versions, where `v2` is the default.
+
+```
+docs/
+  lore.yml
+  en/
+    v1/
+      index.mdx
+      guides/
+        quick-start.mdx
+    v2/
+      index.mdx
+      guides/
+        quick-start.mdx
+  fr/
+    v1/
+      index.mdx
+      guides/
+        quick-start.mdx
+    v2/
+      index.mdx
+      guides/
+        quick-start.mdx
+```
+
+```yml title="lore.yml"
+i18n:
+  defaultLocale: en
+  locales:
+    - code: en
+      label: English
+    - code: fr
+      label: Français
+
+versioning:
+  defaultVersion: v2
+  versions:
+    - dir: v1
+      label: v1.0
+    - dir: v2
+      label: v2.0
+
+plugins:
+  - "@loredocs/plugin-i18n"
+```
+
+- `/` → redirects to `/en/v2/`
+- `/en/v1/guides/quick-start`: English, v1
+- `/en/v2/guides/quick-start`: English, v2
+- `/fr/v1/guides/quick-start`: French, v1
+- `/fr/v2/guides/quick-start`: French, v2
+- Header shows **both** a locale switcher and a version switcher
+
+## How it works
+
+The i18n plugin implements three hooks:
+
+- **`load`**: composes one `@loredocs/plugin-filesystem` instance per locale (or per locale × version), plus a synthetic root page that redirects to the default locale.
+- **`clientAssets`**: emits a locale manifest at `/__lore__/locale-manifest.json` and one search index per locale.
+- **`transformHtml`**: re-renders the sidebar scoped to the current locale's root, sets `<html lang>`, injects the locale (and version) switcher, and points the search input at the locale's search index.
+
+See [Architecture](./architecture) for the pipeline phases, and [Plugins](./plugins) for the plugin API.
