@@ -19,6 +19,11 @@ jobs:
         with:
           bun-version: latest
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+
       - run: bun install
 
       - name: Publish plugins (dependency order)
