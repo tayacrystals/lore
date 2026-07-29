@@ -41,8 +41,15 @@ jobs:
             plugin-ai-agent \
             lore
           do
-            echo "Publishing @loredocs/$pkg..."
             cd packages/$pkg
+            pkgver=$(node -p "require('./package.json').version")
+            existing=$(npm view "@loredocs/$pkg@$pkgver" version 2>/dev/null || true)
+            if [ "$existing" = "$pkgver" ]; then
+              echo "Skipping @loredocs/$pkg@$pkgver — already published"
+              cd ../..
+              continue
+            fi
+            echo "Publishing @loredocs/$pkg@$pkgver..."
             npm publish --provenance --access public
             cd ../..
           done
