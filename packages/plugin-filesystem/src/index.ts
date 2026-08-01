@@ -66,6 +66,7 @@ async function walk(
 
   for (const entry of entries) {
     if (isIndexFile(entry.name)) continue
+    if (entry.name === 'node_modules') continue
     if (isHiddenName(entry.name)) continue
 
     const abs = join(dirAbs, entry.name)

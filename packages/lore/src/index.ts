@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 
 import { build } from './build.ts'
 import { dev } from './dev.ts'

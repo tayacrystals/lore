@@ -1,6 +1,6 @@
 {
   "name": "@loredocs/lore",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "bin": {
     "lore": "./src/index.ts"
@@ -23,6 +23,7 @@
     "@loredocs/plugin-ai-agent": "^2.0.0",
     "@loredocs/plugin-versioning": "^2.0.0",
     "preact": "^10.29.7",
+    "react": "npm:preact@^10.29.7",
     "preact-render-to-string": "^6.7.0",
     "yaml": "^2.9.0"
   },

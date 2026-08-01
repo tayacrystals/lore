@@ -17,89 +17,90 @@
     },
     "packages/lore": {
       "name": "@loredocs/lore",
-      "version": "0.1.0",
+      "version": "2.1.1",
       "bin": {
         "lore": "./src/index.ts",
       },
       "dependencies": {
-        "@loredocs/plugin-ai-agent": "workspace:*",
-        "@loredocs/plugin-collections": "workspace:*",
-        "@loredocs/plugin-components": "workspace:*",
-        "@loredocs/plugin-dead-links": "workspace:*",
-        "@loredocs/plugin-expressive-code": "workspace:*",
-        "@loredocs/plugin-filesystem": "workspace:*",
-        "@loredocs/plugin-i18n": "workspace:*",
-        "@loredocs/plugin-mdx": "workspace:*",
-        "@loredocs/plugin-search": "workspace:*",
-        "@loredocs/plugin-versioning": "workspace:*",
+        "@loredocs/plugin-ai-agent": "^2.0.0",
+        "@loredocs/plugin-collections": "^2.0.0",
+        "@loredocs/plugin-components": "^2.0.0",
+        "@loredocs/plugin-dead-links": "^2.0.0",
+        "@loredocs/plugin-expressive-code": "^2.0.0",
+        "@loredocs/plugin-filesystem": "^2.0.0",
+        "@loredocs/plugin-i18n": "^2.0.0",
+        "@loredocs/plugin-mdx": "^2.0.0",
+        "@loredocs/plugin-search": "^2.0.0",
+        "@loredocs/plugin-versioning": "^2.0.0",
         "preact": "^10.29.7",
         "preact-render-to-string": "^6.7.0",
+        "react": "npm:preact@^10.29.7",
         "yaml": "^2.9.0",
       },
     },
     "packages/plugin-ai-agent": {
       "name": "@loredocs/plugin-ai-agent",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
-        "@loredocs/plugin-mdx": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
+        "@loredocs/plugin-mdx": "^2.0.0",
         "@mdx-js/mdx": "^3.1.1",
       },
     },
     "packages/plugin-collections": {
       "name": "@loredocs/plugin-collections",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
       },
     },
     "packages/plugin-components": {
       "name": "@loredocs/plugin-components",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
         "preact": "^10.29.7",
       },
     },
     "packages/plugin-dead-links": {
       "name": "@loredocs/plugin-dead-links",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
       },
     },
     "packages/plugin-expressive-code": {
       "name": "@loredocs/plugin-expressive-code",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
         "@expressive-code/plugin-collapsible-sections": "^0.44.1",
         "@expressive-code/plugin-line-numbers": "^0.44.1",
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
         "rehype-expressive-code": "^0.44.1",
       },
     },
     "packages/plugin-filesystem": {
       "name": "@loredocs/plugin-filesystem",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
       },
     },
     "packages/plugin-i18n": {
       "name": "@loredocs/plugin-i18n",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
-        "@loredocs/plugin-filesystem": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
+        "@loredocs/plugin-filesystem": "^2.0.0",
         "preact": "^10.29.7",
         "preact-render-to-string": "^6.7.0",
       },
     },
     "packages/plugin-mdx": {
       "name": "@loredocs/plugin-mdx",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
         "@mdx-js/mdx": "^3.1.1",
         "preact": "^10.29.7",
         "preact-render-to-string": "^6.7.0",
@@ -110,17 +111,17 @@
     },
     "packages/plugin-search": {
       "name": "@loredocs/plugin-search",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
       },
     },
     "packages/plugin-versioning": {
       "name": "@loredocs/plugin-versioning",
-      "version": "0.1.0",
+      "version": "2.0.4",
       "dependencies": {
-        "@loredocs/lore": "workspace:*",
-        "@loredocs/plugin-filesystem": "workspace:*",
+        "@loredocs/lore": "^2.0.0",
+        "@loredocs/plugin-filesystem": "^2.0.0",
         "preact": "^10.29.7",
         "preact-render-to-string": "^6.7.0",
       },
@@ -500,6 +501,8 @@
     "preact-render-to-string": ["preact-render-to-string@6.7.0", "", { "peerDependencies": { "preact": ">=10 || >= 11.0.0-0" } }, "sha512-Z4WR8fmLMRpdYqJ9i7vrlXSsSrxVJydwrkEXHapexfARbWfGb7vGcnvNQnIzN0cXciMVOlz/XLoiMCi9gUsy9Q=="],
 
     "property-information": ["property-information@7.2.0", "", {}, "sha512-IAtzIB6sUiWaJYrX9smp3V46pBGbBeLFRGdh25kg1334VcBlD8HzhPeNIWQH9zhGmo2itIe25EHt9dQP7G5hmg=="],
+
+    "react": ["preact@10.29.7", "", { "peerDependencies": { "preact-render-to-string": ">=5" }, "optionalPeers": ["preact-render-to-string"] }, "sha512-DCHYrK/B10yUD3ZjLfhZ3WIE/9Vf9VFUODcRE2dRomTYDpJk6z6L9wecSfhfE6M9ZTHUdyQkoC46arIDhEV84Q=="],
 
     "recma-build-jsx": ["recma-build-jsx@1.0.0", "", { "dependencies": { "@types/estree": "^1.0.0", "estree-util-build-jsx": "^3.0.0", "vfile": "^6.0.0" } }, "sha512-8GtdyqaBcDfva+GUKDr3nev3VpKAhup1+RvkMvUxURHpW7QyIvk9F5wz7Vzo06CEMSilw6uArgRqhpiUcWp8ew=="],
 
