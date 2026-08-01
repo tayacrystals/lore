@@ -1,5 +1,5 @@
 import { readdir } from 'node:fs/promises'
-import { join, relative, sep } from 'node:path'
+import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { ROOT_ID } from '@loredocs/lore'
 import type { BuildContext, LorePlugin, Page } from '@loredocs/lore'
 import {
@@ -42,7 +42,15 @@ export function filesystem(options?: FilesystemOptions): LorePlugin {
     name: 'lore:filesystem',
     async load(ctx) {
       const baseDir = subDir ? join(ctx.root, subDir) : ctx.root
-      const exclude = options?.exclude ?? ((ctx.config as Record<string, unknown>).exclude as string[] | undefined) ?? []
+      const config = ctx.config as Record<string, unknown>
+      const exclude = [...(options?.exclude ?? (config.exclude as string[] | undefined) ?? [])]
+      // Never treat lore's own output directory as content — its rendered
+      // .md files embed full HTML and would break MDX parsing on rebuild.
+      const outDir = config.outDir as string | undefined
+      if (typeof outDir === 'string' && outDir) {
+        const rel = relative(baseDir, resolve(ctx.root, outDir))
+        if (rel && !rel.startsWith('..') && !isAbsolute(rel)) exclude.push(rel)
+      }
       return walk(baseDir, null, ctx, extensions, baseDir, exclude, idPrefix, urlPrefix)
     },
   }
