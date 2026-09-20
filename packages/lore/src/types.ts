@@ -28,6 +28,8 @@ export interface LoreConfig {
   outDir?: string
   /** Theme: `light` | `dark` | `auto`. Defaults to `auto`. */
   theme?: 'light' | 'dark' | 'auto'
+  /** Document language (`<html lang>`). Defaults to `en`. */
+  lang?: string
   /** Minify HTML output. Defaults to `true` for `build`, `false` for `dev`. */
   minify?: boolean
   /** Per-page frontmatter defaults applied on top of file frontmatter. */
@@ -99,8 +101,6 @@ export interface BuildContext {
   graph: ContentGraph
   /** Resolved plugin instances, in run order. */
   plugins: LorePlugin[]
-  /** MDX component overrides contributed by plugins (rendered into pages). */
-  components: Record<string, unknown>
   /** All resolved assets (core + plugins), ordered, ready to serve/emit. */
   assets: Asset[]
 }

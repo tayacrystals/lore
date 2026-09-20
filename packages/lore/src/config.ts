@@ -19,6 +19,7 @@ export async function loadConfig(root: string): Promise<LoreConfig> {
     outDir: typeof raw.outDir === 'string' ? raw.outDir : 'dist',
     basePath: resolveBasePath(raw.baseUrl as string | undefined),
     theme: raw.theme === 'light' || raw.theme === 'dark' ? raw.theme : 'auto',
+    lang: optionalString(raw.lang),
     frontmatterDefaults: asObject(raw.frontmatterDefaults),
     plugins: normalizePlugins(raw.plugins),
     minify: raw.minify !== false,

@@ -47,6 +47,11 @@ export async function serve(rootArg: string, port = 4173): Promise<void> {
     async fetch(req) {
       const basePath = config.basePath
       let path = new URL(req.url).pathname
+      try {
+        path = decodeURIComponent(path)
+      } catch {
+        // Malformed percent-encoding — serve the raw path (it will 404).
+      }
 
       // Strip basePath prefix when hosting under a sub-path.
       if ((basePath && path.startsWith(`${basePath}/`)) || (basePath && path === basePath)) {

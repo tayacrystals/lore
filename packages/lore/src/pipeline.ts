@@ -1,6 +1,6 @@
 import { collectAssets } from './asset.ts'
 import { buildGraph } from './graph.ts'
-import type { BuildContext, LoreConfig, LorePlugin, Page } from './types.ts'
+import type { BuildContext, ContentGraph, LoreConfig, LorePlugin, Page } from './types.ts'
 
 /** Build a fresh context (graph empty until `runLoad` populates it). */
 export async function createContext(opts: {
@@ -17,7 +17,6 @@ export async function createContext(opts: {
     config: opts.config,
     graph: { pages: new Map(), rootIds: [] },
     plugins: opts.plugins,
-    components: {},
     assets: [],
   }
 }
@@ -36,6 +35,18 @@ export async function runLoad(ctx: BuildContext): Promise<void> {
     if (Array.isArray(result)) collected.push(...result)
   }
   ctx.graph = buildGraph(dedupeById(collected))
+  warnOrphans(ctx.graph)
+}
+
+/** Pages whose `parentId` points nowhere are built but unreachable in nav. */
+function warnOrphans(graph: ContentGraph): void {
+  for (const page of graph.pages.values()) {
+    if (page.parentId !== null && !graph.pages.has(page.parentId)) {
+      console.warn(
+        `[lore] page "${page.id}" references missing parent "${page.parentId}" — it will not appear in navigation`,
+      )
+    }
+  }
 }
 
 /** Phase 3: run every `validate` hook. A throw fails the build. */

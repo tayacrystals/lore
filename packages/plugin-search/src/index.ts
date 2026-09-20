@@ -20,6 +20,10 @@ export function search(options?: SearchOptions): LorePlugin {
     clientAssets(ctx) {
       const index = [...ctx.graph.pages.values()]
         .filter((p) => !p.hidden)
+        // Skip synthetic nav stubs (empty directory listings, locale/version
+        // redirect pages) — they have nothing to search. Synthetic pages with
+        // real content (e.g. collection entries) stay indexed.
+        .filter((p) => !(p.synthetic && !p.body.trim() && !p.description))
         .map((p) => ({
           title: p.title,
           description: p.description ?? '',

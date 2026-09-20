@@ -1,5 +1,5 @@
 import { watch } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { join, resolve, sep } from 'node:path'
 import { indexByUrl, readAsset } from './asset.ts'
 import { loadConfig, resolveOutDir } from './config.ts'
 import { findPageByUrl } from './graph.ts'
@@ -21,9 +21,8 @@ export async function dev(rootArg: string, port = 5173): Promise<void> {
   const ctx = await createContext({ command: 'dev', root, outDir, config, plugins })
 
   await rebuild(ctx)
-  await runValidate(ctx)
 
-  watchSite(root, () => scheduleRebuild(ctx))
+  watchSite(root, outDir, () => scheduleRebuild(ctx))
 
   Bun.serve({
     port,
@@ -42,6 +41,7 @@ export async function dev(rootArg: string, port = 5173): Promise<void> {
 
 async function rebuild(ctx: BuildContext): Promise<void> {
   await runLoad(ctx)
+  await runValidate(ctx)
   await collectContextAssets(ctx)
 }
 
@@ -57,26 +57,36 @@ function scheduleRebuild(ctx: BuildContext): void {
   }, 100)
 }
 
-function watchSite(root: string, onChange: () => void): void {
+function watchSite(root: string, outDir: string, onChange: () => void): void {
+  // Fall back to polling on platforms without recursive watching — at most once.
+  let polling = false
+  const startPolling = () => {
+    if (polling) return
+    polling = true
+    setInterval(() => onChange(), 1000)
+  }
   try {
     const watcher = watch(root, { recursive: true }, (_eventType, filename) => {
       if (!filename) return
-      // Ignore events from the output directory.
-      if (/[\\/]dist([\\/]|$)/.test(filename)) return
+      // Ignore events from the output directory (whatever it is called).
+      const abs = resolve(root, filename)
+      if (abs === outDir || abs.startsWith(outDir + sep)) return
       onChange()
     })
-    watcher.on('error', () => {
-      // Fall back to polling on platforms without recursive watching.
-      setInterval(() => onChange(), 1000)
-    })
+    watcher.on('error', startPolling)
   } catch {
-    setInterval(() => onChange(), 1000)
+    startPolling()
   }
 }
 
 async function handle(req: Request, ctx: BuildContext): Promise<Response> {
   const basePath = ctx.config.basePath
   let path = new URL(req.url).pathname
+  try {
+    path = decodeURIComponent(path)
+  } catch {
+    // Malformed percent-encoding — serve the raw path (it will 404).
+  }
 
   // Strip basePath prefix when hosting under a sub-path.
   if ((basePath && path.startsWith(`${basePath}/`)) || (basePath && path === basePath)) {

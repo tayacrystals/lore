@@ -139,7 +139,8 @@ async function buildCollection(
       if (av == null && bv == null) return 0
       if (av == null) return 1
       if (bv == null) return -1
-      return String(av).localeCompare(String(bv))
+      if (typeof av === 'number' && typeof bv === 'number') return av - bv
+      return String(av).localeCompare(String(bv), undefined, { numeric: true })
     })
   }
 

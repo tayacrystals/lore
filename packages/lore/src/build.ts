@@ -136,15 +136,74 @@ async function minifyAsset(
   return content
 }
 
-/** Simple CSS minifier: strips comments and collapses whitespace. */
+/** Simple CSS minifier. Preserves string literals and license comments. */
 function minifyCss(css: string): string {
-  return css
-    .replace(/\/\*[\s\S]*?\*\//g, '')   // strip comments
-    .replace(/\s+/g, ' ')                 // collapse whitespace
-    .replace(/\s*([{}:;,])\s*/g, '$1')   // tighten around delimiters
-    .replace(/;}/g, '}')                  // remove trailing semicolons
-    .replace(/^\s+|\s+$/gm, '')          // trim lines
-    .trim()
+  let out = ''
+  let i = 0
+  let pendingSpace = false // whitespace seen, not yet emitted
+  let suppressSpace = false // a delimiter was just emitted — no space before next token
+  const n = css.length
+
+  while (i < n) {
+    const c = css[i]!
+
+    // Comments: keep /*! … */ license banners, drop the rest.
+    if (c === '/' && css[i + 1] === '*') {
+      const end = css.indexOf('*/', i + 2)
+      const stop = end === -1 ? n : end + 2
+      if (css[i + 2] === '!') out += css.slice(i, stop)
+      i = stop
+      pendingSpace = true
+      continue
+    }
+
+    // String literals: copy verbatim, whitespace and delimiters inside are significant.
+    if (c === '"' || c === "'") {
+      let j = i + 1
+      while (j < n) {
+        if (css[j] === '\\') {
+          j += 2
+          continue
+        }
+        if (css[j] === c) {
+          j++
+          break
+        }
+        j++
+      }
+      out += css.slice(i, j)
+      i = j
+      pendingSpace = false
+      suppressSpace = false
+      continue
+    }
+
+    // Delimiters: trim whitespace on both sides, never insert any.
+    if (c === '{' || c === '}' || c === ';' || c === ',' || c === ':') {
+      // Drop a trailing ";" right before "}".
+      if (c === '}' && out.endsWith(';')) out = out.slice(0, -1)
+      out = out.replace(/\s+$/, '')
+      out += c
+      pendingSpace = false
+      suppressSpace = true
+      i++
+      continue
+    }
+
+    if (/\s/.test(c)) {
+      pendingSpace = true
+      i++
+      continue
+    }
+
+    if (pendingSpace && !suppressSpace) out += ' '
+    pendingSpace = false
+    suppressSpace = false
+    out += c
+    i++
+  }
+
+  return out.trim()
 }
 /** Copy non-markdown, non-config static files (images, logos, etc.) to dist. */
 async function copyStatic(srcDir: string, destDir: string, base = ''): Promise<void> {

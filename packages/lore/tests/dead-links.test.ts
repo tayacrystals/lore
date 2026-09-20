@@ -26,7 +26,6 @@ function ctx(pages: Page[]): BuildContext {
     config: { title: 'Test', basePath: '' },
     graph,
     plugins: [],
-    components: {},
     assets: [],
   }
 }

@@ -34,7 +34,6 @@ function ctx(): BuildContext {
     config: { title: 'Test', basePath: '' },
     graph: { pages: new Map(), rootIds: [] },
     plugins: [],
-    components: {},
     assets: [],
   }
 }

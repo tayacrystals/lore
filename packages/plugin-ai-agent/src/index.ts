@@ -11,6 +11,7 @@
 
 import { compile, run } from '@mdx-js/mdx'
 import type { Asset, BuildContext, LorePlugin, Page } from '@loredocs/lore'
+import { urlWithBase } from '@loredocs/lore'
 import { mdFragment, mdJsx, mdJsxs, markdownComponentMap } from '@loredocs/plugin-mdx'
 import { buildLlmsTxt } from './llms-txt.ts'
 
@@ -42,6 +43,7 @@ export function aiAgent(options?: AiAgentOptions): LorePlugin {
     async clientAssets(ctx): Promise<Asset[]> {
       const assets: Asset[] = []
       const pages = [...ctx.graph.pages.values()]
+      const bp = ctx.config.basePath
 
       for (const page of pages) {
         if (page.hidden && !includeHidden) continue
@@ -49,7 +51,8 @@ export function aiAgent(options?: AiAgentOptions): LorePlugin {
         const mdContent = await renderPageToMarkdown(page, ctx)
         if (!mdContent) continue
 
-        // Emit .md file at page URL + .md suffix
+        // Emit .md file at page URL + .md suffix. Emitted paths stay
+        // unprefixed (like every other asset); references are basePath-prefixed.
         const mdUrl = page.url === '/' ? '/index.md' : `${page.url}.md`
         assets.push({
           id: `ai-md:${page.id}`,
@@ -82,9 +85,9 @@ export function aiAgent(options?: AiAgentOptions): LorePlugin {
       return assets
     },
 
-    transformHtml(page, html, _ctx) {
+    transformHtml(page, html, ctx) {
       if (page.hidden && !includeHidden) return html
-      const mdUrl = page.url === '/' ? '/index.md' : `${page.url}.md`
+      const mdUrl = mdUrlFor(page, ctx.config.basePath)
       const link = `  <link rel="alternate" type="text/markdown" href="${mdUrl}" />`
       return html.replace('</head>', `${link}\n</head>`)
     },
@@ -94,6 +97,11 @@ export function aiAgent(options?: AiAgentOptions): LorePlugin {
 // ---------------------------------------------------------------------------
 // Markdown page rendering
 // ---------------------------------------------------------------------------
+
+/** Public (basePath-prefixed) URL of a page's .md copy. */
+function mdUrlFor(page: Page, basePath: string): string {
+  return urlWithBase(basePath, page.url === '/' ? '/index.md' : `${page.url}.md`)
+}
 
 async function renderPageToMarkdown(page: Page, ctx: BuildContext): Promise<string | null> {
   const parts: string[] = []

@@ -118,6 +118,16 @@ Controls the theme mode:
   The user can toggle between light and dark with the theme button in the sidebar header. Their choice is persisted in `localStorage` and takes precedence over the configured theme.
 </Callout>
 
+### `lang`
+
+Document language used for `<html lang>`. Defaults to `en`.
+
+```yml
+lang: de
+```
+
+The [i18n plugin](/07-i18n) overrides this per locale automatically.
+
 ### `plugins`
 
 A list of plugins to load after the built-in defaults. Each entry is either a package name, a local file path, or an object with `name` and `options`.

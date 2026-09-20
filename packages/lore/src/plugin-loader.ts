@@ -12,11 +12,22 @@ import { aiAgent } from '@loredocs/plugin-ai-agent'
 /** Default plugins, always registered first (before user plugins). */
 export function defaultPlugins(config?: LoreConfig): LorePlugin[] {
   const plugins: LorePlugin[] = []
-  // Skip the filesystem plugin when versioning is active — the versioning
-  // plugin composes its own filesystem instances per version directory.
-  if (!config?.i18n && !config?.versioning) plugins.push(filesystem())
+  // Skip the filesystem plugin when versioning/i18n is actually configured —
+  // those plugins compose their own filesystem instances. A config key with no
+  // usable payload (e.g. `versioning: {}`) does not count as active.
+  if (!i18nActive(config) && !versioningActive(config)) plugins.push(filesystem())
   plugins.push(collections(), mdx(), deadLinks(), search(), expressiveCode(), components(), aiAgent())
   return plugins
+}
+
+function i18nActive(config?: LoreConfig): boolean {
+  const raw = config?.i18n as { locales?: unknown } | undefined
+  return Array.isArray(raw?.locales)
+}
+
+function versioningActive(config?: LoreConfig): boolean {
+  const raw = config?.versioning as { versions?: unknown } | undefined
+  return Array.isArray(raw?.versions)
 }
 
 /**

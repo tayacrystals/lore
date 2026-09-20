@@ -14,12 +14,25 @@ import type { BuildContext, Page } from './types.ts'
  *   3. Run every `transformHtml` hook in order.
  */
 export async function renderPageHtml(page: Page, ctx: BuildContext): Promise<string> {
-  const bodyHtml = await resolveBody(page, ctx)
+  const bodyHtml = prefixBodyUrls(await resolveBody(page, ctx), ctx.config.basePath)
   let html = renderDocument({ ctx, page, bodyHtml })
   for (const plugin of ctx.plugins) {
     if (plugin.transformHtml) html = await plugin.transformHtml(page, html, ctx)
   }
   return html
+}
+
+/**
+ * Prefix root-relative URLs in the rendered body with the site basePath.
+ * The chrome (sidebar, pager, …) is prefixed in Layout; body HTML is not —
+ * without this, every markdown link breaks under sub-path hosting.
+ * Applied to body only, so already-prefixed chrome links are never touched.
+ */
+function prefixBodyUrls(html: string, basePath: string): string {
+  if (!basePath) return html
+  // Match href/src/poster attributes starting with exactly one slash
+  // (skips protocol-relative `//host`, hash anchors, and relative paths).
+  return html.replace(/(\s(?:href|src|poster)=")\/(?!\/)/g, `$1${basePath}/`)
 }
 
 async function resolveBody(page: Page, ctx: BuildContext): Promise<string> {

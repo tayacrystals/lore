@@ -25,11 +25,15 @@ export interface ExpressiveCodeOptions {
  *
  * ```yml
  * plugins:
- *   - name: lore:expressive-code
+ *   - name: "@loredocs/plugin-expressive-code"
  *     options:
  *       theme: github-light
  *       lineNumbers: true
  * ```
+ *
+ * Note: the plugin also runs as an unconfigured default, so listing it in
+ * `plugins` currently creates a second instance (see TODO.md — configuring
+ * default plugins needs a decision). Pass options programmatically instead.
  */
 export function expressiveCode(options?: ExpressiveCodeOptions): LorePlugin {
   const plugins = []

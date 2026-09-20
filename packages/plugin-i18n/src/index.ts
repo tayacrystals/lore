@@ -178,9 +178,9 @@ export function i18n(options?: I18nOptions): LorePlugin {
         `$1${sidebarHtml}$3`,
       )
 
-      // Replace the existing lang attribute (Layout emits lang="en")
+      // Replace the document language attribute (Layout emits config.lang, default "en")
       result = result.replace(
-        /lang="en"/,
+        /lang="[^"]*"/,
         `lang="${detected.code}" data-locale="${detected.code}"`,
       )
 

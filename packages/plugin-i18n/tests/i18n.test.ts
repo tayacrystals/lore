@@ -35,7 +35,6 @@ function ctx(config: Record<string, unknown>): BuildContext {
     config: { title: 'Test', basePath: '', ...config },
     graph: { pages: new Map(), rootIds: [] },
     plugins: [],
-    components: {},
     assets: [],
   }
 }

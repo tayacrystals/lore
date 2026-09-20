@@ -4,7 +4,7 @@ import { linkableAssets } from '../asset.ts'
 import { urlWithBase } from '../config.ts'
 import { breadcrumbs, prevNext } from '../graph.ts'
 import type { Asset, BuildContext, Page } from '../types.ts'
-import { ArrowIcon, MenuIcon, MoonIcon, SearchIcon, SunIcon } from './icons.tsx'
+import { MenuIcon, MoonIcon, SearchIcon, SunIcon } from './icons.tsx'
 import { Sidebar } from './Sidebar.tsx'
 
 export interface LayoutProps {
@@ -30,12 +30,20 @@ function Document({ ctx, page, bodyHtml }: LayoutProps): JSX.Element {
   const themeInit =
     "(function(){try{var t=localStorage.getItem('lore-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;}catch(e){}})();"
 
-  // Speculation Rules API: prefetch internal links on hover/focus.
+  // Speculation Rules API: prefetch same-origin document links on hover/focus.
+  // `href_matches: "/*"` is a relative URL pattern — it only matches the site's
+  // own origin, so external links are never prefetched. Query-string URLs are
+  // excluded per the Speculation Rules best practices (unsafe to prefetch).
   // Chrome/Edge use this natively; Firefox/Safari ignore it gracefully.
   const speculationRules = JSON.stringify({
     prefetch: [{
       source: 'document',
-      where: { selector_matches: 'a[href]' },
+      where: {
+        and: [
+          { href_matches: '/*' },
+          { not: { href_matches: '/*\\?*' } },
+        ],
+      },
       eagerness: 'moderate',
     }],
   })
@@ -43,7 +51,7 @@ function Document({ ctx, page, bodyHtml }: LayoutProps): JSX.Element {
   const nextUrl = next ? urlWithBase(bp, next.url) : undefined
 
   return (
-    <html lang="en" data-theme="light">
+    <html lang={config.lang || 'en'} data-theme="light">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -146,11 +154,6 @@ function Document({ ctx, page, bodyHtml }: LayoutProps): JSX.Element {
           </div>
         </div>
         {scripts.map((asset) => renderScript(asset, bp))}
-
-        {/* referenced to keep the arrow icon bundled for future pager tweaks */}
-        <span style="display:none">
-          <ArrowIcon dir="left" />
-        </span>
       </body>
     </html>
   )

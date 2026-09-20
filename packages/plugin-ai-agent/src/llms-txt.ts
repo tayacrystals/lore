@@ -38,6 +38,7 @@ export function buildLlmsTxt(
   }
 
   const seen = new Set<string>()
+  const bp = ctx.config.basePath
 
   // Emit each top-level page as a section heading with its children
   for (const rootId of ctx.graph.rootIds) {
@@ -46,14 +47,14 @@ export function buildLlmsTxt(
     if (seen.has(page.id)) continue
     seen.add(page.id)
 
-    const mdUrl = page.url === '/' ? '/index.md' : `${page.url}.md`
+    const mdLink = mdLinkUrl(page.url, bp)
     const pageDesc = page.description ? `: ${page.description}` : ''
     lines.push(`## ${page.title}`)
     lines.push('')
-    lines.push(`- [${page.title}](${mdUrl})${pageDesc}`)
+    lines.push(`- [${page.title}](${mdLink})${pageDesc}`)
 
     // List children indented under the section
-    renderChildren(page.id, childrenOf, seen, lines, includeHidden, 1)
+    renderChildren(page.id, childrenOf, seen, lines, includeHidden, 1, bp)
     lines.push('')
   }
 
@@ -67,6 +68,7 @@ function renderChildren(
   lines: string[],
   includeHidden: boolean,
   depth: number,
+  basePath: string,
 ): void {
   const kids = childrenOf.get(parentId) ?? []
   for (const page of kids) {
@@ -75,10 +77,16 @@ function renderChildren(
     seen.add(page.id)
 
     const indent = '  '.repeat(depth)
-    const mdUrl = page.url === '/' ? '/index.md' : `${page.url}.md`
+    const mdLink = mdLinkUrl(page.url, basePath)
     const pageDesc = page.description ? `: ${page.description}` : ''
-    lines.push(`${indent}- [${page.title}](${mdUrl})${pageDesc}`)
+    lines.push(`${indent}- [${page.title}](${mdLink})${pageDesc}`)
 
-    renderChildren(page.id, childrenOf, seen, lines, includeHidden, depth + 1)
+    renderChildren(page.id, childrenOf, seen, lines, includeHidden, depth + 1, basePath)
   }
+}
+
+/** Link URL for a page's .md copy, basePath-prefixed for sub-path hosting. */
+function mdLinkUrl(url: string, basePath: string): string {
+  const path = url === '/' ? '/index.md' : `${url}.md`
+  return basePath ? `${basePath}${path}` : path
 }
